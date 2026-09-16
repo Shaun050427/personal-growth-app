@@ -1,0 +1,11 @@
+{
+  "name": "个人全方位成长系统",
+  "short_name": "成长系统",
+  "description": "日程、课程、训练、健康、科研、股市与每日清单",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#2563eb",
+  "lang": "zh-CN"
+}

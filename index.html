@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2563eb">
+<meta name="description" content="个人全方位成长系统：日程、课程、训练、健康、科研、股市与每日清单，多设备 GitHub 同步。">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>个人全方位成长系统 · GitHub 云同步版</title>
+<style>
+:root{
+  --bg:#f4f7fb; --card:#fff; --text:#172033; --muted:#6b7280; --line:#dfe5ee;
+  --primary:#2563eb; --soft:#eef4ff; --green:#16a34a; --orange:#ea580c; --purple:#7c3aed;
+  --cyan:#0891b2; --red:#dc2626; --gray:#64748b;
+  --course:#2563eb; --exercise:#16a34a; --research:#7c3aed; --study:#ea580c; --stock:#0891b2; --life:#64748b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:1560px;margin:auto;padding:16px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.brand h1{font-size:26px;margin:0}.brand small{color:var(--muted)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--line);background:#fff;padding:9px 12px;border-radius:10px}
+.tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.card{background:var(--card);border:1px solid #e7ebf1;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 18px rgba(15,23,42,.05)}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat{padding:14px;border:1px solid var(--line);border-radius:13px;background:#fafbfd}.stat .v{font-size:28px;font-weight:800}.stat .k{font-size:12px;color:var(--muted)}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-title h2,.section-title h3{margin:0}
+.toolbar,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 11px}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.danger{color:var(--red)}.btn.active{background:var(--soft);color:var(--primary);border-color:#bcd0ff}
+.small{font-size:12px;color:var(--muted)}.pill{font-size:12px;border-radius:999px;padding:3px 8px;background:#eef2ff}
+.hide{display:none!important}
+.week-grid{display:grid;grid-template-columns:repeat(7,minmax(165px,1fr));gap:8px;overflow:auto}
+.day-col{border:1px solid var(--line);border-radius:12px;min-height:310px;background:#fafbfd;min-width:165px}.day-head{padding:10px;border-bottom:1px solid var(--line);font-weight:700}.day-head.today{color:var(--primary)}
+.events{padding:8px}.event{border-left:4px solid var(--cat);background:#fff;border-radius:8px;padding:8px;margin-bottom:7px;box-shadow:0 1px 5px rgba(15,23,42,.07)}.event[draggable="true"]{cursor:grab}.event.dragging{opacity:.5}
+.event-time{font-size:12px;color:var(--muted)}.event-title{font-size:14px;font-weight:700;margin-top:2px}.event-note{font-size:12px;color:var(--muted);white-space:pre-wrap;margin-top:3px}
+.day-layout{display:grid;grid-template-columns:72px 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden}.time-label{height:54px;border-bottom:1px solid var(--line);padding:4px 7px;font-size:12px;color:var(--muted);background:#fafbfd}.timeline{position:relative;min-height:972px;background:repeating-linear-gradient(to bottom,#fff 0,#fff 53px,#e5e7eb 54px)}.timeline-event{position:absolute;left:8px;right:8px;border-left:5px solid var(--cat);background:#fff;border-radius:8px;padding:5px 8px;box-shadow:0 2px 7px rgba(15,23,42,.12);overflow:hidden}
+.checklist-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.check-group{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafbfd}.check-group h3{margin:0 0 8px;font-size:15px}.check-item{display:flex;gap:9px;align-items:flex-start;padding:8px 4px;border-bottom:1px dashed #e2e8f0}.check-item:last-child{border-bottom:0}.check-item input{margin-top:3px;transform:scale(1.15)}.check-name{font-size:14px;font-weight:600}.check-note{font-size:12px;color:var(--muted);margin-top:2px}.done .check-name{text-decoration:line-through;color:#94a3b8}
+.progress{height:9px;background:#e5e7eb;border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--primary);width:0}
+table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--line);padding:9px;text-align:left;font-size:13px;vertical-align:top}th{color:var(--muted);font-weight:600}.table-wrap{overflow:auto}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:99}.modal.open{display:flex}.modal-card{width:min(720px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:16px;padding:18px}.modal-card h3{margin-top:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}label{font-size:13px;font-weight:700}input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:9px;background:#fff}textarea{min-height:80px;resize:vertical}
+.weekdays{display:flex;gap:5px;flex-wrap:wrap}.weekdays label{font-weight:500;border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.module{display:none}.module.active{display:block}
+.kpi-row{display:flex;gap:6px;flex-wrap:wrap}.kpi{padding:6px 9px;border-radius:9px;background:#f3f4f6;font-size:12px}
+.exercise-entry{display:grid;grid-template-columns:2fr repeat(3,1fr) auto;gap:6px;margin-bottom:7px}.exercise-entry input{min-width:0}
+.note-box{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px}
+.storage{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:10px;font-size:13px;color:#475569}
+.sync-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:#fff;font-size:12px;font-weight:700}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}.sync-badge[data-tone="ok"] .sync-dot{background:#16a34a}.sync-badge[data-tone="busy"] .sync-dot{background:#2563eb;animation:pulse 1s infinite}.sync-badge[data-tone="warn"] .sync-dot{background:#ea580c}.sync-badge[data-tone="error"] .sync-dot{background:#dc2626}
+.sync-help{padding:10px 12px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:12px;line-height:1.65}.secret-note{padding:9px 11px;border-radius:9px;background:#fff7ed;color:#9a3412;font-size:12px;line-height:1.6}
+.history-list{display:grid;gap:8px}.history-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:10px}.history-message{font-weight:700}.history-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.conflict-box{border:1px solid #fecaca;background:#fff1f2;border-radius:12px;padding:12px;color:#991b1b;line-height:1.6}
+@keyframes pulse{50%{opacity:.35}}
+@media(max-width:920px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.g4,.g3,.g2,.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.app{padding:10px}.exercise-entry{grid-template-columns:1fr 1fr}.exercise-entry button{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <h1>个人全方位成长系统</h1>
+      <small>V2 全功能保留 · GitHub 多设备同步版</small>
+    </div>
+    <div class="toolbar">
+      <span class="sync-badge" id="syncBadge" data-tone="idle"><span class="sync-dot"></span><span id="syncText">GitHub 未配置</span></span>
+      <button class="btn" id="syncNowBtn">立即同步</button>
+      <button class="btn" id="historyBtn">版本回溯</button>
+      <button class="btn" id="syncSettingsBtn">同步设置</button>
+      <button class="btn" id="persistBtn">持久存储</button>
+      <button class="btn" id="exportBtn">导出备份</button>
+      <label class="btn">导入备份<input id="importFile" type="file" accept="application/json" hidden></label>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="home">首页</button>
+    <button class="tab" data-tab="schedule">时间表</button>
+    <button class="tab" data-tab="courses">课程库</button>
+    <button class="tab" data-tab="training">训练</button>
+    <button class="tab" data-tab="body">身体数据</button>
+    <button class="tab" data-tab="research">科研</button>
+    <button class="tab" data-tab="stock">股市</button>
+    <button class="tab" data-tab="checklist">每日清单</button>
+  </div>
+
+  <!-- HOME -->
+  <section class="module active" id="home">
+    <div class="grid g4" id="homeStats"></div>
+    <div class="card">
+      <div class="section-title">
+        <div><h2>今日时间安排</h2><div class="small">课程库中的课程会自动进入时间表</div></div>
+        <button class="btn primary" onclick="switchTab('schedule')">打开时间表</button>
+      </div>
+      <div id="homeAgenda"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">
+        <div><h2>今日必做</h2><div class="small">模板修改后自动同步到对应日期</div></div>
+        <button class="btn" onclick="switchTab('checklist')">管理清单</button>
+      </div>
+      <div class="progress"><div id="homeProgress"></div></div>
+      <div id="homeChecklist" class="checklist-wrap" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- SCHEDULE -->
+  <section class="module" id="schedule">
+    <div class="card">
+      <div class="section-title">
+        <div><h2>时间表</h2><div class="small">双击日期列新增；一次性事项可直接拖到其他日期</div></div>
+        <div class="toolbar">
+          <button class="btn" id="prevBtn">←</button><button class="btn" id="todayBtn">今天</button><button class="btn" id="nextBtn">→</button>
+          <button class="btn active" id="weekViewBtn">周程表</button><button class="btn" id="dayViewBtn">日程表</button>
+          <button class="btn primary" id="addEventBtn">+ 新建时间段</button>
+        </div>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-bottom:10px"><b id="dateTitle"></b><span class="small">课程=蓝 · 锻炼=绿 · 科研=紫 · 自习=橙 · 股市=青</span></div>
+      <div id="weekView"></div><div id="dayView" class="hide"></div>
+    </div>
+  </section>
+
+  <!-- COURSES -->
+  <section class="module" id="courses">
+    <div class="card">
+      <div class="section-title"><div><h2>大二课程库</h2><div class="small">录入一次课程信息，按星期和周次自动出现在时间表</div></div><button class="btn primary" id="addCourseBtn">+ 添加课程</button></div>
+      <div class="table-wrap"><table><thead><tr><th>课程</th><th>星期</th><th>时间</th><th>地点</th><th>周次</th><th>操作</th></tr></thead><tbody id="courseTable"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- TRAINING -->
+  <section class="module" id="training">
+    <div class="grid g3" id="trainingStats"></div>
+    <div class="card">
+      <div class="section-title"><div><h2>训练日志</h2><div class="small">记录动作、重量、次数、组数；系统会展示最近一次表现方便渐进超负荷</div></div><button class="btn primary" id="addTrainingBtn">+ 新建训练</button></div>
+      <div class="table-wrap"><table><thead><tr><th>日期</th><th>部位</th><th>训练内容</th><th>总训练量</th><th>操作</th></tr></thead><tbody id="trainingTable"></tbody></table></div>
+    </div>
+    <div class="card">
+      <h3>动作最近表现</h3>
+      <div id="exercisePR" class="grid g3" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- BODY -->
+  <section class="module" id="body">
+    <div class="card">
+      <div class="section-title"><div><h2>身体数据 Dashboard</h2><div class="small">体重、腰围、胸围、臂围、大腿围、睡眠、静息心率</div></div><button class="btn primary" id="addBodyBtn">+ 记录今天</button></div>
+      <div class="grid g4" id="bodyLatest"></div>
+    </div>
+    <div class="card">
+      <div class="section-title"><h3>体重趋势</h3><select id="bodyChartMetric"><option value="weight">体重 kg</option><option value="waist">腰围 cm</option><option value="sleep">睡眠 h</option><option value="rhr">静息心率</option></select></div>
+      <canvas id="bodyChart" width="1200" height="300"></canvas>
+    </div>
+    <div class="card"><div class="table-wrap"><table><thead><tr><th>日期</th><th>体重</th><th>腰围</th><th>胸围</th><th>臂围</th><th>大腿围</th><th>睡眠</th><th>静息心率</th><th></th></tr></thead><tbody id="bodyTable"></tbody></table></div></div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section class="module" id="research">
+    <div class="card">
+      <div class="section-title"><div><h2>科研日报</h2><div class="small">不是只统计“坐了多久”，而是记录今天真正推进了什么</div></div><button class="btn primary" id="addResearchBtn">+ 今日科研记录</button></div>
+      <div id="researchList"></div>
+    </div>
+  </section>
+
+  <!-- STOCK -->
+  <section class="module" id="stock">
+    <div class="card">
+      <div class="section-title"><div><h2>股市行为与复盘</h2><div class="small">聚焦一手观察、交易纪律、主线和次日预案，不自动做机器评分</div></div><button class="btn primary" id="addStockBtn">+ 今日复盘</button></div>
+      <div id="stockList"></div>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="module" id="checklist">
+    <div class="card">
+      <div class="section-title">
+        <div><h2>每日必做清单</h2><div class="small">无需塞进时间表，但每天需要完成并打勾</div></div>
+        <div class="toolbar"><button class="btn" id="prevDayCheck">←</button><button class="btn" id="checkToday">今天</button><button class="btn" id="nextDayCheck">→</button><button class="btn primary" id="addTaskBtn">+ 新建清单项</button><button class="btn" id="manageTasksBtn">管理模板</button></div>
+      </div>
+      <div class="row" style="justify-content:space-between"><b id="checkDateTitle"></b><span class="pill" id="progressText"></span></div>
+      <div class="progress" style="margin-top:8px"><div id="progressBar"></div></div>
+      <div class="checklist-wrap" id="checklistWrap" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <div class="storage"><b>数据策略：</b>浏览器保留本机副本；配置后，业务数据写入你自己的私有 GitHub 数据仓库。打开页面、每 30 秒和每次保存前都会检查云端；改动停止 6 秒后自动提交。Token 只保存在当前设备，不进入仓库和 JSON 备份。</div>
+</div>
+
+<!-- EVENT MODAL -->
+<div class="modal" id="eventModal"><div class="modal-card">
+<h3 id="eventModalTitle">新建时间段</h3>
+<div class="form-grid">
+<div class="field full"><label>标题</label><input id="evTitle"></div>
+<div class="field"><label>类别</label><select id="evCategory"><option value="course">课程</option><option value="exercise">锻炼</option><option value="research">科研</option><option value="study">自习</option><option value="stock">股市</option><option value="life">其他</option></select></div>
+<div class="field"><label>重复</label><select id="evRepeat"><option value="once">仅这一天</option><option value="weekly">每周重复</option></select></div>
+<div class="field" id="evDateField"><label>日期</label><input id="evDate" type="date"></div>
+<div class="field"><label>开始</label><input id="evStart" type="time" value="09:00"></div><div class="field"><label>结束</label><input id="evEnd" type="time" value="10:00"></div>
+<div class="field full hide" id="evWeekdayField"><label>每周重复日</label><div class="weekdays" id="evWeekdays"></div></div>
+<div class="field full"><label>备注</label><textarea id="evNote"></textarea></div>
+</div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn danger hide" id="deleteEventBtn">删除</button><button class="btn" data-close="eventModal">取消</button><button class="btn primary" id="saveEventBtn">保存</button></div>
+</div></div>
+
+<!-- COURSE MODAL -->
+<div class="modal" id="courseModal"><div class="modal-card">
+<h3>课程信息</h3>
+<div class="form-grid">
+<div class="field full"><label>课程名</label><input id="courseName"></div>
+<div class="field"><label>星期</label><select id="courseWeekday"></select></div>
+<div class="field"><label>地点</label><input id="courseLocation"></div>
+<div class="field"><label>开始</label><input id="courseStart" type="time"></div><div class="field"><label>结束</label><input id="courseEnd" type="time"></div>
+<div class="field"><label>学期第一周周一</label><input id="semesterStart" type="date"></div>
+<div class="field"><label>起止周</label><div class="row"><input id="weekFrom" type="number" min="1" value="1" style="width:90px"><span>至</span><input id="weekTo" type="number" min="1" value="18" style="width:90px"></div></div>
+<div class="field full"><label>备注</label><textarea id="courseNote"></textarea></div>
+</div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="courseModal">取消</button><button class="btn primary" id="saveCourseBtn">保存</button></div>
+</div></div>
+
+<!-- TASK MODAL -->
+<div class="modal" id="taskModal"><div class="modal-card">
+<h3 id="taskModalTitle">新建清单项</h3>
+<div class="form-grid">
+<div class="field full"><label>事项</label><input id="taskName"></div>
+<div class="field"><label>分组</label><select id="taskGroup"><option>锻炼</option><option>眼睛保护</option><option>营养</option><option>股市行为</option><option>学习/科研</option><option>其他</option></select></div>
+<div class="field"><label>频率</label><select id="taskFreq"><option value="daily">每天</option><option value="weekly">指定星期</option></select></div>
+<div class="field full hide" id="taskWeekdayField"><label>指定星期</label><div class="weekdays" id="taskWeekdays"></div></div>
+<div class="field full"><label>说明 / 目标</label><textarea id="taskNote"></textarea></div>
+</div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="taskModal">取消</button><button class="btn primary" id="saveTaskBtn">保存</button></div>
+</div></div>
+
+<!-- MANAGE TASK -->
+<div class="modal" id="manageModal"><div class="modal-card" style="width:min(900px,100%)"><h3>管理清单模板</h3><div class="table-wrap"><table><thead><tr><th>分组</th><th>事项</th><th>频率</th><th>操作</th></tr></thead><tbody id="taskTableBody"></tbody></table></div><div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="manageModal">关闭</button></div></div></div>
+
+<!-- TRAINING MODAL -->
+<div class="modal" id="trainingModal"><div class="modal-card" style="width:min(850px,100%)">
+<h3>训练日志</h3>
+<div class="form-grid">
+<div class="field"><label>日期</label><input id="trDate" type="date"></div>
+<div class="field"><label>部位</label><select id="trPart"><option>肩</option><option>背</option><option>胸</option><option>腰腹</option><option>腿</option><option>全身/体能</option></select></div>
+<div class="field full"><label>动作记录</label><div id="exerciseRows"></div><button class="btn" id="addExerciseRow" type="button">+ 添加动作</button></div>
+<div class="field full"><label>感受 / RPE / 备注</label><textarea id="trNote"></textarea></div>
+</div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="trainingModal">取消</button><button class="btn primary" id="saveTrainingBtn">保存</button></div>
+</div></div>
+
+<!-- BODY MODAL -->
+<div class="modal" id="bodyModal"><div class="modal-card">
+<h3>身体数据</h3>
+<div class="form-grid">
+<div class="field"><label>日期</label><input id="bdDate" type="date"></div><div class="field"><label>体重 kg</label><input id="bdWeight" type="number" step=".1"></div>
+<div class="field"><label>腰围 cm</label><input id="bdWaist" type="number" step=".1"></div><div class="field"><label>胸围 cm</label><input id="bdChest" type="number" step=".1"></div>
+<div class="field"><label>臂围 cm</label><input id="bdArm" type="number" step=".1"></div><div class="field"><label>大腿围 cm</label><input id="bdThigh" type="number" step=".1"></div>
+<div class="field"><label>睡眠 h</label><input id="bdSleep" type="number" step=".1"></div><div class="field"><label>静息心率</label><input id="bdRhr" type="number"></div>
+<div class="field full"><label>备注</label><textarea id="bdNote"></textarea></div>
+</div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="bodyModal">取消</button><button class="btn primary" id="saveBodyBtn">保存</button></div>
+</div></div>
+
+<!-- RESEARCH MODAL -->
+<div class="modal" id="researchModal"><div class="modal-card">
+<h3>科研日报</h3>
+<div class="form-grid">
+<div class="field"><label>日期</label><input id="rsDate" type="date"></div><div class="field"><label>投入时间（小时）</label><input id="rsHours" type="number" step=".25"></div>
+<div class="field full"><label>今日目标</label><textarea id="rsGoal"></textarea></div>
+<div class="field full"><label>实际推进</label><textarea id="rsOutput"></textarea></div>
+<div class="field full"><label>问题 / 卡点</label><textarea id="rsBlock"></textarea></div>
+<div class="field full"><label>下一步</label><textarea id="rsNext"></textarea></div>
+</div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="researchModal">取消</button><button class="btn primary" id="saveResearchBtn">保存</button></div>
+</div></div>
+
+<!-- STOCK MODAL -->
+<div class="modal" id="stockModal"><div class="modal-card">
+<h3>股市复盘</h3>
+<div class="form-grid">
+<div class="field"><label>日期</label><input id="stDate" type="date"></div><div class="field"><label>仓位 %</label><input id="stPosition" type="number" min="0" max="100"></div>
+<div class="field full"><label>市场一手观察</label><textarea id="stMarket" placeholder="指数、成交额、涨跌停、竞价、连板梯队等"></textarea></div>
+<div class="field full"><label>主线 / 板块 / 龙头</label><textarea id="stTheme"></textarea></div>
+<div class="field full"><label>今日交易与理由</label><textarea id="stTrades"></textarea></div>
+<div class="field full"><label>纪律问题</label><textarea id="stDiscipline"></textarea></div>
+<div class="field full"><label>明日预案</label><textarea id="stPlan"></textarea></div>
+</div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="stockModal">取消</button><button class="btn primary" id="saveStockBtn">保存</button></div>
+</div></div>
+
+<!-- GITHUB SYNC SETTINGS -->
+<div class="modal" id="syncSettingsModal"><div class="modal-card">
+<h3>GitHub 同步设置</h3>
+<div class="sync-help">程序放在公开仓库 <b>personal-growth-app</b>；私人数据放在私有仓库 <b>personal-growth-data</b>。这里填写的数据仓库信息仅保存在当前设备。</div>
+<div class="form-grid" style="margin-top:12px">
+  <div class="field"><label>GitHub 用户名</label><input id="syncOwner" autocomplete="username" placeholder="Shaun050427"></div>
+  <div class="field"><label>私有数据仓库</label><input id="syncRepo" placeholder="personal-growth-data"></div>
+  <div class="field"><label>分支</label><input id="syncBranch" placeholder="main"></div>
+  <div class="field"><label>数据文件路径</label><input id="syncPath" placeholder="data/personal-growth.json"></div>
+  <div class="field full"><label>Fine-grained personal access token</label><input id="syncToken" type="password" autocomplete="off" placeholder="github_pat_..."></div>
+</div>
+<div class="secret-note" style="margin-top:12px">Token 不是 GitHub 密码。只授权 <b>personal-growth-data</b> 一个仓库，并只开启 Contents: Read and write。不要把 Token 写进代码、截图或提交到仓库。</div>
+<div class="toolbar" style="justify-content:space-between;margin-top:14px">
+  <button class="btn danger" id="removeTokenBtn">移除此设备 Token</button>
+  <div class="toolbar"><button class="btn" data-close="syncSettingsModal">取消</button><button class="btn primary" id="saveSyncSettingsBtn">保存并连接</button></div>
+</div>
+</div></div>
+
+<!-- VERSION HISTORY -->
+<div class="modal" id="historyModal"><div class="modal-card" style="width:min(860px,100%)">
+<div class="section-title"><div><h3>GitHub 版本回溯</h3><div class="small">最近 40 个数据版本；恢复会创建新提交，不会删除旧历史</div></div><button class="btn" id="refreshHistoryBtn">刷新</button></div>
+<div id="historyList" class="history-list"><div class="small">尚未读取</div></div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="historyModal">关闭</button></div>
+</div></div>
+
+<!-- CONFLICT -->
+<div class="modal" id="conflictModal"><div class="modal-card">
+<h3>检测到多设备修改冲突</h3>
+<div class="conflict-box">云端版本在本机上次同步后已被另一台设备更新。系统没有覆盖任何一边，请明确选择要保留的版本。GitHub 历史仍可回溯。</div>
+<div id="conflictDetail" class="small" style="margin-top:10px"></div>
+<div class="toolbar" style="margin-top:14px">
+  <button class="btn" id="downloadConflictBackupBtn">先下载本机备份</button>
+  <button class="btn" id="acceptRemoteBtn">采用云端版本</button>
+  <button class="btn danger" id="keepLocalBtn">保留本机并提交新版本</button>
+</div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="conflictModal">暂不处理</button></div>
+</div></div>
+
+<script>
+const KEY='personalPlanner_v2';
+const SYNC_CONFIG_KEY='personalGrowthGithubSync_v1';
+const SYNC_META_KEY='personalGrowthGithubMeta_v1';
+const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[]};
+const weekdaysCN=['周日','周一','周二','周三','周四','周五','周六'];
+const cats={course:'var(--course)',exercise:'var(--exercise)',research:'var(--research)',study:'var(--study)',stock:'var(--stock)',life:'var(--life)'};
+let currentDate=new Date(),checkDate=new Date(),viewMode='week',editingEventId=null,editingTaskId=null,editingCourseId=null,localDataExisted=false;
+const syncState={baseSha:null,dirty:false,busy:false,timer:null,conflict:null,lastSync:null};
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function fmtDate(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
+function parseDate(s){const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function startOfWeek(d){const x=new Date(d);const day=x.getDay();x.setDate(x.getDate()+(day===0?-6:1-day));x.setHours(0,0,0,0);return x}
+function sameDate(a,b){return fmtDate(a)===fmtDate(b)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function dataHash(data=DB){let h=2166136261,s=JSON.stringify(data);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
+function getSyncConfig(){try{return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:'',...JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY)||'{}')}}catch(e){return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:''}}}
+function getSyncMeta(){try{return JSON.parse(localStorage.getItem(SYNC_META_KEY)||'{}')}catch(e){return{}}}
+function repoKey(c=getSyncConfig()){return `${c.owner}/${c.repo}/${c.branch}/${c.path}`}
+function isSyncConfigured(){const c=getSyncConfig();return !!(c.owner&&c.repo&&c.branch&&c.path&&c.token)}
+function setSyncStatus(text,tone='idle'){syncText.textContent=text;syncBadge.dataset.tone=tone;syncBadge.title=syncState.lastSync?`上次同步：${syncState.lastSync.toLocaleString('zh-CN')}`:''}
+function save(options={}){localStorage.setItem(KEY,JSON.stringify(DB));if(options.sync===false)return;syncState.dirty=true;setSyncStatus(isSyncConfigured()?'本机有未同步更改':'仅保存在本机',isSyncConfigured()?'warn':'idle');scheduleCloudSync()}
+function load(){
+  const raw=localStorage.getItem(KEY);
+  if(raw){try{Object.assign(DB,JSON.parse(raw));localDataExisted=true}catch(e){}}
+  else{
+    const v1=localStorage.getItem('personalPlanner_v1');
+    if(v1){try{const x=JSON.parse(v1);DB.events=x.events||[];DB.tasks=x.tasks||[];DB.done=x.done||{};localDataExisted=true}catch(e){}}
+  }
+  if(!DB.tasks.length)seedTasks();
+}
+function seedTasks(){
+  DB.tasks=[
+    {id:uid(),name:'20-20-20 护眼',group:'眼睛保护',freq:'daily',weekdays:[],note:'每20分钟远眺20秒，看约6米以外'},
+    {id:uid(),name:'完整眨眼 + 颈肩放松',group:'眼睛保护',freq:'daily',weekdays:[],note:'每小时至少1轮'},
+    {id:uid(),name:'蛋白质目标',group:'营养',freq:'daily',weekdays:[],note:'按训练阶段填写每日克数目标'},
+    {id:uid(),name:'蔬菜 + 水果',group:'营养',freq:'daily',weekdays:[],note:'完成当天蔬果摄入'},
+    {id:uid(),name:'饮水目标',group:'营养',freq:'daily',weekdays:[],note:'按训练和出汗量调整'},
+    {id:uid(),name:'训练/恢复完成',group:'锻炼',freq:'daily',weekdays:[],note:'训练日完成训练；恢复日完成步行和拉伸'},
+    {id:uid(),name:'股市纪律检查',group:'股市行为',freq:'weekly',weekdays:[1,2,3,4,5],note:'按预案行动，不临时放大仓位'},
+    {id:uid(),name:'科研最小推进',group:'学习/科研',freq:'daily',weekdays:[],note:'哪怕很忙，也完成一个最小可验证输出'}
+  ];save({sync:false})
+}
+
+function utf8ToBase64(text){const bytes=new TextEncoder().encode(text);let binary='';for(let i=0;i<bytes.length;i+=32768)binary+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(binary)}
+function base64ToUtf8(value){const binary=atob(String(value||'').replace(/\s/g,'')),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return new TextDecoder().decode(bytes)}
+function encodeRepoPath(path){return path.split('/').filter(Boolean).map(encodeURIComponent).join('/')}
+function extractData(payload){const data=payload?.data||payload;if(!data||!Array.isArray(data.events)||!Array.isArray(data.tasks)||!data.done||!Array.isArray(data.courses)||!Array.isArray(data.training)||!Array.isArray(data.body)||!Array.isArray(data.research)||!Array.isArray(data.stock))throw Error('云端数据格式不正确');return data}
+function replaceDB(data){const d=extractData(data);DB.version=2;['events','tasks','courses','training','body','research','stock'].forEach(k=>DB[k]=Array.isArray(d[k])?d[k]:[]);DB.done=d.done&&typeof d.done==='object'?d.done:{};localStorage.setItem(KEY,JSON.stringify(DB));localDataExisted=true;renderAll()}
+function updateSyncMeta(sha){const c=getSyncConfig(),meta={repoKey:repoKey(c),sha,dataHash:dataHash(),syncedAt:new Date().toISOString()};localStorage.setItem(SYNC_META_KEY,JSON.stringify(meta));syncState.baseSha=sha;syncState.dirty=false;syncState.lastSync=new Date();setSyncStatus('已同步','ok')}
+function remotePayload(){return{schemaVersion:2,updatedAt:new Date().toISOString(),source:'personal-growth-app',data:DB}}
+
+async function githubRequest(route,options={}){
+  const c=getSyncConfig();
+  if(!c.token)throw Error('请先配置当前设备的 GitHub Token');
+  const response=await fetch(`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/${route}`,{
+    ...options,
+    headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${c.token}`,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json',...(options.headers||{})}
+  });
+  let body=null;try{body=await response.json()}catch(e){}
+  if(!response.ok){const error=Error(body?.message||`GitHub 请求失败（${response.status}）`);error.status=response.status;error.body=body;throw error}
+  return body;
+}
+async function readRemote(ref=getSyncConfig().branch){
+  const c=getSyncConfig(),route=`contents/${encodeRepoPath(c.path)}?ref=${encodeURIComponent(ref)}`;
+  try{const file=await githubRequest(route);const payload=JSON.parse(base64ToUtf8(file.content));return{sha:file.sha,payload,data:extractData(payload),updatedAt:payload.updatedAt||null}}
+  catch(error){if(error.status===404)return null;throw error}
+}
+async function commitCurrent(remote,message){
+  const c=getSyncConfig(),body={message:message||`sync: ${new Date().toLocaleString('zh-CN',{hour12:false})}`,content:utf8ToBase64(JSON.stringify(remotePayload(),null,2)),branch:c.branch};
+  if(remote?.sha)body.sha=remote.sha;
+  const result=await githubRequest(`contents/${encodeRepoPath(c.path)}`,{method:'PUT',body:JSON.stringify(body)});
+  updateSyncMeta(result.content?.sha||result.commit?.sha||remote?.sha||null);
+  return result;
+}
+function showConflict(remote){syncState.conflict=remote;setSyncStatus('冲突待处理','error');const when=remote?.updatedAt?new Date(remote.updatedAt).toLocaleString('zh-CN'):'时间未知';conflictDetail.textContent=`云端更新时间：${when}；本机改动尚未上传。`;openModal('conflictModal')}
+function syncError(error){console.error(error);let text=error.message||'同步失败';if(error.status===401)text='Token 无效或已过期';else if(error.status===403)text='Token 权限不足或达到 API 限制';else if(error.status===404)text='找不到数据仓库、分支或路径';else if(error.status===409)text='云端刚被其他设备更新，请重新同步';setSyncStatus(text,'error')}
+async function syncNow(options={}){
+  if(!isSyncConfigured()){setSyncStatus('GitHub 未配置','idle');if(!options.quiet)openSyncSettings();return}
+  if(syncState.busy)return;
+  syncState.busy=true;setSyncStatus('正在检查云端…','busy');
+  try{
+    const remote=await readRemote();
+    if(!remote){await commitCurrent(null,'init: 创建个人成长数据');return}
+    const localHash=dataHash(),remoteHash=dataHash(remote.data);
+    if(syncState.dirty){
+      if(syncState.baseSha&&remote.sha!==syncState.baseSha){if(remoteHash===localHash)updateSyncMeta(remote.sha);else showConflict(remote);return}
+      if(!syncState.baseSha){if(remoteHash===localHash)updateSyncMeta(remote.sha);else showConflict(remote);return}
+      await commitCurrent(remote);return;
+    }
+    if(remote.sha!==syncState.baseSha||remoteHash!==localHash){replaceDB(remote.data);updateSyncMeta(remote.sha)}else updateSyncMeta(remote.sha);
+  }catch(error){syncError(error)}finally{syncState.busy=false}
+}
+function scheduleCloudSync(){clearTimeout(syncState.timer);if(isSyncConfigured())syncState.timer=setTimeout(()=>syncNow({quiet:true}),6000)}
+function initialiseSync(){
+  if(!isSyncConfigured()){setSyncStatus('GitHub 未配置','idle');return}
+  const meta=getSyncMeta();
+  if(meta.repoKey===repoKey()){syncState.baseSha=meta.sha||null;syncState.dirty=dataHash()!==meta.dataHash}else{syncState.baseSha=null;syncState.dirty=syncState.dirty||localDataExisted}
+  syncNow({quiet:true});
+}
+function openSyncSettings(){const c=getSyncConfig();syncOwner.value=c.owner;syncRepo.value=c.repo;syncBranch.value=c.branch;syncPath.value=c.path;syncToken.value=c.token;openModal('syncSettingsModal')}
+async function loadHistory(){
+  if(!isSyncConfigured()){historyList.innerHTML='<div class="small">请先配置 GitHub 同步。</div>';return}
+  historyList.innerHTML='<div class="small">正在读取最近版本…</div>';
+  try{const c=getSyncConfig(),items=await githubRequest(`commits?path=${encodeURIComponent(c.path)}&sha=${encodeURIComponent(c.branch)}&per_page=40`);historyList.innerHTML=items.length?'':'<div class="small">暂无版本记录</div>';items.forEach(item=>{const row=document.createElement('div');row.className='history-item';const date=new Date(item.commit.author.date).toLocaleString('zh-CN');row.innerHTML=`<div><div class="history-message">${esc(item.commit.message)}</div><div class="history-meta">${date} · ${esc(item.sha.slice(0,7))}</div></div><button class="btn">恢复此版</button>`;row.querySelector('button').onclick=()=>restoreVersion(item.sha,date);historyList.appendChild(row)})}catch(error){historyList.innerHTML=`<div class="small" style="color:var(--red)">${esc(error.message)}</div>`;syncError(error)}
+}
+async function restoreVersion(commitSha,dateLabel){
+  if(!confirm(`确定恢复 ${dateLabel} 的数据？当前版本不会被删除，恢复操作会创建一个新提交。`))return;
+  if(syncState.busy)return;syncState.busy=true;setSyncStatus('正在恢复版本…','busy');
+  try{const old=await readRemote(commitSha);if(!old)throw Error('该历史版本中没有数据文件');const current=await readRemote();replaceDB(old.data);syncState.dirty=true;syncState.baseSha=current?.sha||null;await commitCurrent(current,`restore: 恢复 ${commitSha.slice(0,7)} 版本`);closeModal('historyModal');alert('历史版本已恢复，并已作为新版本提交。')}catch(error){syncError(error);alert('恢复失败：'+error.message)}finally{syncState.busy=false}
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
+function switchTab(id){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));document.querySelectorAll('.module').forEach(x=>x.classList.toggle('active',x.id===id));renderAll()}
+document.querySelectorAll('.tab').forEach(x=>x.onclick=()=>switchTab(x.dataset.tab));
+
+function renderWeekdays(id,prefix){const c=document.getElementById(id);c.innerHTML='';[1,2,3,4,5,6,0].forEach(i=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" id="${prefix+i}" value="${i}">${weekdaysCN[i]}`;c.appendChild(l)})}
+renderWeekdays('evWeekdays','evwd');renderWeekdays('taskWeekdays','twd');
+courseWeekday.innerHTML=[1,2,3,4,5,6,0].map(i=>`<option value="${i}">${weekdaysCN[i]}</option>`).join('');
+
+function courseOccursOn(c,date){
+  const start=parseDate(c.semesterStart);const diff=Math.floor((startOfWeek(date)-startOfWeek(start))/(7*86400000))+1;
+  return date.getDay()===Number(c.weekday)&&diff>=Number(c.weekFrom)&&diff<=Number(c.weekTo);
+}
+function eventOccursOn(ev,date){return ev.repeat==='once'?ev.date===fmtDate(date):(ev.weekdays||[]).includes(date.getDay())}
+function getEventsForDate(date){
+  const arr=DB.events.filter(e=>eventOccursOn(e,date)).map(e=>({...e,source:'event'}));
+  DB.courses.filter(c=>courseOccursOn(c,date)).forEach(c=>arr.push({id:'course:'+c.id,title:c.name,category:'course',start:c.start,end:c.end,note:[c.location,c.note].filter(Boolean).join(' · '),source:'course'}));
+  return arr.sort((a,b)=>a.start.localeCompare(b.start))
+}
+function taskOccursOn(t,date){return t.freq==='daily'||(t.weekdays||[]).includes(date.getDay())}
+
+function renderSchedule(){
+  if(viewMode==='week'){
+    const s=startOfWeek(currentDate),e=addDays(s,6);dateTitle.textContent=`${s.getFullYear()}年${s.getMonth()+1}月${s.getDate()}日 — ${e.getMonth()+1}月${e.getDate()}日`;
+    weekView.classList.remove('hide');dayView.classList.add('hide');weekViewBtn.classList.add('active');dayViewBtn.classList.remove('active');
+    weekView.innerHTML='<div class="week-grid" id="weekGrid"></div>';const grid=document.getElementById('weekGrid');
+    for(let i=0;i<7;i++){const d=addDays(s,i);const col=document.createElement('div');col.className='day-col';col.dataset.date=fmtDate(d);
+      col.innerHTML=`<div class="day-head ${sameDate(d,new Date())?'today':''}">${['一','二','三','四','五','六','日'][i]} · ${d.getMonth()+1}/${d.getDate()}</div><div class="events"></div>`;
+      const ee=col.querySelector('.events');getEventsForDate(d).forEach(ev=>ee.appendChild(eventCard(ev,d)));
+      col.ondblclick=e=>{if(!e.target.closest('.event'))openNewEvent(d)};
+      col.addEventListener('dragover',e=>e.preventDefault());
+      col.addEventListener('drop',e=>{e.preventDefault();const id=e.dataTransfer.getData('text/event-id');const ev=DB.events.find(x=>x.id===id);if(ev&&ev.repeat==='once'){ev.date=col.dataset.date;save();renderSchedule();renderHome()}});
+      grid.appendChild(col)}
+  }else{
+    dateTitle.textContent=currentDate.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+    weekView.classList.add('hide');dayView.classList.remove('hide');weekViewBtn.classList.remove('active');dayViewBtn.classList.add('active');
+    const sh=6,eh=24,pph=54;dayView.innerHTML=`<div class="day-layout"><div id="labels"></div><div class="timeline" id="timeline"></div></div>`;
+    for(let h=sh;h<eh;h++){const x=document.createElement('div');x.className='time-label';x.textContent=String(h).padStart(2,'0')+':00';labels.appendChild(x)}
+    getEventsForDate(currentDate).forEach(ev=>{const[a,b]=ev.start.split(':').map(Number),[c,d]=ev.end.split(':').map(Number);const st=Math.max(sh,a+b/60),en=Math.min(eh,c+d/60);if(en<=sh||st>=eh)return;
+      const div=document.createElement('div');div.className='timeline-event';div.style.setProperty('--cat',cats[ev.category]||cats.life);div.style.top=((st-sh)*pph+2)+'px';div.style.height=Math.max(32,(en-st)*pph-4)+'px';
+      div.innerHTML=`<div class="event-time">${ev.start}–${ev.end}</div><div class="event-title">${esc(ev.title)}</div>`;if(ev.source==='event')div.onclick=()=>editEvent(ev.id);timeline.appendChild(div)})
+  }
+}
+function eventCard(ev,date){const div=document.createElement('div');div.className='event';div.style.setProperty('--cat',cats[ev.category]||cats.life);div.draggable=ev.source==='event'&&DB.events.find(x=>x.id===ev.id)?.repeat==='once';
+  div.innerHTML=`<div class="event-time">${ev.start}–${ev.end}</div><div class="event-title">${esc(ev.title)}</div>${ev.note?`<div class="event-note">${esc(ev.note)}</div>`:''}`;
+  if(ev.source==='event'){div.onclick=()=>editEvent(ev.id);div.addEventListener('dragstart',e=>{div.classList.add('dragging');e.dataTransfer.setData('text/event-id',ev.id)});div.addEventListener('dragend',()=>div.classList.remove('dragging'))}
+  return div}
+function openNewEvent(date=currentDate){editingEventId=null;eventModalTitle.textContent='新建时间段';deleteEventBtn.classList.add('hide');evTitle.value='';evCategory.value='course';evRepeat.value='once';evDate.value=fmtDate(date);evStart.value='09:00';evEnd.value='10:00';evNote.value='';document.querySelectorAll('#evWeekdays input').forEach(x=>x.checked=false);toggleEventRepeat();openModal('eventModal')}
+function editEvent(id){const ev=DB.events.find(x=>x.id===id);if(!ev)return;editingEventId=id;eventModalTitle.textContent='编辑时间段';deleteEventBtn.classList.remove('hide');evTitle.value=ev.title;evCategory.value=ev.category;evRepeat.value=ev.repeat;evDate.value=ev.date||fmtDate(currentDate);evStart.value=ev.start;evEnd.value=ev.end;evNote.value=ev.note||'';document.querySelectorAll('#evWeekdays input').forEach(x=>x.checked=(ev.weekdays||[]).includes(Number(x.value)));toggleEventRepeat();openModal('eventModal')}
+function toggleEventRepeat(){const w=evRepeat.value==='weekly';evDateField.classList.toggle('hide',w);evWeekdayField.classList.toggle('hide',!w)}evRepeat.onchange=toggleEventRepeat;
+saveEventBtn.onclick=()=>{if(!evTitle.value.trim())return alert('请填写标题');if(evStart.value>=evEnd.value)return alert('结束时间必须晚于开始时间');const w=evRepeat.value==='weekly',weekdays=w?[...document.querySelectorAll('#evWeekdays input:checked')].map(x=>+x.value):[];if(w&&!weekdays.length)return alert('请选择星期');
+  const o={id:editingEventId||uid(),title:evTitle.value.trim(),category:evCategory.value,repeat:evRepeat.value,date:w?'':evDate.value,start:evStart.value,end:evEnd.value,weekdays,note:evNote.value.trim()};if(editingEventId)Object.assign(DB.events.find(x=>x.id===editingEventId),o);else DB.events.push(o);save();closeModal('eventModal');renderAll()}
+deleteEventBtn.onclick=()=>{if(editingEventId&&confirm('确定删除？')){DB.events=DB.events.filter(x=>x.id!==editingEventId);save();closeModal('eventModal');renderAll()}};
+
+function renderChecklist(targetDate=checkDate,wrap=checklistWrap,mini=false){
+  const tasks=DB.tasks.filter(t=>taskOccursOn(t,targetDate)),dk=fmtDate(targetDate);DB.done[dk]=DB.done[dk]||{};const groups=[...new Set(tasks.map(t=>t.group))];wrap.innerHTML='';let done=0;
+  groups.forEach(g=>{const box=document.createElement('div');box.className='check-group';box.innerHTML=`<h3>${esc(g)}</h3>`;tasks.filter(t=>t.group===g).forEach(t=>{const checked=!!DB.done[dk][t.id];if(checked)done++;const r=document.createElement('label');r.className='check-item'+(checked?' done':'');r.innerHTML=`<input type="checkbox" ${checked?'checked':''}><div><div class="check-name">${esc(t.name)}</div>${t.note?`<div class="check-note">${esc(t.note)}</div>`:''}</div>`;r.querySelector('input').onchange=e=>{DB.done[dk][t.id]=e.target.checked;save();renderAll()};box.appendChild(r)});wrap.appendChild(box)});
+  if(!mini){checkDateTitle.textContent=targetDate.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});const pct=tasks.length?Math.round(done/tasks.length*100):0;progressText.textContent=`已完成 ${done}/${tasks.length} · ${pct}%`;progressBar.style.width=pct+'%'}
+  return {done,total:tasks.length,pct:tasks.length?Math.round(done/tasks.length*100):0}
+}
+function openNewTask(){editingTaskId=null;taskModalTitle.textContent='新建清单项';taskName.value='';taskGroup.value='锻炼';taskFreq.value='daily';taskNote.value='';document.querySelectorAll('#taskWeekdays input').forEach(x=>x.checked=false);toggleTaskFreq();openModal('taskModal')}
+function editTask(id){const t=DB.tasks.find(x=>x.id===id);if(!t)return;editingTaskId=id;taskModalTitle.textContent='编辑清单项';taskName.value=t.name;taskGroup.value=t.group;taskFreq.value=t.freq;taskNote.value=t.note||'';document.querySelectorAll('#taskWeekdays input').forEach(x=>x.checked=(t.weekdays||[]).includes(+x.value));toggleTaskFreq();closeModal('manageModal');openModal('taskModal')}
+function toggleTaskFreq(){taskWeekdayField.classList.toggle('hide',taskFreq.value!=='weekly')}taskFreq.onchange=toggleTaskFreq;
+saveTaskBtn.onclick=()=>{if(!taskName.value.trim())return alert('请填写事项');const w=taskFreq.value==='weekly',weekdays=w?[...document.querySelectorAll('#taskWeekdays input:checked')].map(x=>+x.value):[];if(w&&!weekdays.length)return alert('请选择星期');const o={id:editingTaskId||uid(),name:taskName.value.trim(),group:taskGroup.value,freq:taskFreq.value,weekdays,note:taskNote.value.trim()};if(editingTaskId)Object.assign(DB.tasks.find(x=>x.id===editingTaskId),o);else DB.tasks.push(o);save();closeModal('taskModal');renderAll()}
+function renderTaskTable(){taskTableBody.innerHTML='';DB.tasks.forEach(t=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${esc(t.group)}</td><td><b>${esc(t.name)}</b><div class="small">${esc(t.note||'')}</div></td><td>${t.freq==='daily'?'每天':(t.weekdays||[]).map(i=>weekdaysCN[i]).join('、')}</td><td><button class="btn edit">编辑</button> <button class="btn danger del">删除</button></td>`;tr.querySelector('.edit').onclick=()=>editTask(t.id);tr.querySelector('.del').onclick=()=>{if(confirm('删除模板？')){DB.tasks=DB.tasks.filter(x=>x.id!==t.id);save();renderAll();renderTaskTable()}};taskTableBody.appendChild(tr)})}
+
+function renderCourses(){courseTable.innerHTML='';DB.courses.forEach(c=>{const tr=document.createElement('tr');tr.innerHTML=`<td><b>${esc(c.name)}</b><div class="small">${esc(c.note||'')}</div></td><td>${weekdaysCN[c.weekday]}</td><td>${c.start}–${c.end}</td><td>${esc(c.location||'')}</td><td>${c.weekFrom}–${c.weekTo}</td><td><button class="btn edit">编辑</button> <button class="btn danger del">删除</button></td>`;tr.querySelector('.edit').onclick=()=>editCourse(c.id);tr.querySelector('.del').onclick=()=>{if(confirm('删除课程？')){DB.courses=DB.courses.filter(x=>x.id!==c.id);save();renderAll()}};courseTable.appendChild(tr)})}
+function editCourse(id){editingCourseId=id;const c=DB.courses.find(x=>x.id===id);courseName.value=c.name;courseWeekday.value=c.weekday;courseLocation.value=c.location||'';courseStart.value=c.start;courseEnd.value=c.end;semesterStart.value=c.semesterStart;weekFrom.value=c.weekFrom;weekTo.value=c.weekTo;courseNote.value=c.note||'';openModal('courseModal')}
+addCourseBtn.onclick=()=>{editingCourseId=null;courseName.value='';courseWeekday.value='1';courseLocation.value='';courseStart.value='08:00';courseEnd.value='09:40';semesterStart.value=fmtDate(startOfWeek(new Date()));weekFrom.value=1;weekTo.value=18;courseNote.value='';openModal('courseModal')}
+saveCourseBtn.onclick=()=>{if(!courseName.value.trim())return alert('请填写课程名');if(courseStart.value>=courseEnd.value)return alert('结束时间需晚于开始时间');const o={id:editingCourseId||uid(),name:courseName.value.trim(),weekday:+courseWeekday.value,location:courseLocation.value.trim(),start:courseStart.value,end:courseEnd.value,semesterStart:semesterStart.value,weekFrom:+weekFrom.value,weekTo:+weekTo.value,note:courseNote.value.trim()};if(editingCourseId)Object.assign(DB.courses.find(x=>x.id===editingCourseId),o);else DB.courses.push(o);save();closeModal('courseModal');renderAll()}
+
+function addExerciseRowFn(name='',weight='',reps='',sets=''){const r=document.createElement('div');r.className='exercise-entry';r.innerHTML=`<input placeholder="动作" value="${esc(name)}"><input type="number" step=".5" placeholder="kg" value="${weight}"><input type="number" placeholder="次数" value="${reps}"><input type="number" placeholder="组数" value="${sets}"><button class="btn danger" type="button">删除</button>`;r.querySelector('button').onclick=()=>r.remove();exerciseRows.appendChild(r)}
+addExerciseRow.onclick=()=>addExerciseRowFn();
+addTrainingBtn.onclick=()=>{trDate.value=fmtDate(new Date());trPart.value='肩';trNote.value='';exerciseRows.innerHTML='';addExerciseRowFn();openModal('trainingModal')}
+saveTrainingBtn.onclick=()=>{const ex=[...exerciseRows.children].map(r=>{const i=r.querySelectorAll('input');return{name:i[0].value.trim(),weight:+i[1].value||0,reps:+i[2].value||0,sets:+i[3].value||0}}).filter(x=>x.name);if(!ex.length)return alert('至少填写一个动作');DB.training.push({id:uid(),date:trDate.value,part:trPart.value,exercises:ex,note:trNote.value.trim()});save();closeModal('trainingModal');renderAll()}
+function trainingVolume(t){return Math.round(t.exercises.reduce((s,x)=>s+x.weight*x.reps*x.sets,0))}
+function renderTraining(){trainingTable.innerHTML='';[...DB.training].sort((a,b)=>b.date.localeCompare(a.date)).forEach(t=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${t.date}</td><td>${esc(t.part)}</td><td>${t.exercises.map(x=>`${esc(x.name)} ${x.weight||'-'}kg × ${x.reps} × ${x.sets}`).join('<br>')}</td><td>${trainingVolume(t).toLocaleString()}</td><td><button class="btn danger">删除</button></td>`;tr.querySelector('button').onclick=()=>{if(confirm('删除训练记录？')){DB.training=DB.training.filter(x=>x.id!==t.id);save();renderAll()}};trainingTable.appendChild(tr)});
+  const last7=DB.training.filter(t=>(new Date()-parseDate(t.date))/86400000<=7);trainingStats.innerHTML=`<div class="stat"><div class="k">近7天训练次数</div><div class="v">${last7.length}</div></div><div class="stat"><div class="k">近7天总训练量</div><div class="v">${last7.reduce((s,t)=>s+trainingVolume(t),0).toLocaleString()}</div></div><div class="stat"><div class="k">累计训练记录</div><div class="v">${DB.training.length}</div></div>`;
+  const latest={};[...DB.training].sort((a,b)=>a.date.localeCompare(b.date)).forEach(t=>t.exercises.forEach(x=>latest[x.name]={...x,date:t.date}));exercisePR.innerHTML=Object.entries(latest).slice(-12).map(([n,x])=>`<div class="stat"><div class="k">${esc(n)}</div><div class="v" style="font-size:20px">${x.weight||'-'}kg × ${x.reps} × ${x.sets}</div><div class="small">${x.date}</div></div>`).join('')||'<div class="small">暂无记录</div>'
+}
+
+addBodyBtn.onclick=()=>{bdDate.value=fmtDate(new Date());['bdWeight','bdWaist','bdChest','bdArm','bdThigh','bdSleep','bdRhr','bdNote'].forEach(id=>document.getElementById(id).value='');openModal('bodyModal')}
+saveBodyBtn.onclick=()=>{const idx=DB.body.findIndex(x=>x.date===bdDate.value);const o={id:idx>=0?DB.body[idx].id:uid(),date:bdDate.value,weight:+bdWeight.value||null,waist:+bdWaist.value||null,chest:+bdChest.value||null,arm:+bdArm.value||null,thigh:+bdThigh.value||null,sleep:+bdSleep.value||null,rhr:+bdRhr.value||null,note:bdNote.value.trim()};if(idx>=0)DB.body[idx]=o;else DB.body.push(o);save();closeModal('bodyModal');renderAll()}
+function renderBody(){const arr=[...DB.body].sort((a,b)=>a.date.localeCompare(b.date)),latest=arr[arr.length-1]||{};bodyLatest.innerHTML=[['体重',latest.weight,'kg'],['腰围',latest.waist,'cm'],['睡眠',latest.sleep,'h'],['静息心率',latest.rhr,'']].map(x=>`<div class="stat"><div class="k">${x[0]}</div><div class="v">${x[1]??'-'}${x[1]!=null?x[2]:''}</div><div class="small">${latest.date||'暂无记录'}</div></div>`).join('');
+  bodyTable.innerHTML=[...arr].reverse().map(x=>`<tr><td>${x.date}</td><td>${x.weight??''}</td><td>${x.waist??''}</td><td>${x.chest??''}</td><td>${x.arm??''}</td><td>${x.thigh??''}</td><td>${x.sleep??''}</td><td>${x.rhr??''}</td><td><button class="btn danger" onclick="deleteBody('${x.id}')">删除</button></td></tr>`).join('');drawBodyChart()}
+function deleteBody(id){if(confirm('删除记录？')){DB.body=DB.body.filter(x=>x.id!==id);save();renderAll()}}
+bodyChartMetric.onchange=drawBodyChart;
+function drawBodyChart(){const metric=bodyChartMetric.value,canvas=bodyChart,ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);const arr=[...DB.body].sort((a,b)=>a.date.localeCompare(b.date)).filter(x=>x[metric]!=null).slice(-30);if(arr.length<1){ctx.fillText('暂无数据',30,40);return}const vals=arr.map(x=>x[metric]),min=Math.min(...vals),max=Math.max(...vals),pad=(max-min||1)*.15,lo=min-pad,hi=max+pad,w=canvas.width,h=canvas.height,m=50;ctx.strokeStyle='#dbe2ea';ctx.beginPath();ctx.moveTo(m,20);ctx.lineTo(m,h-m);ctx.lineTo(w-20,h-m);ctx.stroke();ctx.strokeStyle='#2563eb';ctx.lineWidth=3;ctx.beginPath();arr.forEach((x,i)=>{const px=m+(w-m-30)*(i/(Math.max(1,arr.length-1))),py=20+(h-m-30)*(1-(x[metric]-lo)/(hi-lo));if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py)});ctx.stroke();ctx.fillStyle='#172033';ctx.font='18px sans-serif';ctx.fillText(`最近${arr.length}条 · ${metric}`,m,20);ctx.font='14px sans-serif';arr.forEach((x,i)=>{if(i===0||i===arr.length-1){const px=m+(w-m-30)*(i/(Math.max(1,arr.length-1))),py=20+(h-m-30)*(1-(x[metric]-lo)/(hi-lo));ctx.fillText(String(x[metric]),px-10,py-8)}})}
+
+addResearchBtn.onclick=()=>{rsDate.value=fmtDate(new Date());rsHours.value='';rsGoal.value='';rsOutput.value='';rsBlock.value='';rsNext.value='';openModal('researchModal')}
+saveResearchBtn.onclick=()=>{const i=DB.research.findIndex(x=>x.date===rsDate.value);const o={id:i>=0?DB.research[i].id:uid(),date:rsDate.value,hours:+rsHours.value||0,goal:rsGoal.value.trim(),output:rsOutput.value.trim(),block:rsBlock.value.trim(),next:rsNext.value.trim()};if(i>=0)DB.research[i]=o;else DB.research.push(o);save();closeModal('researchModal');renderAll()}
+function renderResearch(){researchList.innerHTML=[...DB.research].sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<div class="card" style="margin:10px 0"><div class="row" style="justify-content:space-between"><b>${x.date}</b><span class="pill">${x.hours} h</span></div><div class="grid g2" style="margin-top:10px"><div><div class="small">目标</div><div class="note-box">${esc(x.goal)}</div></div><div><div class="small">实际推进</div><div class="note-box">${esc(x.output)}</div></div><div><div class="small">卡点</div><div class="note-box">${esc(x.block)}</div></div><div><div class="small">下一步</div><div class="note-box">${esc(x.next)}</div></div></div><div style="margin-top:8px"><button class="btn danger" onclick="deleteResearch('${x.id}')">删除</button></div></div>`).join('')||'<div class="small">暂无科研日报</div>'}
+function deleteResearch(id){if(confirm('删除科研日报？')){DB.research=DB.research.filter(x=>x.id!==id);save();renderAll()}}
+
+addStockBtn.onclick=()=>{stDate.value=fmtDate(new Date());stPosition.value='';stMarket.value='';stTheme.value='';stTrades.value='';stDiscipline.value='';stPlan.value='';openModal('stockModal')}
+saveStockBtn.onclick=()=>{const i=DB.stock.findIndex(x=>x.date===stDate.value);const o={id:i>=0?DB.stock[i].id:uid(),date:stDate.value,position:+stPosition.value||0,market:stMarket.value.trim(),theme:stTheme.value.trim(),trades:stTrades.value.trim(),discipline:stDiscipline.value.trim(),plan:stPlan.value.trim()};if(i>=0)DB.stock[i]=o;else DB.stock.push(o);save();closeModal('stockModal');renderAll()}
+function renderStock(){stockList.innerHTML=[...DB.stock].sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<div class="card" style="margin:10px 0"><div class="row" style="justify-content:space-between"><b>${x.date}</b><span class="pill">仓位 ${x.position}%</span></div><div class="grid g2" style="margin-top:10px"><div><div class="small">市场一手观察</div><div class="note-box">${esc(x.market)}</div></div><div><div class="small">主线 / 龙头</div><div class="note-box">${esc(x.theme)}</div></div><div><div class="small">交易与理由</div><div class="note-box">${esc(x.trades)}</div></div><div><div class="small">纪律问题</div><div class="note-box">${esc(x.discipline)}</div></div><div style="grid-column:1/-1"><div class="small">明日预案</div><div class="note-box">${esc(x.plan)}</div></div></div><div style="margin-top:8px"><button class="btn danger" onclick="deleteStock('${x.id}')">删除</button></div></div>`).join('')||'<div class="small">暂无复盘</div>'}
+function deleteStock(id){if(confirm('删除复盘？')){DB.stock=DB.stock.filter(x=>x.id!==id);save();renderAll()}}
+
+function renderHome(){const today=new Date(),events=getEventsForDate(today),stats=renderChecklist(today,homeChecklist,true),b=[...DB.body].sort((a,b)=>a.date.localeCompare(b.date)).at(-1),weekTrain=DB.training.filter(t=>(today-parseDate(t.date))/86400000<=7).length,rs=DB.research.find(x=>x.date===fmtDate(today));
+  homeStats.innerHTML=`<div class="stat"><div class="k">今日安排</div><div class="v">${events.length}</div></div><div class="stat"><div class="k">今日清单完成率</div><div class="v">${stats.pct}%</div></div><div class="stat"><div class="k">近7天训练</div><div class="v">${weekTrain}</div></div><div class="stat"><div class="k">最新体重</div><div class="v">${b?.weight??'-'}${b?.weight?' kg':''}</div></div>`;homeProgress.style.width=stats.pct+'%';
+  homeAgenda.innerHTML=events.length?events.map(e=>`<div class="event" style="--cat:${cats[e.category]||cats.life}"><div class="event-time">${e.start}–${e.end}</div><div class="event-title">${esc(e.title)}</div><div class="event-note">${esc(e.note||'')}</div></div>`).join(''):'<div class="small">今天没有时间安排</div>';
+}
+function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderBody();renderResearch();renderStock();renderHome()}
+prevBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?-7:-1);renderSchedule()};nextBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?7:1);renderSchedule()};todayBtn.onclick=()=>{currentDate=new Date();renderSchedule()};weekViewBtn.onclick=()=>{viewMode='week';renderSchedule()};dayViewBtn.onclick=()=>{viewMode='day';renderSchedule()};addEventBtn.onclick=()=>openNewEvent(currentDate);
+addTaskBtn.onclick=openNewTask;manageTasksBtn.onclick=()=>{renderTaskTable();openModal('manageModal')};prevDayCheck.onclick=()=>{checkDate=addDays(checkDate,-1);renderChecklist()};nextDayCheck.onclick=()=>{checkDate=addDays(checkDate,1);renderChecklist()};checkToday.onclick=()=>{checkDate=new Date();renderChecklist()};
+
+persistBtn.onclick=async()=>{if(navigator.storage?.persist){const ok=(await navigator.storage.persisted())||await navigator.storage.persist();alert(ok?'已获持久存储权限。GitHub 同步仍是主要跨设备与版本备份。':'未获持久存储权限，本机仍可使用；请保持 GitHub 同步正常。')}else alert('当前浏览器不支持该请求。')}
+function exportBackup(prefix='个人成长系统V2'){const blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),data:DB},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${prefix}_${fmtDate(new Date())}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+exportBtn.onclick=()=>exportBackup();
+importFile.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const o=JSON.parse(await f.text()),d=o.data||o;if(!d.events||!d.tasks||!d.done)throw Error('备份格式不正确');if(confirm('导入会覆盖当前数据，是否继续？')){for(const k of Object.keys(DB)){if(k!=='version'&&d[k]!=null)DB[k]=d[k]}save();renderAll()}}catch(err){alert('导入失败：'+err.message)}e.target.value=''}
+
+syncSettingsBtn.onclick=openSyncSettings;
+syncNowBtn.onclick=()=>syncNow();
+historyBtn.onclick=()=>{openModal('historyModal');loadHistory()};
+refreshHistoryBtn.onclick=loadHistory;
+saveSyncSettingsBtn.onclick=()=>{
+  const config={owner:syncOwner.value.trim(),repo:syncRepo.value.trim(),branch:syncBranch.value.trim()||'main',path:syncPath.value.trim().replace(/^\/+/,''),token:syncToken.value.trim()};
+  if(!config.owner||!config.repo||!config.path||!config.token)return alert('请完整填写用户名、数据仓库、文件路径和 Token。');
+  localStorage.setItem(SYNC_CONFIG_KEY,JSON.stringify(config));closeModal('syncSettingsModal');syncState.baseSha=null;syncState.conflict=null;const meta=getSyncMeta();syncState.dirty=meta.repoKey===repoKey(config)?dataHash()!==meta.dataHash:(syncState.dirty||localDataExisted);initialiseSync();
+};
+removeTokenBtn.onclick=()=>{if(!confirm('只移除此设备保存的 Token？业务数据和 GitHub 仓库不会删除。'))return;const c=getSyncConfig();c.token='';localStorage.setItem(SYNC_CONFIG_KEY,JSON.stringify(c));clearTimeout(syncState.timer);closeModal('syncSettingsModal');setSyncStatus('GitHub 未配置','idle')};
+downloadConflictBackupBtn.onclick=()=>exportBackup('冲突前_本机备份');
+acceptRemoteBtn.onclick=()=>{const remote=syncState.conflict;if(!remote)return;if(!confirm('采用云端版本将替换当前本机副本。建议先下载本机备份。是否继续？'))return;replaceDB(remote.data);updateSyncMeta(remote.sha);syncState.conflict=null;closeModal('conflictModal')};
+keepLocalBtn.onclick=async()=>{if(!syncState.conflict||syncState.busy)return;if(!confirm('确定保留本机版本并提交到云端？云端当前版本仍保留在 GitHub 历史中。'))return;syncState.busy=true;setSyncStatus('正在提交本机版本…','busy');try{const latest=await readRemote();await commitCurrent(latest,'conflict: 明确保留本机版本');syncState.conflict=null;closeModal('conflictModal')}catch(error){syncError(error);alert('提交失败：'+error.message)}finally{syncState.busy=false}};
+
+load();renderAll();initialiseSync();
+setInterval(()=>syncNow({quiet:true}),30000);
+window.addEventListener('focus',()=>syncNow({quiet:true}));
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncNow({quiet:true})});
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+</script>
+</body>
+</html>
