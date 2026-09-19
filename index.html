@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#2563eb">
-<meta name="description" content="个人全方位成长系统：日程、课程、训练、健康、科研、清风心法、Kaggle 竞赛日报与每日清单，多设备 GitHub 同步。">
+<meta name="description" content="个人全方位成长系统：日程、课程、训练、健康、科研、清风心法、Kaggle 与天池竞赛日报、每日清单，多设备 GitHub 同步。">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>个人全方位成长系统 · GitHub 云同步版</title>
 <style>
@@ -68,7 +68,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
   <div class="topbar">
     <div class="brand">
       <h1>个人全方位成长系统</h1>
-      <small>日程 · 课程 · 训练 · 科研 · 清风心法 · Kaggle · 每日清单</small>
+      <small>日程 · 课程 · 训练 · 科研 · 清风心法 · Kaggle · 天池 · 每日清单</small>
     </div>
     <div class="toolbar">
       <button class="btn sync-badge" id="syncNowBtn" data-tone="idle" title="打开同步设置"><span class="sync-dot"></span>同步 <span id="syncText">未配置</span></button>
@@ -86,6 +86,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
     <button class="tab" data-tab="research">科研</button>
     <button class="tab" data-tab="wisdom">清风心法</button>
     <button class="tab" data-tab="kaggle">Kaggle</button>
+    <button class="tab" data-tab="tianchi">天池</button>
     <button class="tab" data-tab="checklist">每日清单</button>
   </div>
 
@@ -179,6 +180,19 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
     </div>
   </section>
 
+  <!-- TIANCHI -->
+  <section class="module" id="tianchi">
+    <div class="card">
+      <div class="section-title">
+        <div><h2>天池竞赛日报</h2><div class="small">按天池官方公示的比赛日期筛选 · 推荐指数按研究方向关键词匹配</div></div>
+        <button class="btn" id="tianchiReloadBtn">刷新日报</button>
+      </div>
+      <div class="small" id="tianchiMeta" role="status">正在读取日报…</div>
+      <div class="kaggle-list" id="tianchiList" style="margin-top:12px"></div>
+      <details class="small" style="margin-top:14px"><summary>推荐指数如何计算</summary><p>基础 10 分；标题、简介、分类或标签命中光芯片 +40、图像生成/复原 +32、光学 +24、AI 算法 +20；跨方向有少量加分，最高 100。该指数仅衡量方向相关性。天池列表公布的是比赛结束日期，具体报名和提交截止时间请以单场官方规则为准。</p><p><a href="https://tianchi.aliyun.com/competition/" target="_blank" rel="noopener noreferrer">数据来源：天池官方比赛列表</a></p></details>
+    </div>
+  </section>
+
   <!-- CHECKLIST -->
   <section class="module" id="checklist">
     <div class="card">
@@ -192,7 +206,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
     </div>
   </section>
 
-  <div class="storage"><b>数据策略：</b>浏览器保留本机副本；个人记录写入你的私有 GitHub 数据仓库。Kaggle 公开竞赛日报由 GitHub Actions 每天更新。个人记录打开页面、每 30 秒和每次保存前检查云端；改动停止 6 秒后自动提交。GitHub Token 只保存在当前设备，不进入仓库和 JSON 备份。</div>
+  <div class="storage"><b>数据策略：</b>浏览器保留本机副本；个人记录写入你的私有 GitHub 数据仓库。Kaggle 与天池公开竞赛日报由 GitHub Actions 每天更新。个人记录打开页面、每 30 秒和每次保存前检查云端；改动停止 6 秒后自动提交。GitHub Token 只保存在当前设备，不进入仓库和 JSON 备份。</div>
 </div>
 
 <!-- EVENT MODAL -->
@@ -441,7 +455,7 @@ function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
-function switchTab(id){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));document.querySelectorAll('.module').forEach(x=>x.classList.toggle('active',x.id===id));renderAll();if(id==='kaggle')loadKaggleReport()}
+function switchTab(id){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));document.querySelectorAll('.module').forEach(x=>x.classList.toggle('active',x.id===id));renderAll();if(id==='kaggle')loadKaggleReport();if(id==='tianchi')loadTianchiReport()}
 document.querySelectorAll('.tab').forEach(x=>x.onclick=()=>switchTab(x.dataset.tab));
 
 function renderWeekdays(id,prefix){const c=document.getElementById(id);c.innerHTML='';[1,2,3,4,5,6,0].forEach(i=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" id="${prefix+i}" value="${i}">${weekdaysCN[i]}`;c.appendChild(l)})}
@@ -564,6 +578,44 @@ async function loadKaggleReport(){
   finally{kaggleBusy=false}
 }
 kaggleReloadBtn.onclick=loadKaggleReport;
+let tianchiBusy=false,tianchiLoadedAt=0;
+function tianchiLink(raw){
+  try{const u=new URL(raw);return u.protocol==='https:'&&u.hostname==='tianchi.aliyun.com'&&/^\/competition\/entrance\/\d+\/?$/.test(u.pathname)&&!u.search&&!u.hash?u.href:null}
+  catch(e){return null}
+}
+function showTianchiReport(report){
+  if(!report.generatedAt){
+    tianchiMeta.textContent='等待首次日报生成';
+    tianchiList.innerHTML='<div class="note-box">天池日报无需 Token。每天北京时间 09:35 自动更新，首次可从仓库 Actions 页面手动运行“Daily Tianchi competition report”。</div>';
+    return
+  }
+  const last=new Date(report.generatedAt),now=new Date();
+  if(Number.isNaN(last.getTime()))throw Error('日报更新时间格式错误');
+  const stale=now-last>36*3600000;
+  const entries=(Array.isArray(report.competitions)?report.competitions:[]).filter(c=>new Date(c.deadline)>now&&tianchiLink(c.url))
+    .sort((a,b)=>(+b.score||0)-(+a.score||0)||new Date(a.deadline)-new Date(b.deadline));
+  const updated=last.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
+  tianchiMeta.textContent=`北京时间 ${updated} 更新 · 赛期内 ${entries.length} 场${stale?' · 日报已过期，请检查更新任务':''}`;
+  tianchiList.innerHTML=entries.length?entries.map(c=>{
+    const score=Math.min(100,Math.max(0,Number(c.score)||0));
+    const endDate=/^\d{4}-\d{2}-\d{2}$/.test(c.endDate||'')?c.endDate:'见官网';
+    const tags=(Array.isArray(c.tags)?c.tags:[]).map(x=>`<span>${esc(x)}</span>`).join('');
+    return `<article class="kaggle-row"><div><a href="${esc(tianchiLink(c.url))}" target="_blank" rel="noopener noreferrer">${esc(c.title||c.slug)}</a><div class="kaggle-tags">${tags}</div><div class="small">${esc(c.category||'天池竞赛')} · 官方公示比赛结束日：${esc(endDate)}（北京时间）</div></div><div class="kaggle-score">${score}<small>推荐指数 / 100</small></div></article>`
+  }).join(''):'<div class="small">本次采集未发现仍在公示赛期内的比赛，请到天池官网核对。</div>'
+}
+async function loadTianchiReport(){
+  if(tianchiBusy)return;
+  tianchiBusy=true;tianchiMeta.textContent='正在读取日报…';
+  try{
+    const response=await fetch('https://api.github.com/repos/Shaun050427/personal-growth-app/contents/data/tianchi-active.json?ref=main',{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});
+    if(!response.ok)throw Error('GitHub 日报接口请求失败（'+response.status+'）');
+    const file=await response.json();
+    if(file.type!=='file'||!file.content)throw Error('日报文件格式错误');
+    showTianchiReport(JSON.parse(base64ToUtf8(file.content)));tianchiLoadedAt=Date.now();
+  }catch(error){tianchiMeta.textContent='日报读取失败：'+error.message;tianchiList.innerHTML='<div class="small">请检查网络连接，或稍后点击“刷新日报”。</div>'}
+  finally{tianchiBusy=false}
+}
+tianchiReloadBtn.onclick=loadTianchiReport;
 let editingWisdomId=null;
 function openNewWisdom(){editingWisdomId=null;wisdomModalTitle.textContent='记录一句';wisdomText.value='';openModal('wisdomModal');wisdomText.focus()}
 function editWisdom(id){const item=DB.wisdom.find(x=>x.id===id);if(!item)return;editingWisdomId=id;wisdomModalTitle.textContent='编辑句子';wisdomText.value=item.text;openModal('wisdomModal');wisdomText.focus()}
@@ -642,7 +694,7 @@ keepLocalBtn.onclick=async()=>{if(!syncState.conflict||syncState.busy)return;if(
 
 load();renderAll();initialiseSync();
 setInterval(()=>syncNow({quiet:true}),30000);
-window.addEventListener('focus',()=>{syncNow({quiet:true});if(document.getElementById('kaggle').classList.contains('active')&&Date.now()-kaggleLoadedAt>1800000)loadKaggleReport()});
+window.addEventListener('focus',()=>{syncNow({quiet:true});if(document.getElementById('kaggle').classList.contains('active')&&Date.now()-kaggleLoadedAt>1800000)loadKaggleReport();if(document.getElementById('tianchi').classList.contains('active')&&Date.now()-tianchiLoadedAt>1800000)loadTianchiReport()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncNow({quiet:true})});
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 </script>
