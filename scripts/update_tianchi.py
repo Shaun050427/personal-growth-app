@@ -1,160 +1,123 @@
 #!/usr/bin/env python3
-"""Collect active Tianchi competitions from the public official listing."""
+"""Refresh active Tianchi competitions from the official listing's JSON feed."""
 from __future__ import annotations
 
 import json
-import re
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
 from update_kaggle import relevance
 
-LIST_URL = "https://tianchi.aliyun.com/competition/"
 OUTPUT = Path(__file__).resolve().parent.parent / "data" / "tianchi-active.json"
+API = "https://tianchi.aliyun.com/v3/proxy/competition/api/race/page"
 BEIJING = ZoneInfo("Asia/Shanghai")
 MAX_PAGES = 100
-DATE_RANGE = re.compile(r"比赛时间\s*[：:]\s*(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})\s*[~～—–-]\s*(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})")
-OFFICIAL_LINK = re.compile(r"/competition/entrance/(\d+)(?:/)?$")
+CATEGORIES = {1: "AI大模型赛", 2: "数据算法赛", 3: "工程开发赛", 4: "日常学习赛"}
 
 
-def normalize(row: dict, today: date):
-    """Require an official link and a verified competition date range."""
-    url = str(row.get("url") or "")
-    parts = urlsplit(url)
-    match = OFFICIAL_LINK.fullmatch(parts.path)
-    if parts.scheme != "https" or parts.hostname != "tianchi.aliyun.com" or not match or parts.query or parts.fragment:
+def official_time(raw):
+    if not raw:
         return None
-    times = DATE_RANGE.search(str(row.get("dateText") or ""))
-    if not times:
-        return None
-    a = tuple(int(n) for n in times.groups())
     try:
-        start, end = date(*a[:3]), date(*a[3:])
+        value = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
     except ValueError:
         return None
-    status = str(row.get("status") or "")
-    if start > today or end < today or "已结束" in status:
+    return value.replace(tzinfo=BEIJING) if value.tzinfo is None else value.astimezone(BEIJING)
+
+
+def normalize(row, now, parent_name=""):
+    """Only publish races with verified active dates and numeric official IDs."""
+    race_id = str(row.get("raceId") or "")
+    if not race_id.isascii() or not race_id.isdigit():
         return None
-    title = str(row.get("title") or "").strip()[:300]
-    if not title:
+    start, end = official_time(row.get("raceStartTime")), official_time(row.get("raceEndTime"))
+    if not start or not end or start > now or end <= now or row.get("raceListStatus") in (2, 3):
         return None
-    description = str(row.get("description") or "").strip()[:1000]
-    category = str(row.get("category") or "").strip()[:100]
-    labels = row.get("labels") or []
-    label_text = " ".join(str(x)[:80] for x in labels[:10]) if isinstance(labels, list) else ""
-    # The official listing gives dates, not a submission cutoff timestamp.
-    # Treat the end date as inclusive in Beijing time and name it clearly in the UI.
-    deadline = datetime.combine(end + timedelta(days=1), datetime.min.time(), BEIJING).astimezone(timezone.utc)
+    name = str(row.get("name") or "").strip()
+    if not name:
+        return None
+    title = (parent_name + " - " + name if parent_name else name)[:300]
+    description = str(row.get("introduction") or "").strip()[:1500]
+    category = CATEGORIES.get(row.get("visualTab"), "天池竞赛")
+    labels = row.get("tagsList") or []
+    label_text = " ".join(str(t.get("tagNameCn") or t.get("tagName") or "")[:80] for t in labels[:10] if isinstance(t, dict))
     score, tags = relevance(title, f"{description} {category} {label_text}")
+    signup_end = official_time(row.get("signupEndTime"))
     return {
-        "slug": match.group(1), "title": title,
-        "url": f"https://tianchi.aliyun.com/competition/entrance/{match.group(1)}",
-        "deadline": deadline.isoformat().replace("+00:00", "Z"),
-        "endDate": end.isoformat(), "category": category or "天池竞赛",
-        "score": score, "tags": tags,
+        "slug": race_id, "title": title,
+        "url": f"https://tianchi.aliyun.com/competition/entrance/{race_id}",
+        "deadline": end.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "endDate": end.astimezone(BEIJING).date().isoformat(),
+        "signupDeadline": signup_end.astimezone(timezone.utc).isoformat().replace("+00:00", "Z") if signup_end else None,
+        "category": category, "score": score, "tags": tags,
     }
 
 
-def build_report(pages, now, *, complete=True, total_pages=None):
-    today = now.astimezone(BEIJING).date()
+def build_report(pages, now, *, expected_total=None):
     found = {}
     checked = 0
     for page in pages:
         for row in page:
             checked += 1
-            item = normalize(row, today)
-            if item:
-                found[item["slug"]] = item
-    if not checked:
-        raise RuntimeError("Tianchi returned no competition cards; preserving the last good report")
+            parent = normalize(row, now)
+            if parent:
+                found[parent["slug"]] = parent
+            for track in row.get("trackList") or []:
+                checked += 1
+                child = normalize(track, now, str(row.get("name") or ""))
+                if child:
+                    found[child["slug"]] = child
+    if not checked or expected_total is not None and sum(len(page) for page in pages) != expected_total:
+        raise RuntimeError("Tianchi listing was empty or incomplete; preserving the last good report")
     items = sorted(found.values(), key=lambda x: (-x["score"], x["deadline"], x["slug"]))
-    report = {
-        "source": "Tianchi public official competition listing", "generatedAt": now.isoformat().replace("+00:00", "Z"),
-        "timeZone": "Asia/Shanghai", "deadlineKind": "competition_end_date",
-        "checked": checked, "count": len(items), "competitions": items,
+    return {
+        "source": "Tianchi official public competition listing", "generatedAt": now.isoformat().replace("+00:00", "Z"),
+        "timeZone": "Asia/Shanghai", "deadlineKind": "race_end_timestamp", "checked": checked,
+        "count": len(items), "competitions": items,
     }
-    if not complete:
-        report.update(status="partial", pagesChecked=len(pages), totalPages=total_pages)
-    return report
 
 
 def fetch_pages():
-    # The listing is client-rendered; use its visible official cards instead of
-    # undocumented internal JSON endpoints or user login/session cookies.
-    from playwright.sync_api import sync_playwright
-
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True, args=["--no-sandbox"])
-        try:
-            page = browser.new_page(locale="zh-CN", timezone_id="Asia/Shanghai")
-            page.goto(LIST_URL, wait_until="domcontentloaded", timeout=60000)
-            card = page.locator('a[href^="/competition/entrance/"]:has(h1)').filter(has_text="比赛时间")
-            card.first.wait_for(timeout=60000)
-            pages = []
-            last_ids = None
-            complete = False
-            total_pages = None
-            for number in range(1, MAX_PAGES + 1):
-                # CSS module class names vary; prefer semantic HTML and date text.
-                rows = card.evaluate_all("""elements => elements.map(a => {
-                    const heading = a.querySelector('h1');
-                    const paras = [...a.querySelectorAll('p')];
-                    const href = a.getAttribute('href');
-                    const text = a.innerText || '';
-                    const dateText = (text.match(/比赛时间\\s*[：:][^\\n]+/) || [''])[0];
-                    const tags = [...a.querySelectorAll('span')].map(s => s.innerText).filter(t => t.startsWith('#'));
-                    return {
-                        url: new URL(href, location.origin).href,
-                        title: heading?.innerText.replace(/^(AI大模型赛|数据算法赛|工程开发赛|日常学习赛)\\s*/, '').trim() || '',
-                        description: paras[0]?.innerText || '',
-                        category: heading?.innerText.match(/^(AI大模型赛|数据算法赛|工程开发赛|日常学习赛)/)?.[0] || '',
-                        dateText, labels: [...new Set(tags)],
-                        status: text.includes('已结束') ? '已结束' : ''
-                    };
-                })""")
-                ids = tuple(row["url"] for row in rows)
-                if not rows or ids == last_ids:
-                    raise RuntimeError(f"Tianchi page {number} did not return fresh competition cards")
-                pages.append(rows)
-                active = sum(normalize(row, datetime.now(BEIJING).date()) is not None for row in rows)
-                print(f"Tianchi page {number}: {len(rows)} cards, {active} active", flush=True)
-                last_ids = ids
-                if total_pages is None:
-                    label = page.locator("ul.ant-pagination li.ant-pagination-item").last.get_attribute("title")
-                    total_pages = int(label) if label and label.isdigit() else None
-                next_button = page.locator("li.ant-pagination-next button")
-                if not next_button.count() or not next_button.is_enabled():
-                    complete = True
-                    break
-                if number == MAX_PAGES:
-                    print("Tianchi listing exceeded MAX_PAGES; report is partial", flush=True)
-                    break
-                next_button.click()
-                try:
-                    page.wait_for_function("""previous => {
-                        const current = [...document.querySelectorAll('a[href^="/competition/entrance/"]')]
-                          .find(a => a.querySelector('h1') && (a.innerText || '').includes('比赛时间'));
-                        return current && new URL(current.getAttribute('href'), location.origin).href !== previous;
-                    }""", arg=ids[0], timeout=12000)
-                except Exception:
-                    current_page = page.locator("li.ant-pagination-item-active").inner_text()
-                    print(f"Tianchi did not load page {number+1} (pager: {current_page}); report is partial", flush=True)
-                    break
-            return pages, complete, total_pages
-        finally:
-            browser.close()
+    pages = []
+    expected_total = None
+    for number in range(1, MAX_PAGES + 1):
+        query = urlencode({"visualTab": "", "raceName": "", "pageNum": number, "isActive": 1})
+        request = Request(API + "?" + query, headers={
+            "Accept": "application/json", "Referer": "https://tianchi.aliyun.com/competition/", "User-Agent": "Mozilla/5.0"
+        })
+        with urlopen(request, timeout=35) as response:
+            payload = json.load(response)
+        data = payload.get("data") or {}
+        rows = data.get("list")
+        if payload.get("success") is not True or not isinstance(rows, list) or data.get("pageNum") != number:
+            raise RuntimeError(f"Tianchi listing rejected page {number}; keeping the last good report")
+        total = data.get("total")
+        size = data.get("pageSize")
+        if not isinstance(total, int) or total <= 0 or expected_total is not None and total != expected_total or not isinstance(size, int) or size <= 0:
+            raise RuntimeError("Tianchi listing total changed during refresh; keeping the last good report")
+        if len(rows) != min(size, max(total - (number - 1) * size, 0)):
+            raise RuntimeError(f"Tianchi page {number} has missing entries; preserving the last good report")
+        expected_total = total
+        pages.append(rows)
+        print(f"Tianchi page {number}: {len(rows)} entries / {total} total", flush=True)
+        # The upstream response currently returns hasNextPage=false and pages=0
+        # even when total exceeds pageSize. Use the actual counts instead.
+        if number * size >= total:
+            return pages, expected_total
+    raise RuntimeError("Tianchi listing exceeded MAX_PAGES; preserving the last good report")
 
 
 def main():
-    pages, complete, total_pages = fetch_pages()
-    report = build_report(pages, datetime.now(timezone.utc), complete=complete, total_pages=total_pages)
+    pages, total = fetch_pages()
+    report = build_report(pages, datetime.now(timezone.utc), expected_total=total)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     tmp = OUTPUT.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     tmp.replace(OUTPUT)
-    print(f"Checked {report['checked']} Tianchi cards; {report['count']} within official competition dates")
+    print(f"Checked {report['checked']} Tianchi races/tracks; {report['count']} still running")
 
 
 if __name__ == "__main__":
