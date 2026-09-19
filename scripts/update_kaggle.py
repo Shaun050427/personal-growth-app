@@ -105,7 +105,7 @@ def main():
     api.authenticate()
     pages = []
     for number in range(1, MAX_PAGES + 1):
-        response = api.competitions_list(group="all", sort_by="earliestDeadline", page=number, page_size=PAGE_SIZE)
+        response = api.competitions_list(group="general", sort_by="earliestDeadline", page=number, page_size=PAGE_SIZE)
         rows = list(getattr(response, "competitions", None) or [])
         pages.append(rows)
         if len(rows) < PAGE_SIZE:
