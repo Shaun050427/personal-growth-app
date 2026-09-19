@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#2563eb">
-<meta name="description" content="个人全方位成长系统：日程、课程、训练、健康、科研与每日清单，多设备 GitHub 同步。">
+<meta name="description" content="个人全方位成长系统：日程、课程、训练、健康、科研、清风心法与每日清单，多设备 GitHub 同步。">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>个人全方位成长系统 · GitHub 云同步版</title>
 <style>
@@ -49,6 +49,8 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 .exercise-entry{display:grid;grid-template-columns:2fr repeat(3,1fr) auto;gap:6px;margin-bottom:7px}.exercise-entry input{min-width:0}
 .note-box{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px}
 .storage{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:10px;font-size:13px;color:#475569}
+.wisdom-list{display:grid;gap:10px}.wisdom-item{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff}.wisdom-item.dragging{opacity:.55}.wisdom-item.drag-before{border-top:3px solid var(--primary)}.wisdom-item.drag-after{border-bottom:3px solid var(--primary)}.wisdom-handle{flex:none;cursor:grab;touch-action:none;user-select:none;color:var(--muted);font-size:24px;line-height:1;padding:2px 4px}.wisdom-handle:active{cursor:grabbing}.wisdom-number{flex:none;min-width:24px;color:var(--muted);font-size:13px;padding-top:5px}.wisdom-content{flex:1;min-width:0}.wisdom-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8}.wisdom-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+@media(max-width:680px){.wisdom-item{gap:7px;padding:10px}.wisdom-handle{font-size:22px}}
 .sync-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:#fff;font-size:12px;font-weight:700}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}.sync-badge[data-tone="ok"] .sync-dot{background:#16a34a}.sync-badge[data-tone="busy"] .sync-dot{background:#2563eb;animation:pulse 1s infinite}.sync-badge[data-tone="warn"] .sync-dot{background:#ea580c}.sync-badge[data-tone="error"] .sync-dot{background:#dc2626}
 .sync-help{padding:10px 12px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:12px;line-height:1.65}.secret-note{padding:9px 11px;border-radius:9px;background:#fff7ed;color:#9a3412;font-size:12px;line-height:1.6}
@@ -64,7 +66,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
   <div class="topbar">
     <div class="brand">
       <h1>个人全方位成长系统</h1>
-      <small>日程 · 课程 · 训练 · 科研 · 每日清单</small>
+      <small>日程 · 课程 · 训练 · 科研 · 清风心法 · 每日清单</small>
     </div>
     <div class="toolbar">
       <button class="btn sync-badge" id="syncNowBtn" data-tone="idle" title="打开同步设置"><span class="sync-dot"></span>同步 <span id="syncText">未配置</span></button>
@@ -80,6 +82,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
     <button class="tab" data-tab="courses">课程库</button>
     <button class="tab" data-tab="training">训练</button>
     <button class="tab" data-tab="research">科研</button>
+    <button class="tab" data-tab="wisdom">清风心法</button>
     <button class="tab" data-tab="checklist">每日清单</button>
   </div>
 
@@ -145,6 +148,18 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
     <div class="card">
       <div class="section-title"><div><h2>科研日报</h2><div class="small">不是只统计“坐了多久”，而是记录今天真正推进了什么</div></div><button class="btn primary" id="addResearchBtn">+ 今日科研记录</button></div>
       <div id="researchList"></div>
+    </div>
+  </section>
+
+  <!-- WISDOM -->
+  <section class="module" id="wisdom">
+    <div class="card">
+      <div class="section-title">
+        <div><h2>清风心法</h2><div class="small">逐条记录喜欢的句子；拖动左侧把手调整顺序</div></div>
+        <button class="btn primary" id="addWisdomBtn">+ 记录一句</button>
+      </div>
+      <div class="small" id="wisdomCount"></div>
+      <div id="wisdomList" class="wisdom-list" style="margin-top:12px"></div>
     </div>
   </section>
 
@@ -235,6 +250,13 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="researchModal">取消</button><button class="btn primary" id="saveResearchBtn">保存</button></div>
 </div></div>
 
+<!-- WISDOM MODAL -->
+<div class="modal" id="wisdomModal"><div class="modal-card">
+<h3 id="wisdomModalTitle">记录一句</h3>
+<div class="field"><label for="wisdomText">句子</label><textarea id="wisdomText" maxlength="1000" rows="5" placeholder="写下触动你的那句话……"></textarea></div>
+<div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="wisdomModal">取消</button><button class="btn primary" id="saveWisdomBtn">保存</button></div>
+</div></div>
+
 <!-- GITHUB SYNC SETTINGS -->
 <div class="modal" id="syncSettingsModal"><div class="modal-card">
 <h3>GitHub 同步</h3>
@@ -278,7 +300,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 const KEY='personalPlanner_v2';
 const SYNC_CONFIG_KEY='personalGrowthGithubSync_v1';
 const SYNC_META_KEY='personalGrowthGithubMeta_v1';
-const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[]};
+const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[]};
 const weekdaysCN=['周日','周一','周二','周三','周四','周五','周六'];
 const cats={course:'var(--course)',exercise:'var(--exercise)',research:'var(--research)',study:'var(--study)',stock:'var(--stock)',life:'var(--life)'};
 let currentDate=new Date(),checkDate=new Date(),viewMode='week',editingEventId=null,editingTaskId=null,editingCourseId=null,localDataExisted=false;
@@ -304,6 +326,7 @@ function load(){
     const v1=localStorage.getItem('personalPlanner_v1');
     if(v1){try{const x=JSON.parse(v1);DB.events=x.events||[];DB.tasks=x.tasks||[];DB.done=x.done||{};localDataExisted=true}catch(e){}}
   }
+  if(!Array.isArray(DB.wisdom))DB.wisdom=[];
   if(!DB.tasks.length)seedTasks();
 }
 function seedTasks(){
@@ -321,8 +344,8 @@ function seedTasks(){
 function utf8ToBase64(text){const bytes=new TextEncoder().encode(text);let binary='';for(let i=0;i<bytes.length;i+=32768)binary+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(binary)}
 function base64ToUtf8(value){const binary=atob(String(value||'').replace(/\s/g,'')),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return new TextDecoder().decode(bytes)}
 function encodeRepoPath(path){return path.split('/').filter(Boolean).map(encodeURIComponent).join('/')}
-function extractData(payload){const data=payload?.data||payload;if(!data||!Array.isArray(data.events)||!Array.isArray(data.tasks)||!data.done||!Array.isArray(data.courses)||!Array.isArray(data.training)||!Array.isArray(data.body)||!Array.isArray(data.research)||!Array.isArray(data.stock))throw Error('云端数据格式不正确');return data}
-function replaceDB(data){const d=extractData(data);DB.version=2;['events','tasks','courses','training','body','research','stock'].forEach(k=>DB[k]=Array.isArray(d[k])?d[k]:[]);DB.done=d.done&&typeof d.done==='object'?d.done:{};localStorage.setItem(KEY,JSON.stringify(DB));localDataExisted=true;renderAll()}
+function extractData(payload){const data=payload?.data||payload;if(!data||!Array.isArray(data.events)||!Array.isArray(data.tasks)||!data.done||!Array.isArray(data.courses)||!Array.isArray(data.training)||!Array.isArray(data.body)||!Array.isArray(data.research)||!Array.isArray(data.stock)||data.wisdom!=null&&!Array.isArray(data.wisdom))throw Error('云端数据格式不正确');return {...data,wisdom:data.wisdom||[]}}
+function replaceDB(data){const d=extractData(data);DB.version=2;['events','tasks','courses','training','body','research','stock','wisdom'].forEach(k=>DB[k]=Array.isArray(d[k])?d[k]:[]);DB.done=d.done&&typeof d.done==='object'?d.done:{};localStorage.setItem(KEY,JSON.stringify(DB));localDataExisted=true;renderAll()}
 function updateSyncMeta(sha){const c=getSyncConfig(),meta={repoKey:repoKey(c),sha,dataHash:dataHash(),syncedAt:new Date().toISOString()};localStorage.setItem(SYNC_META_KEY,JSON.stringify(meta));syncState.baseSha=sha;syncState.dirty=false;syncState.lastSync=new Date();setSyncStatus('已同步','ok')}
 function remotePayload(){return{schemaVersion:2,updatedAt:new Date().toISOString(),source:'personal-growth-app',data:DB}}
 
@@ -486,17 +509,67 @@ saveResearchBtn.onclick=()=>{const i=DB.research.findIndex(x=>x.date===rsDate.va
 function renderResearch(){researchList.innerHTML=[...DB.research].sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<div class="card" style="margin:10px 0"><div class="row" style="justify-content:space-between"><b>${x.date}</b><span class="pill">${x.hours} h</span></div><div class="grid g2" style="margin-top:10px"><div><div class="small">目标</div><div class="note-box">${esc(x.goal)}</div></div><div><div class="small">实际推进</div><div class="note-box">${esc(x.output)}</div></div><div><div class="small">卡点</div><div class="note-box">${esc(x.block)}</div></div><div><div class="small">下一步</div><div class="note-box">${esc(x.next)}</div></div></div><div style="margin-top:8px"><button class="btn danger" onclick="deleteResearch('${x.id}')">删除</button></div></div>`).join('')||'<div class="small">暂无科研日报</div>'}
 function deleteResearch(id){if(confirm('删除科研日报？')){DB.research=DB.research.filter(x=>x.id!==id);save();renderAll()}}
 
+let editingWisdomId=null;
+function openNewWisdom(){editingWisdomId=null;wisdomModalTitle.textContent='记录一句';wisdomText.value='';openModal('wisdomModal');wisdomText.focus()}
+function editWisdom(id){const item=DB.wisdom.find(x=>x.id===id);if(!item)return;editingWisdomId=id;wisdomModalTitle.textContent='编辑句子';wisdomText.value=item.text;openModal('wisdomModal');wisdomText.focus()}
+function reorderWisdom(fromId,toId,after=false){
+  if(fromId===toId)return;
+  const from=DB.wisdom.findIndex(x=>x.id===fromId),to=DB.wisdom.findIndex(x=>x.id===toId);
+  if(from<0||to<0)return;
+  const [item]=DB.wisdom.splice(from,1),target=DB.wisdom.findIndex(x=>x.id===toId);
+  DB.wisdom.splice(target+(after?1:0),0,item);save();renderWisdom();
+}
+function moveWisdom(id,delta){const at=DB.wisdom.findIndex(x=>x.id===id),next=at+delta;if(at<0||next<0||next>=DB.wisdom.length)return;[DB.wisdom[at],DB.wisdom[next]]=[DB.wisdom[next],DB.wisdom[at]];save();renderWisdom()}
+function renderWisdom(){
+  wisdomCount.textContent=`共 ${DB.wisdom.length} 条`;
+  wisdomList.innerHTML='';
+  if(!DB.wisdom.length){wisdomList.innerHTML='<div class="small">还没有记录，点击“记录一句”开始。</div>';return}
+  DB.wisdom.forEach((item,index)=>{
+    const card=document.createElement('article');card.className='wisdom-item';card.dataset.id=item.id;
+    card.innerHTML=`<span class="wisdom-handle" role="button" tabindex="0" draggable="true" title="按住拖动排序" aria-label="拖动第 ${index+1} 条排序">⠿</span><span class="wisdom-number">${index+1}.</span><div class="wisdom-content"><div class="wisdom-text">${esc(item.text)}</div><div class="wisdom-actions"><button class="btn up" type="button" aria-label="上移第 ${index+1} 条" ${index===0?'disabled':''}>↑ 上移</button><button class="btn down" type="button" aria-label="下移第 ${index+1} 条" ${index===DB.wisdom.length-1?'disabled':''}>↓ 下移</button><button class="btn edit" type="button">编辑</button><button class="btn danger del" type="button">删除</button></div></div>`;
+    card.querySelector('.up').onclick=()=>moveWisdom(item.id,-1);
+    card.querySelector('.down').onclick=()=>moveWisdom(item.id,1);
+    card.querySelector('.edit').onclick=()=>editWisdom(item.id);
+    card.querySelector('.del').onclick=()=>{if(confirm('删除这条句子？')){DB.wisdom=DB.wisdom.filter(x=>x.id!==item.id);save();renderWisdom()}};
+    const handle=card.querySelector('.wisdom-handle');
+    handle.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',item.id);e.dataTransfer.effectAllowed='move';card.classList.add('dragging')});
+    handle.addEventListener('dragend',()=>{card.classList.remove('dragging');document.querySelectorAll('.wisdom-item').forEach(x=>x.classList.remove('drag-before','drag-after'))});
+    card.addEventListener('dragover',e=>{e.preventDefault();const after=e.clientY>card.getBoundingClientRect().top+card.offsetHeight/2;card.classList.toggle('drag-before',!after);card.classList.toggle('drag-after',after)});
+    card.addEventListener('dragleave',()=>card.classList.remove('drag-before','drag-after'));
+    card.addEventListener('drop',e=>{e.preventDefault();const after=e.clientY>card.getBoundingClientRect().top+card.offsetHeight/2;card.classList.remove('drag-before','drag-after');reorderWisdom(e.dataTransfer.getData('text/plain'),item.id,after)});
+    let touchTarget=null,touchAfter=false;
+    handle.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;handle.setPointerCapture(e.pointerId);card.classList.add('dragging')});
+    handle.addEventListener('pointermove',e=>{
+      if(e.pointerType==='mouse'||!handle.hasPointerCapture(e.pointerId))return;
+      const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.wisdom-item');
+      if(touchTarget&&touchTarget!==target)touchTarget.classList.remove('drag-before','drag-after');
+      touchTarget=target?.dataset.id!==item.id?target:null;
+      if(touchTarget){touchAfter=e.clientY>touchTarget.getBoundingClientRect().top+touchTarget.offsetHeight/2;touchTarget.classList.toggle('drag-before',!touchAfter);touchTarget.classList.toggle('drag-after',touchAfter)}
+    });
+    function finishTouch(e){if(e.pointerType==='mouse')return;card.classList.remove('dragging');if(touchTarget){const id=touchTarget.dataset.id;touchTarget.classList.remove('drag-before','drag-after');touchTarget=null;if(e.type==='pointerup')reorderWisdom(item.id,id,touchAfter)}}
+    handle.addEventListener('pointerup',finishTouch);handle.addEventListener('pointercancel',finishTouch);
+    wisdomList.appendChild(card)
+  })
+}
+addWisdomBtn.onclick=openNewWisdom;
+saveWisdomBtn.onclick=()=>{
+  const value=wisdomText.value.trim();if(!value)return alert('请先填写句子。');
+  if(editingWisdomId){const item=DB.wisdom.find(x=>x.id===editingWisdomId);if(!item)return;item.text=value;item.updatedAt=new Date().toISOString()}
+  else DB.wisdom.push({id:uid(),text:value,createdAt:new Date().toISOString()});
+  save();closeModal('wisdomModal');renderWisdom();
+};
+
 function renderHome(){const today=new Date(),events=getEventsForDate(today),stats=renderChecklist(today,homeChecklist,true),weekTrain=DB.training.filter(t=>(today-parseDate(t.date))/86400000<=7).length,rs=DB.research.find(x=>x.date===fmtDate(today));
   homeStats.innerHTML=`<div class="stat"><div class="k">今日安排</div><div class="v">${events.length}</div></div><div class="stat"><div class="k">今日清单完成率</div><div class="v">${stats.pct}%</div></div><div class="stat"><div class="k">近7天训练</div><div class="v">${weekTrain}</div></div><div class="stat"><div class="k">今日科研</div><div class="v">${rs?rs.hours+" h":"未记录"}</div></div>`;homeProgress.style.width=stats.pct+'%';
   homeAgenda.innerHTML=events.length?events.map(e=>`<div class="event" style="--cat:${cats[e.category]||cats.life}"><div class="event-time">${e.start}–${e.end}</div><div class="event-title">${esc(e.title)}</div><div class="event-note">${esc(e.note||'')}</div></div>`).join(''):'<div class="small">今天没有时间安排</div>';
 }
-function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderHome()}
+function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderWisdom();renderHome()}
 prevBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?-7:-1);renderSchedule()};nextBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?7:1);renderSchedule()};todayBtn.onclick=()=>{currentDate=new Date();renderSchedule()};weekViewBtn.onclick=()=>{viewMode='week';renderSchedule()};dayViewBtn.onclick=()=>{viewMode='day';renderSchedule()};addEventBtn.onclick=()=>openNewEvent(currentDate);
 addTaskBtn.onclick=openNewTask;manageTasksBtn.onclick=()=>{renderTaskTable();openModal('manageModal')};prevDayCheck.onclick=()=>{checkDate=addDays(checkDate,-1);renderChecklist()};nextDayCheck.onclick=()=>{checkDate=addDays(checkDate,1);renderChecklist()};checkToday.onclick=()=>{checkDate=new Date();renderChecklist()};
 
 function exportBackup(prefix='个人成长系统V2'){const blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),data:DB},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${prefix}_${fmtDate(new Date())}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 exportBtn.onclick=()=>exportBackup();
-importFile.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const o=JSON.parse(await f.text()),d=o.data||o;if(!d.events||!d.tasks||!d.done)throw Error('备份格式不正确');if(confirm('导入会覆盖当前数据，是否继续？')){for(const k of Object.keys(DB)){if(k!=='version'&&d[k]!=null)DB[k]=d[k]}save();renderAll()}}catch(err){alert('导入失败：'+err.message)}e.target.value=''}
+importFile.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const o=JSON.parse(await f.text()),d=o.data||o;if(!d.events||!d.tasks||!d.done||d.wisdom!=null&&!Array.isArray(d.wisdom))throw Error('备份格式不正确');if(confirm('导入会覆盖当前数据，是否继续？')){for(const k of Object.keys(DB)){if(k!=='version'&&d[k]!=null)DB[k]=d[k]}save();renderAll()}}catch(err){alert('导入失败：'+err.message)}e.target.value=''}
 
 syncNowBtn.onclick=openSyncSettings;
 syncModalNowBtn.onclick=()=>{if(!isSyncConfigured())return alert('请先保存同步设置。');syncNow()};
