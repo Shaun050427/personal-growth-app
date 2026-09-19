@@ -35,7 +35,7 @@ class TianchiReportTests(unittest.TestCase):
         for changes in (
             {"raceEndTime": None}, {"raceEndTime": "2026-13-40"},
             {"raceId": "532499/../../evil"}, {"raceId": "https://evil.example"},
-            {"raceListStatus": 2},
+            {"raceListStatus": 2}, {"isSeries": 1},
         ):
             with self.subTest(changes=changes):
                 self.assertIsNone(normalize(sample(**changes), now))
