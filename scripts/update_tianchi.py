@@ -57,7 +57,7 @@ def normalize(row: dict, today: date):
     }
 
 
-def build_report(pages, now):
+def build_report(pages, now, *, complete=True, total_pages=None):
     today = now.astimezone(BEIJING).date()
     found = {}
     checked = 0
@@ -70,11 +70,14 @@ def build_report(pages, now):
     if not checked:
         raise RuntimeError("Tianchi returned no competition cards; preserving the last good report")
     items = sorted(found.values(), key=lambda x: (-x["score"], x["deadline"], x["slug"]))
-    return {
+    report = {
         "source": "Tianchi public official competition listing", "generatedAt": now.isoformat().replace("+00:00", "Z"),
         "timeZone": "Asia/Shanghai", "deadlineKind": "competition_end_date",
         "checked": checked, "count": len(items), "competitions": items,
     }
+    if not complete:
+        report.update(status="partial", pagesChecked=len(pages), totalPages=total_pages)
+    return report
 
 
 def fetch_pages():
@@ -91,6 +94,8 @@ def fetch_pages():
             card.first.wait_for(timeout=60000)
             pages = []
             last_ids = None
+            complete = False
+            total_pages = None
             for number in range(1, MAX_PAGES + 1):
                 # CSS module class names vary; prefer semantic HTML and date text.
                 rows = card.evaluate_all("""elements => elements.map(a => {
@@ -113,26 +118,38 @@ def fetch_pages():
                 if not rows or ids == last_ids:
                     raise RuntimeError(f"Tianchi page {number} did not return fresh competition cards")
                 pages.append(rows)
-                print(f"Tianchi page {number}: {len(rows)} cards", flush=True)
+                active = sum(normalize(row, datetime.now(BEIJING).date()) is not None for row in rows)
+                print(f"Tianchi page {number}: {len(rows)} cards, {active} active", flush=True)
                 last_ids = ids
+                if total_pages is None:
+                    label = page.locator("ul.ant-pagination li.ant-pagination-item").last.get_attribute("title")
+                    total_pages = int(label) if label and label.isdigit() else None
                 next_button = page.locator("li.ant-pagination-next button")
                 if not next_button.count() or not next_button.is_enabled():
+                    complete = True
                     break
                 if number == MAX_PAGES:
-                    raise RuntimeError("Tianchi listing exceeded MAX_PAGES; preserving the previous report")
+                    print("Tianchi listing exceeded MAX_PAGES; report is partial", flush=True)
+                    break
                 next_button.click()
-                page.wait_for_function("""previous => {
-                    const current = [...document.querySelectorAll('a[href^="/competition/entrance/"]')]
-                      .find(a => a.querySelector('h1') && (a.innerText || '').includes('比赛时间'));
-                    return current && new URL(current.getAttribute('href'), location.origin).href !== previous;
-                }""", arg=ids[0], timeout=30000)
-            return pages
+                try:
+                    page.wait_for_function("""previous => {
+                        const current = [...document.querySelectorAll('a[href^="/competition/entrance/"]')]
+                          .find(a => a.querySelector('h1') && (a.innerText || '').includes('比赛时间'));
+                        return current && new URL(current.getAttribute('href'), location.origin).href !== previous;
+                    }""", arg=ids[0], timeout=12000)
+                except Exception:
+                    current_page = page.locator("li.ant-pagination-item-active").inner_text()
+                    print(f"Tianchi did not load page {number+1} (pager: {current_page}); report is partial", flush=True)
+                    break
+            return pages, complete, total_pages
         finally:
             browser.close()
 
 
 def main():
-    report = build_report(fetch_pages(), datetime.now(timezone.utc))
+    pages, complete, total_pages = fetch_pages()
+    report = build_report(pages, datetime.now(timezone.utc), complete=complete, total_pages=total_pages)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     tmp = OUTPUT.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
