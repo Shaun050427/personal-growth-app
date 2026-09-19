@@ -382,7 +382,7 @@ function remotePayload(){return{schemaVersion:2,updatedAt:new Date().toISOString
 async function githubRequest(route,options={}){
   const c=getSyncConfig();
   if(!c.token)throw Error('请先配置当前设备的 GitHub Token');
-  const response=await fetch(`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/${route}`,{
+  const response=await fetch(`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}${route?'/'+route:''}`,{
     ...options,
     headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${c.token}`,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json',...(options.headers||{})}
   });
@@ -393,7 +393,20 @@ async function githubRequest(route,options={}){
 async function readRemote(ref=getSyncConfig().branch){
   const c=getSyncConfig(),route=`contents/${encodeRepoPath(c.path)}?ref=${encodeURIComponent(ref)}`;
   try{const file=await githubRequest(route);const payload=JSON.parse(base64ToUtf8(file.content));return{sha:file.sha,payload,data:extractData(payload),updatedAt:payload.updatedAt||null}}
-  catch(error){if(error.status===404)return null;throw error}
+  catch(error){
+    if(error.status!==404)throw error;
+    try{await githubRequest('')}
+    catch(repoError){
+      if(repoError.status===404)throw Object.assign(Error('当前 Token 无法访问私有数据仓库：请检查仓库授权、Token 有效期和仓库名称'),{status:404});
+      throw repoError;
+    }
+    try{await githubRequest(`branches/${encodeURIComponent(ref)}`)}
+    catch(branchError){
+      if(branchError.status===404)throw Object.assign(Error(`找不到分支：${ref}`),{status:404});
+      throw branchError;
+    }
+    return null;
+  }
 }
 async function commitCurrent(remote,message){
   const c=getSyncConfig(),body={message:message||`sync: ${new Date().toLocaleString('zh-CN',{hour12:false})}`,content:utf8ToBase64(JSON.stringify(remotePayload(),null,2)),branch:c.branch};
@@ -403,7 +416,7 @@ async function commitCurrent(remote,message){
   return result;
 }
 function showConflict(remote){syncState.conflict=remote;setSyncStatus('冲突待处理','error');const when=remote?.updatedAt?new Date(remote.updatedAt).toLocaleString('zh-CN'):'时间未知';conflictDetail.textContent=`云端更新时间：${when}；本机改动尚未上传。`;openModal('conflictModal')}
-function syncError(error){console.error(error);let text=error.message||'同步失败';if(error.status===401)text='Token 无效或已过期';else if(error.status===403)text='Token 权限不足或达到 API 限制';else if(error.status===404)text='找不到数据仓库、分支或路径';else if(error.status===409)text='云端刚被其他设备更新，请重新同步';setSyncStatus(text,'error')}
+function syncError(error){console.error(error);let text=error.message||'同步失败';if(error.status===401)text='Token 无效或已过期';else if(error.status===403)text='Token 权限不足或达到 API 限制';else if(error.status===404)text=error.message&&error.message!=='Not Found'?error.message:'GitHub 404：请检查 Token 对私有仓库的授权、分支和数据文件路径';else if(error.status===409)text='云端刚被其他设备更新，请重新同步';setSyncStatus(text,'error')}
 async function syncNow(options={}){
   if(!isSyncConfigured()){setSyncStatus('GitHub 未配置','idle');if(!options.quiet)openSyncSettings();return}
   if(syncState.busy)return;
