@@ -1,6 +1,6 @@
 import sys
 import unittest
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
@@ -9,49 +9,45 @@ from update_tianchi import build_report, normalize
 
 def sample(**changes):
     row = {
-        "title": "CSIG 生成式图像增强算法挑战",
-        "url": "https://tianchi.aliyun.com/competition/entrance/532499",
-        "dateText": "比赛时间：2026.07.03 ~ 2026.09.20",
-        "description": "计算机视觉与图像复原",
-        "category": "AI大模型赛",
-        "labels": ["# 计算机视觉"],
-        "status": "立即报名",
+        "name": "CSIG 生成式图像增强挑战", "raceId": 532499,
+        "raceStartTime": "2026-07-03 00:00:00", "raceEndTime": "2026-09-20 23:59:59",
+        "signupEndTime": "2026-09-19 23:59:59", "raceListStatus": 0,
+        "introduction": "计算机视觉与图像复原", "visualTab": 1,
+        "tagsList": [{"tagNameCn": "计算机视觉"}],
     }
     row.update(changes)
     return row
 
 
 class TianchiReportTests(unittest.TestCase):
-    def test_official_link_and_inclusive_beijing_end_date(self):
-        row = normalize(sample(), date(2026, 9, 20))
-        self.assertEqual(row["deadline"], "2026-09-20T16:00:00Z")
-        self.assertGreater(row["score"], 10)
+    def test_official_link_exact_deadline_and_research_score(self):
+        now = datetime(2026, 9, 19, 12, 0, tzinfo=timezone.utc)
+        row = normalize(sample(), now)
+        self.assertEqual(row["deadline"], "2026-09-20T15:59:59Z")
+        self.assertEqual(row["signupDeadline"], "2026-09-19T15:59:59Z")
+        self.assertEqual(row["url"], "https://tianchi.aliyun.com/competition/entrance/532499")
         self.assertIn("图像生成/复原", row["tags"])
         self.assertGreaterEqual(row["score"], 60)
-        self.assertIsNone(normalize(sample(), date(2026, 9, 21)))
-        self.assertIsNone(normalize(sample(status="已结束"), date(2026, 9, 19)))
+        self.assertIsNone(normalize(sample(), datetime(2026, 9, 21, tzinfo=timezone.utc)))
 
-    def test_unknown_or_unsafe_dates_and_links_are_excluded(self):
+    def test_missing_dates_invalid_ids_and_ended_competitions(self):
+        now = datetime(2026, 9, 19, tzinfo=timezone.utc)
         for changes in (
-            {"dateText": "截止时间待定"},
-            {"dateText": "比赛时间：2026.13.01 ~ 2026.14.01"},
-            {"url": "https://evil.example/competition/entrance/532499"},
-            {"url": "https://tianchi.aliyun.com.evil.example/competition/entrance/532499"},
-            {"url": "https://tianchi.aliyun.com/competition/entrance/532499?redirect=evil.example"},
+            {"raceEndTime": None}, {"raceEndTime": "2026-13-40"},
+            {"raceId": "532499/../../evil"}, {"raceId": "https://evil.example"},
+            {"raceListStatus": 2},
         ):
             with self.subTest(changes=changes):
-                self.assertIsNone(normalize(sample(**changes), date(2026, 9, 19)))
+                self.assertIsNone(normalize(sample(**changes), now))
 
-    def test_report_deduplicates_and_keeps_last_good_on_empty(self):
+    def test_all_pages_tracks_deduplication_and_incomplete_guard(self):
         now = datetime(2026, 9, 19, tzinfo=timezone.utc)
-        result = build_report([[sample(), sample()], [sample(url="https://tianchi.aliyun.com/competition/entrance/532500", dateText="比赛时间：2026.01.01 ~ 2026.05.01")]], now)
-        self.assertEqual(result["checked"], 3)
-        self.assertEqual(result["count"], 1)
-        partial = build_report([[sample()]], now, complete=False, total_pages=60)
-        self.assertEqual(partial["status"], "partial")
-        self.assertEqual(partial["pagesChecked"], 1)
+        parent = sample(trackList=[sample(raceId=532500, name="赛道二")])
+        result = build_report([[parent], [sample()]], now, expected_total=2)
+        self.assertEqual(result["count"], 2)
+        self.assertTrue(any("赛道二" in x["title"] for x in result["competitions"]))
         with self.assertRaises(RuntimeError):
-            build_report([[]], now)
+            build_report([[parent]], now, expected_total=2)
 
 
 if __name__ == "__main__":
