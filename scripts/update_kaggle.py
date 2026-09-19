@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 
 OUTPUT = Path(__file__).resolve().parent.parent / "data" / "kaggle-active.json"
 MAX_PAGES = 10
-PAGE_SIZE = 100
+PAGE_SIZE = 20  # The official competition list uses 20 results per page.
 
 RULES = (
     ("光芯片", 40, re.compile(r"photonic[s]?\s*(integrated|chip|circuit|processor|accelerator)|silicon\s+photonics|optical\s+(computing|chip|neural\s+network|processor|accelerator)|光芯片|光计算|光子芯片|硅光", re.I)),
@@ -88,13 +88,33 @@ def build_report(pages, now):
             item = normalize(competition, now)
             if item:
                 by_slug[item["slug"]] = item
-    if not fetched:
-        raise RuntimeError("Kaggle returned no competitions; keeping the previous report")
+    if not fetched or not by_slug:
+        raise RuntimeError("Kaggle returned no active competitions; keeping the previous report for investigation")
     items = sorted(by_slug.values(), key=lambda x: (-x["score"], x["deadline"], x["slug"]))
     return {
         "source": "Kaggle official competitions API", "generatedAt": now.isoformat().replace("+00:00", "Z"),
         "timeZone": "UTC", "checked": fetched, "count": len(items), "competitions": items,
     }
+
+
+def collect_pages(api):
+    pages = []
+    seen = set()
+    for number in range(1, MAX_PAGES + 1):
+        # Kaggle's documented group is "general"; latestDeadline puts open
+        # competitions before historical ones. The list API pages by 20.
+        response = api.competitions_list(group="general", sort_by="latestDeadline", page=number)
+        rows = list(getattr(response, "competitions", None) or [])
+        if not rows:
+            break
+        refs = tuple(str(getattr(row, "ref", "")) for row in rows)
+        if refs in seen:
+            raise RuntimeError("Kaggle pagination repeated a page; preserving the last good report")
+        seen.add(refs)
+        pages.append(rows)
+        if len(rows) < PAGE_SIZE:
+            break
+    return pages
 
 
 def main():
@@ -103,13 +123,7 @@ def main():
 
     api = KaggleApi()
     api.authenticate()
-    pages = []
-    for number in range(1, MAX_PAGES + 1):
-        response = api.competitions_list(group="all", sort_by="earliestDeadline", page=number, page_size=PAGE_SIZE)
-        rows = list(getattr(response, "competitions", None) or [])
-        pages.append(rows)
-        if len(rows) < PAGE_SIZE:
-            break
+    pages = collect_pages(api)
     report = build_report(pages, datetime.now(timezone.utc))
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     tmp = OUTPUT.with_suffix(".json.tmp")
