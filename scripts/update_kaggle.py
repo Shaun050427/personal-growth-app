@@ -14,9 +14,9 @@ PAGE_SIZE = 100
 
 RULES = (
     ("光芯片", 40, re.compile(r"photonic[s]?\s*(integrated|chip|circuit|processor|accelerator)|silicon\s+photonics|optical\s+(computing|chip|neural\s+network|processor|accelerator)|光芯片|光计算|光子芯片|硅光", re.I)),
-    ("图像生成/复原", 32, re.compile(r"image\s+(generation|synthesis|restoration|reconstruction|enhancement|inpainting|denoising|deblurring|dehazing|super[ -]?resolution)|text[ -]?to[ -]?image|diffusion\s+(model|image)|generative\s+imaging|图像生成|图像复原|图像重建|超分辨率|图像去噪", re.I)),
+    ("图像生成/复原", 32, re.compile(r"image\s+(generation|synthesis|restoration|reconstruction|enhancement|inpainting|denoising|deblurring|dehazing|super[ -]?resolution)|text[ -]?to[ -]?image|diffusion\s+(model|image)|generative\s+imaging|图像生成|生成式图像|图像复原|图像重建|图像增强|影像增强|图像修复|图像去模糊|图像去雾|超分辨率|图像去噪", re.I)),
     ("光学", 24, re.compile(r"optical|optics|photonics?|holograph|microscop|spectroscop|interferometr|light[ -]?field|wavefront|lens(?:es)?|光学|光子|全息|显微|光谱|干涉", re.I)),
-    ("AI算法", 20, re.compile(r"\bAI\b|machine\s+learning|deep\s+learning|artificial\s+intelligence|neural\s+network|transformer|large\s+language\s+model|\bLLM\b|computer\s+vision|generative\s+model|机器学习|深度学习|人工智能|神经网络|计算机视觉|生成模型", re.I)),
+    ("AI算法", 20, re.compile(r"\bAI\b|machine\s+learning|deep\s+learning|artificial\s+intelligence|neural\s+network|transformer|large\s+language\s+model|\bLLM\b|computer\s+vision|generative\s+model|机器学习|深度学习|人工智能|神经网络|计算机视觉|生成模型|大模型|多模态|视觉算法|图像算法|智能体", re.I)),
 )
 
 
@@ -105,7 +105,7 @@ def main():
     api.authenticate()
     pages = []
     for number in range(1, MAX_PAGES + 1):
-        response = api.competitions_list(group="general", sort_by="earliestDeadline", page=number, page_size=PAGE_SIZE)
+        response = api.competitions_list(group="all", sort_by="earliestDeadline", page=number, page_size=PAGE_SIZE)
         rows = list(getattr(response, "competitions", None) or [])
         pages.append(rows)
         if len(rows) < PAGE_SIZE:
