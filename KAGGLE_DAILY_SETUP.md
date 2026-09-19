@@ -1,6 +1,6 @@
 # Kaggle 每日竞赛日报
 
-日报由官方 Kaggle CLI 在 GitHub Actions 中抓取，并公开写入 `data/kaggle-active.json`。网站每次打开 Kaggle 板块通过 GitHub 公共 API 读取最新文件（因为 Actions 的 GITHUB_TOKEN 提交不会触发 Pages 重新部署）；Kaggle 凭证不进入网站代码，也不进入个人成长数据仓库。
+日报由官方 Kaggle CLI 在 GitHub Actions 中抓取公开的 general 竞赛，并公开写入 `data/kaggle-active.json`。网站每次打开 Kaggle 板块通过 GitHub 公共 API 读取最新文件（因为 Actions 的 GITHUB_TOKEN 提交不会触发 Pages 重新部署）；Kaggle 凭证不进入网站代码，也不进入个人成长数据仓库。
 
 ## 首次启用
 
