@@ -595,7 +595,7 @@ function showTianchiReport(report){
   const entries=(Array.isArray(report.competitions)?report.competitions:[]).filter(c=>new Date(c.deadline)>now&&tianchiLink(c.url))
     .sort((a,b)=>(+b.score||0)-(+a.score||0)||new Date(a.deadline)-new Date(b.deadline));
   const updated=last.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
-  tianchiMeta.textContent=`北京时间 ${updated} 更新 · 赛期内 ${entries.length} 场${stale?' · 日报已过期，请检查更新任务':''}`;
+  tianchiMeta.textContent=`北京时间 ${updated} 更新 · ${report.status==='partial'?'已扫描范围内':'赛期内'} ${entries.length} 场${report.status==='partial'?` · 官网翻页未完成，仅检查 ${report.pagesChecked||'?'} / ${report.totalPages||'?'} 页，可能遗漏比赛`:''}${stale?' · 日报已过期，请检查更新任务':''}`;
   tianchiList.innerHTML=entries.length?entries.map(c=>{
     const score=Math.min(100,Math.max(0,Number(c.score)||0));
     const endDate=/^\d{4}-\d{2}-\d{2}$/.test(c.endDate||'')?c.endDate:'见官网';
