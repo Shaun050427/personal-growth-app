@@ -31,7 +31,7 @@ jobs:
           fi
       - name: Fetch open competitions
         run: |
-          python -m pip install 'kaggle>=1.7,<2'
+          python -m pip install 'kaggle>=2.2,<3'
           python -m unittest discover -s tests -p 'test_kaggle_report.py'
           python scripts/update_kaggle.py
       - name: Commit public report
