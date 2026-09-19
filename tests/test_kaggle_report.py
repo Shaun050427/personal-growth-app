@@ -5,7 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-from update_kaggle import build_report, competition_link, relevance
+from update_kaggle import build_report, collect_pages, competition_link, relevance
 
 
 class KaggleReportTests(unittest.TestCase):
@@ -34,6 +34,23 @@ class KaggleReportTests(unittest.TestCase):
     def test_url_cannot_leave_kaggle(self):
         self.assertIsNone(competition_link("https://evil.example/competitions/test"))
         self.assertIsNone(competition_link("../unexpected"))
+
+    def test_official_pagination_uses_general_latest_deadline(self):
+        class Api:
+            calls = []
+            def competitions_list(self, **kwargs):
+                self.calls.append(kwargs)
+                rows = [SimpleNamespace(ref=f"competition-{i}") for i in range(20)] if kwargs["page"] == 1 else [SimpleNamespace(ref="last")]
+                return SimpleNamespace(competitions=rows)
+        api = Api()
+        pages = collect_pages(api)
+        self.assertEqual(list(map(len, pages)), [20, 1])
+        self.assertEqual(api.calls[0], {"group": "general", "sort_by": "latestDeadline", "page": 1})
+
+    def test_empty_active_report_is_an_error(self):
+        now = datetime(2026, 9, 19, tzinfo=timezone.utc)
+        with self.assertRaises(RuntimeError):
+            build_report([[SimpleNamespace(title="Expired", deadline=now-timedelta(days=1), ref="old")]], now)
 
 
 if __name__ == "__main__":
