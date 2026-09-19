@@ -31,7 +31,9 @@ def official_time(raw):
 def normalize(row, now, parent_name=""):
     """Only publish races with verified active dates and numeric official IDs."""
     race_id = str(row.get("raceId") or "")
-    if not race_id.isascii() or not race_id.isdigit():
+    # Series containers have small IDs and their own landing pages. Their
+    # individual competitions are the trackList children below.
+    if row.get("isSeries") == 1 or not race_id.isascii() or not race_id.isdigit():
         return None
     start, end = official_time(row.get("raceStartTime")), official_time(row.get("raceEndTime"))
     if not start or not end or start > now or end <= now or row.get("raceListStatus") in (2, 3):
