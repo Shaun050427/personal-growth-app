@@ -46,6 +46,9 @@ class TianchiReportTests(unittest.TestCase):
         result = build_report([[sample(), sample()], [sample(url="https://tianchi.aliyun.com/competition/entrance/532500", dateText="比赛时间：2026.01.01 ~ 2026.05.01")]], now)
         self.assertEqual(result["checked"], 3)
         self.assertEqual(result["count"], 1)
+        partial = build_report([[sample()]], now, complete=False, total_pages=60)
+        self.assertEqual(partial["status"], "partial")
+        self.assertEqual(partial["pagesChecked"], 1)
         with self.assertRaises(RuntimeError):
             build_report([[]], now)
 
