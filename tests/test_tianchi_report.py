@@ -27,6 +27,7 @@ class TianchiReportTests(unittest.TestCase):
         self.assertEqual(row["deadline"], "2026-09-20T16:00:00Z")
         self.assertGreater(row["score"], 10)
         self.assertIn("图像生成/复原", row["tags"])
+        self.assertGreaterEqual(row["score"], 60)
         self.assertIsNone(normalize(sample(), date(2026, 9, 21)))
         self.assertIsNone(normalize(sample(status="已结束"), date(2026, 9, 19)))
 
