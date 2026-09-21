@@ -1,52 +1,11 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-09-20T06:49:48.989988Z",
+  "generatedAt": "2026-09-21T06:56:59.786105Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
-  "checked": 64,
-  "count": 20,
+  "checked": 63,
+  "count": 15,
   "competitions": [
-    {
-      "slug": "532499",
-      "title": "CSIG图像图形技术挑战赛-赛道一：生成式图像增强可控性挑战",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532499",
-      "deadline": "2026-09-20T15:59:59Z",
-      "endDate": "2026-09-20",
-      "signupDeadline": "2026-09-20T09:59:59Z",
-      "category": "AI大模型赛",
-      "score": 68,
-      "tags": [
-        "图像生成/复原",
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "532500",
-      "title": "CSIG图像图形技术挑战赛-赛道二：生成式图像增强轻量模型设计挑战",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532500",
-      "deadline": "2026-09-20T15:59:59Z",
-      "endDate": "2026-09-20",
-      "signupDeadline": "2026-09-20T15:59:59Z",
-      "category": "AI大模型赛",
-      "score": 68,
-      "tags": [
-        "图像生成/复原",
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "532512",
-      "title": "CHIP2026-面向生物医学全文的特定患者表型概念识别任务",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532512",
-      "deadline": "2026-09-27T15:59:59Z",
-      "endDate": "2026-09-27",
-      "signupDeadline": "2026-09-27T15:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
     {
       "slug": "532463",
       "title": "CCL2026-Eval 任务：第一届跨境电商图像文本翻译大赛",
@@ -87,12 +46,12 @@
       ]
     },
     {
-      "slug": "532510",
-      "title": "知乎知学堂大模型挑战赛：大模型复杂表格识别与内容理解",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532510",
-      "deadline": "2026-09-30T15:59:59Z",
-      "endDate": "2026-09-30",
-      "signupDeadline": "2026-09-30T03:59:59Z",
+      "slug": "532512",
+      "title": "CHIP2026-面向生物医学全文的特定患者表型概念识别任务",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532512",
+      "deadline": "2026-10-01T15:59:59Z",
+      "endDate": "2026-10-01",
+      "signupDeadline": "2026-09-27T15:59:59Z",
       "category": "AI大模型赛",
       "score": 30,
       "tags": [
@@ -178,51 +137,25 @@
       ]
     },
     {
-      "slug": "532506",
-      "title": "2026-具身仿真合成挑战赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532506",
-      "deadline": "2026-11-15T15:59:59Z",
-      "endDate": "2026-11-15",
-      "signupDeadline": "2026-09-21T05:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "532507",
-      "title": "2026-具身安全应用挑战赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532507",
-      "deadline": "2026-11-15T15:59:59Z",
-      "endDate": "2026-11-15",
-      "signupDeadline": "2026-09-21T05:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "532508",
-      "title": "2026-跨本体具身认知极限联合挑战赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532508",
-      "deadline": "2026-11-15T15:59:59Z",
-      "endDate": "2026-11-15",
-      "signupDeadline": "2026-09-21T05:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
       "slug": "532514",
       "title": "蚂蚁灵波具身大模型挑战赛",
       "url": "https://tianchi.aliyun.com/competition/entrance/532514",
       "deadline": "2026-11-15T15:59:59Z",
       "endDate": "2026-11-15",
       "signupDeadline": "2026-10-26T15:59:59Z",
+      "category": "AI大模型赛",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
+    {
+      "slug": "532510",
+      "title": "知乎知学堂大模型挑战赛：大模型复杂表格识别与内容理解",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532510",
+      "deadline": "2026-12-31T15:59:59Z",
+      "endDate": "2026-12-31",
+      "signupDeadline": "2026-09-30T03:59:59Z",
       "category": "AI大模型赛",
       "score": 30,
       "tags": [
