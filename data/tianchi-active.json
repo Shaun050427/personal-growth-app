@@ -1,10 +1,10 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-09-23T06:32:01.541352Z",
+  "generatedAt": "2026-09-24T06:37:54.116275Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "checked": 64,
-  "count": 16,
+  "count": 17,
   "competitions": [
     {
       "slug": "532463",
@@ -196,6 +196,17 @@
       "endDate": "2026-09-30",
       "signupDeadline": "2026-09-30T07:59:59Z",
       "category": "日常学习赛",
+      "score": 10,
+      "tags": []
+    },
+    {
+      "slug": "532515",
+      "title": "OpenLET 具身智能挑战赛",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532515",
+      "deadline": "2026-12-31T15:59:59Z",
+      "endDate": "2026-12-31",
+      "signupDeadline": "2026-12-31T15:59:59Z",
+      "category": "工程开发赛",
       "score": 10,
       "tags": []
     },
