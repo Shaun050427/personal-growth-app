@@ -1,10 +1,10 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-09-24T06:37:54.116275Z",
+  "generatedAt": "2026-09-25T06:30:49.443059Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
-  "checked": 64,
-  "count": 17,
+  "checked": 65,
+  "count": 18,
   "competitions": [
     {
       "slug": "532463",
@@ -52,6 +52,19 @@
       "deadline": "2026-10-01T15:59:59Z",
       "endDate": "2026-10-01",
       "signupDeadline": "2026-09-27T15:59:59Z",
+      "category": "AI大模型赛",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
+    {
+      "slug": "532509",
+      "title": "AI+跨境黑客松巅峰赛——用AI解跨境真命题",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532509",
+      "deadline": "2026-10-08T15:59:59Z",
+      "endDate": "2026-10-08",
+      "signupDeadline": "2026-10-08T15:59:59Z",
       "category": "AI大模型赛",
       "score": 30,
       "tags": [
