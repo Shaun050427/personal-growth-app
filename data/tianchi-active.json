@@ -1,24 +1,11 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-09-27T06:59:52.634218Z",
+  "generatedAt": "2026-09-28T07:29:22.175432Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
-  "checked": 65,
-  "count": 18,
+  "checked": 63,
+  "count": 17,
   "competitions": [
-    {
-      "slug": "532463",
-      "title": "CCL2026-Eval 任务：第一届跨境电商图像文本翻译大赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532463",
-      "deadline": "2026-09-30T15:59:59Z",
-      "endDate": "2026-09-30",
-      "signupDeadline": "2026-09-27T09:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
     {
       "slug": "532470",
       "title": "CCL2026-Eval 任务：第二届古诗词赏析",
@@ -51,7 +38,7 @@
       "url": "https://tianchi.aliyun.com/competition/entrance/532512",
       "deadline": "2026-10-01T15:59:59Z",
       "endDate": "2026-10-01",
-      "signupDeadline": "2026-09-27T15:59:59Z",
+      "signupDeadline": "2026-10-01T15:59:59Z",
       "category": "AI大模型赛",
       "score": 30,
       "tags": [
