@@ -1,10 +1,21 @@
 {
   "source": "Kaggle official competitions API",
-  "generatedAt": "2026-09-28T06:51:37.982420Z",
+  "generatedAt": "2026-09-29T06:53:31.324210Z",
   "timeZone": "UTC",
-  "checked": 21,
-  "count": 21,
+  "checked": 22,
+  "count": 22,
   "competitions": [
+    {
+      "slug": "the-pokemon-company-ptcg-ai-battle-challenge-playground",
+      "title": "The Pokémon Company - PTCG AI Battle Challenge Playground",
+      "url": "https://www.kaggle.com/competitions/the-pokemon-company-ptcg-ai-battle-challenge-playground",
+      "deadline": "2027-01-08T23:59:59Z",
+      "category": "Playground",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
     {
       "slug": "titanic",
       "title": "Titanic - Machine Learning from Disaster",
