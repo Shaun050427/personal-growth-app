@@ -53,7 +53,8 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 @media(max-width:680px){.kaggle-row{grid-template-columns:minmax(0,1fr) 68px;gap:8px}.kaggle-score{font-size:19px;padding:6px}}
 .wisdom-list{display:grid;gap:10px}.wisdom-item{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff}.wisdom-item.dragging{opacity:.55}.wisdom-item.drag-before{border-top:3px solid var(--primary)}.wisdom-item.drag-after{border-bottom:3px solid var(--primary)}.wisdom-handle{flex:none;cursor:grab;touch-action:none;user-select:none;color:var(--muted);font-size:24px;line-height:1;padding:2px 4px}.wisdom-handle:active{cursor:grabbing}.wisdom-number{flex:none;min-width:24px;color:var(--muted);font-size:13px;padding-top:5px}.wisdom-content{flex:1;min-width:0}.wisdom-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8}.wisdom-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
 @media(max-width:680px){.wisdom-item{gap:7px;padding:10px}.wisdom-handle{font-size:22px}}
-.project-list{display:grid;gap:12px}.project-card{border:1px solid var(--line);border-left:4px solid var(--project);border-radius:12px;padding:14px;background:#fff}.project-card h3{margin:0 0 5px}.project-card .project-meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.project-card .project-goal{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.project-sessions{margin:10px 0;display:flex;gap:6px;flex-wrap:wrap}.project-sessions button{font-size:12px}.project-card .toolbar{margin-top:12px}
+.project-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}.project-group{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:#f8fafc}.project-group h3{margin:0 0 12px;font-size:16px}.project-group.drop-target{outline:2px dashed var(--project)}.project-group-list{display:grid;gap:12px;min-height:70px}.project-empty{color:var(--muted);font-size:12px;padding:18px 6px;text-align:center}.project-card{min-width:0;border:1px solid var(--line);border-left:4px solid var(--project);border-radius:12px;padding:14px;background:#fff}.project-card.dragging{opacity:.5}.project-card.drag-before{border-top:3px solid var(--primary)}.project-card.drag-after{border-bottom:3px solid var(--primary)}.project-card h3{margin:0 0 5px}.project-card .project-heading{display:flex;align-items:flex-start;gap:8px}.project-handle{flex:none;cursor:grab;user-select:none;color:var(--muted);font-size:22px;line-height:1}.project-handle:active{cursor:grabbing}.project-card .project-meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.project-card .project-goal{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.project-sessions{margin:10px 0;display:flex;gap:6px;flex-wrap:wrap}.project-sessions button{font-size:12px}.project-card .toolbar{margin-top:12px}
+@media(max-width:920px){.project-list{grid-template-columns:1fr}}
 .sync-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:#fff;font-size:12px;font-weight:700}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}.sync-badge[data-tone="ok"] .sync-dot{background:#16a34a}.sync-badge[data-tone="busy"] .sync-dot{background:#2563eb;animation:pulse 1s infinite}.sync-badge[data-tone="warn"] .sync-dot{background:#ea580c}.sync-badge[data-tone="error"] .sync-dot{background:#dc2626}
 .sync-help{padding:10px 12px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:12px;line-height:1.65}.secret-note{padding:9px 11px;border-radius:9px;background:#fff7ed;color:#9a3412;font-size:12px;line-height:1.6}
@@ -160,7 +161,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
   <!-- LONG-TERM PROJECTS -->
   <section class="module" id="projects">
     <div class="card">
-      <div class="section-title"><div><h2>中长期项目</h2><div class="small">建立目标，按自己的节奏把具体行动安排进每天的时间表</div></div><button class="btn primary" id="addProjectBtn">+ 新建项目</button></div>
+      <div class="section-title"><div><h2>中长期项目</h2><div class="small">按状态查看项目；拖动左侧把手调整顺序，也可拖到其他状态</div></div><button class="btn primary" id="addProjectBtn">+ 新建项目</button></div>
       <div class="project-list" id="projectList"></div>
     </div>
   </section>
@@ -701,22 +702,53 @@ saveWisdomBtn.onclick=()=>{
 function openNewProject(){editingProjectId=null;projectModalTitle.textContent='新建中长期项目';deleteProjectBtn.classList.add('hide');projectTitle.value='';projectGoal.value='';projectDeadline.value='';projectStatus.value='active';projectNote.value='';openModal('projectModal')}
 function editProject(id){const p=DB.projects.find(x=>x.id===id);if(!p)return;editingProjectId=id;projectModalTitle.textContent='编辑中长期项目';deleteProjectBtn.classList.remove('hide');projectTitle.value=p.title;projectGoal.value=p.goal||'';projectDeadline.value=p.deadline||'';projectStatus.value=p.status||'active';projectNote.value=p.note||'';openModal('projectModal')}
 function planProject(id){const p=DB.projects.find(x=>x.id===id);if(!p)return;openNewEvent(currentDate);evCategory.value='project';toggleEventProject();evProject.value=id;evTitle.value=p.title;eventModalTitle.textContent='安排项目时间'}
+const projectStatuses={active:'进行中',paused:'暂缓',done:'已完成'};
+let draggingProjectId=null;
+function projectStatus(p){return Object.hasOwn(projectStatuses,p.status)?p.status:'active'}
+function reorderProject(id,status,targetId=null,after=false){
+  const project=DB.projects.find(p=>p.id===id);
+  if(!project||!Object.hasOwn(projectStatuses,status)||id===targetId)return;
+  const groups=Object.fromEntries(Object.keys(projectStatuses).map(s=>[s,DB.projects.filter(p=>p.id!==id&&projectStatus(p)===s)]));
+  const list=groups[status],at=targetId?list.findIndex(p=>p.id===targetId):-1;
+  if(targetId&&at<0)return;
+  list.splice(at<0?list.length:at+(after?1:0),0,project);
+  const statusChanged=projectStatus(project)!==status;
+  if(statusChanged){project.status=status;project.updatedAt=new Date().toISOString()}
+  const ordered=Object.keys(projectStatuses).flatMap(s=>groups[s]);
+  if(!statusChanged&&ordered.every((p,i)=>p===DB.projects[i]))return;
+  DB.projects=ordered;save();renderProjects();
+}
 function renderProjects(){
   projectList.innerHTML='';
-  if(!DB.projects.length){projectList.innerHTML='<div class="small">还没有项目。创建项目后，你可以随时点击“安排时间”，自己选择哪一天、几点推进。</div>';return}
-  const statuses={active:'进行中',paused:'暂缓',done:'已完成'};
-  DB.projects.forEach(p=>{
-    const card=document.createElement('article');card.className='project-card';
+  Object.entries(projectStatuses).forEach(([status,label])=>{
+    const group=document.createElement('section');group.className='project-group';
+    const items=DB.projects.filter(p=>projectStatus(p)===status);
+    group.innerHTML=`<h3>${label} <span class="small">${items.length}</span></h3><div class="project-group-list"></div>`;
+    const list=group.querySelector('.project-group-list');
+    if(!items.length)list.innerHTML='<div class="project-empty">拖动项目到这里</div>';
+    list.addEventListener('dragover',e=>{if(!draggingProjectId||e.target.closest('.project-card'))return;e.preventDefault();e.dataTransfer.dropEffect='move';group.classList.add('drop-target')});
+    list.addEventListener('dragleave',e=>{if(!list.contains(e.relatedTarget))group.classList.remove('drop-target')});
+    list.addEventListener('drop',e=>{if(!draggingProjectId||e.target.closest('.project-card'))return;e.preventDefault();group.classList.remove('drop-target');reorderProject(draggingProjectId,status)});
+    items.forEach(p=>{
+    const card=document.createElement('article');card.className='project-card';card.dataset.id=p.id;
     const linked=DB.events.filter(e=>e.projectId===p.id&&e.category==='project');
     const future=linked.filter(e=>e.repeat==='weekly'||e.date>=fmtDate(new Date())).sort((a,b)=>(a.repeat==='weekly'?'':a.date).localeCompare(b.repeat==='weekly'?'':b.date)||a.start.localeCompare(b.start));
-    card.innerHTML=`<h3>${esc(p.title)}</h3><div class="project-meta"><span class="pill">${statuses[p.status]||'进行中'}</span>${p.deadline?`<span class="pill">目标 ${esc(p.deadline)}</span>`:''}<span class="pill">已安排 ${linked.length} 个时间段</span></div>${p.goal?`<div class="project-goal">${esc(p.goal)}</div>`:''}${p.note?`<div class="small project-goal" style="margin-top:8px">${esc(p.note)}</div>`:''}<div class="project-sessions"></div><div class="toolbar"><button class="btn primary plan" type="button">安排时间</button><button class="btn edit" type="button">编辑项目</button></div>`;
+    card.innerHTML=`<div class="project-heading"><span class="project-handle" role="button" tabindex="0" draggable="true" title="按住拖动排序或更改状态" aria-label="拖动${esc(p.title)}排序">⠿</span><h3>${esc(p.title)}</h3></div><div class="project-meta">${p.deadline?`<span class="pill">目标 ${esc(p.deadline)}</span>`:''}<span class="pill">已安排 ${linked.length} 个时间段</span></div>${p.goal?`<div class="project-goal">${esc(p.goal)}</div>`:''}${p.note?`<div class="small project-goal" style="margin-top:8px">${esc(p.note)}</div>`:''}<div class="project-sessions"></div><div class="toolbar"><button class="btn primary plan" type="button">安排时间</button><button class="btn edit" type="button">编辑项目</button></div>`;
     const sessions=card.querySelector('.project-sessions');
     if(future.length){const label=document.createElement('span');label.className='small';label.textContent='接下来：';sessions.appendChild(label)}
     future.slice(0,4).forEach(ev=>{const b=document.createElement('button');b.className='btn';b.type='button';b.textContent=(ev.repeat==='weekly'?'每周'+(ev.weekdays||[]).map(d=>weekdaysCN[d]).join('、'):ev.date)+' '+ev.start+'–'+ev.end+' · '+ev.title;b.onclick=()=>editEvent(ev.id);sessions.appendChild(b)});
     card.querySelector('.plan').onclick=()=>planProject(p.id);
     card.querySelector('.edit').onclick=()=>editProject(p.id);
-    projectList.appendChild(card)
-  })
+    const handle=card.querySelector('.project-handle');
+    handle.addEventListener('dragstart',e=>{draggingProjectId=p.id;e.dataTransfer.setData('text/plain',p.id);e.dataTransfer.effectAllowed='move';card.classList.add('dragging')});
+    handle.addEventListener('dragend',()=>{draggingProjectId=null;projectList.querySelectorAll('.project-card,.project-group').forEach(x=>x.classList.remove('dragging','drag-before','drag-after','drop-target'))});
+    card.addEventListener('dragover',e=>{if(!draggingProjectId||draggingProjectId===p.id)return;e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect='move';const after=e.clientY>card.getBoundingClientRect().top+card.offsetHeight/2;card.classList.toggle('drag-before',!after);card.classList.toggle('drag-after',after)});
+    card.addEventListener('dragleave',e=>{if(!card.contains(e.relatedTarget))card.classList.remove('drag-before','drag-after')});
+    card.addEventListener('drop',e=>{if(!draggingProjectId)return;e.preventDefault();e.stopPropagation();const after=e.clientY>card.getBoundingClientRect().top+card.offsetHeight/2;card.classList.remove('drag-before','drag-after');reorderProject(draggingProjectId,status,p.id,after)});
+    list.appendChild(card);
+    });
+    projectList.appendChild(group);
+  });
 }
 addProjectBtn.onclick=openNewProject;
 saveProjectBtn.onclick=()=>{
