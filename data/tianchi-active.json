@@ -1,10 +1,10 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-09-29T07:24:56.309907Z",
+  "generatedAt": "2026-09-30T07:15:16.394779Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "checked": 63,
-  "count": 17,
+  "count": 15,
   "competitions": [
     {
       "slug": "532470",
@@ -111,19 +111,6 @@
       ]
     },
     {
-      "slug": "532511",
-      "title": "2026 SMP第十四届全国社会媒体处理大会-大模型图网络决策挑战赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532511",
-      "deadline": "2026-10-23T15:59:59Z",
-      "endDate": "2026-10-23",
-      "signupDeadline": "2026-09-30T01:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
       "slug": "532460",
       "title": "余震预测技术国际大赛",
       "url": "https://tianchi.aliyun.com/competition/entrance/532460",
@@ -156,19 +143,6 @@
       "deadline": "2026-11-15T15:59:59Z",
       "endDate": "2026-11-15",
       "signupDeadline": "2026-10-26T15:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "532510",
-      "title": "知乎知学堂大模型挑战赛：大模型复杂表格识别与内容理解",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532510",
-      "deadline": "2026-12-31T15:59:59Z",
-      "endDate": "2026-12-31",
-      "signupDeadline": "2026-09-30T03:59:59Z",
       "category": "AI大模型赛",
       "score": 30,
       "tags": [
