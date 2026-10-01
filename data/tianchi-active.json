@@ -1,37 +1,11 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-09-30T07:15:16.394779Z",
+  "generatedAt": "2026-10-01T07:39:08.539398Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
-  "checked": 63,
-  "count": 15,
+  "checked": 50,
+  "count": 13,
   "competitions": [
-    {
-      "slug": "532470",
-      "title": "CCL2026-Eval 任务：第二届古诗词赏析",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532470",
-      "deadline": "2026-09-30T15:59:59Z",
-      "endDate": "2026-09-30",
-      "signupDeadline": "2026-09-30T15:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "532482",
-      "title": "第七届CSIG图像图形技术挑战赛—复杂工业场景异常检测算法挑战赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532482",
-      "deadline": "2026-09-30T15:59:59Z",
-      "endDate": "2026-09-30",
-      "signupDeadline": "2026-09-30T15:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
     {
       "slug": "532512",
       "title": "CHIP2026-面向生物医学全文的特定患者表型概念识别任务",
@@ -150,6 +124,19 @@
       ]
     },
     {
+      "slug": "532510",
+      "title": "知乎知学堂大模型挑战赛：大模型复杂表格识别与内容理解",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532510",
+      "deadline": "2026-12-31T15:59:59Z",
+      "endDate": "2026-12-31",
+      "signupDeadline": "2026-12-31T15:59:59Z",
+      "category": "AI大模型赛",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
+    {
       "slug": "532338",
       "title": "【打榜赛】CCL25-Eval  任务2：第三届汉语框架语义解析评测",
       "url": "https://tianchi.aliyun.com/competition/entrance/532338",
@@ -161,17 +148,6 @@
       "tags": [
         "AI算法"
       ]
-    },
-    {
-      "slug": "532421",
-      "title": "【天池经典打榜赛】赛道六-评论观点挖掘赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532421",
-      "deadline": "2026-09-30T07:59:59Z",
-      "endDate": "2026-09-30",
-      "signupDeadline": "2026-09-30T07:59:59Z",
-      "category": "日常学习赛",
-      "score": 10,
-      "tags": []
     },
     {
       "slug": "532515",
