@@ -1,10 +1,10 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-10-02T07:26:26.840950Z",
+  "generatedAt": "2026-10-03T06:59:38.072148Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
-  "checked": 48,
-  "count": 12,
+  "checked": 49,
+  "count": 13,
   "competitions": [
     {
       "slug": "532509",
@@ -130,6 +130,19 @@
       "deadline": "2027-05-25T15:59:59Z",
       "endDate": "2027-05-25",
       "signupDeadline": "2027-05-24T15:59:59Z",
+      "category": "AI大模型赛",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
+    {
+      "slug": "532512",
+      "title": "CHIP2026-面向生物医学全文的特定患者表型概念识别任务",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532512",
+      "deadline": "2029-10-03T15:59:59Z",
+      "endDate": "2029-10-03",
+      "signupDeadline": "2029-10-03T15:59:59Z",
       "category": "AI大模型赛",
       "score": 30,
       "tags": [
