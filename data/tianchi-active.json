@@ -1,9 +1,9 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-10-07T07:39:27.223564Z",
+  "generatedAt": "2026-10-08T07:55:29.679747Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
-  "checked": 49,
+  "checked": 50,
   "count": 13,
   "competitions": [
     {
@@ -13,19 +13,6 @@
       "deadline": "2026-10-08T15:59:59Z",
       "endDate": "2026-10-08",
       "signupDeadline": "2026-10-08T15:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "532480",
-      "title": "CHIP2026-医学NLP代码自动生成测评 ——识别符合临床试验入组标准的患者",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532480",
-      "deadline": "2026-10-12T15:59:59Z",
-      "endDate": "2026-10-12",
-      "signupDeadline": "2026-10-07T15:59:59Z",
       "category": "AI大模型赛",
       "score": 30,
       "tags": [
@@ -148,6 +135,17 @@
       "tags": [
         "AI算法"
       ]
+    },
+    {
+      "slug": "532421",
+      "title": "【天池经典打榜赛】赛道六-评论观点挖掘赛",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532421",
+      "deadline": "2026-11-30T07:59:59Z",
+      "endDate": "2026-11-30",
+      "signupDeadline": "2026-11-30T07:59:59Z",
+      "category": "日常学习赛",
+      "score": 10,
+      "tags": []
     },
     {
       "slug": "532515",
