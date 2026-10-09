@@ -1,24 +1,11 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-10-08T07:55:29.679747Z",
+  "generatedAt": "2026-10-09T07:55:07.243340Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
-  "checked": 50,
+  "checked": 49,
   "count": 13,
   "competitions": [
-    {
-      "slug": "532509",
-      "title": "AI+跨境黑客松巅峰赛——用AI解跨境真命题",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532509",
-      "deadline": "2026-10-08T15:59:59Z",
-      "endDate": "2026-10-08",
-      "signupDeadline": "2026-10-08T15:59:59Z",
-      "category": "AI大模型赛",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
     {
       "slug": "532496",
       "title": "欧莱雅第二届美妆科技黑客松 - 赛题2 信任守护师 - 创造者的AI卫士",
@@ -52,6 +39,19 @@
       "deadline": "2026-10-20T15:59:59Z",
       "endDate": "2026-10-20",
       "signupDeadline": "2026-10-20T15:59:59Z",
+      "category": "AI大模型赛",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
+    {
+      "slug": "532511",
+      "title": "2026 SMP第十四届全国社会媒体处理大会-大模型图网络决策挑战赛",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532511",
+      "deadline": "2026-10-23T15:59:59Z",
+      "endDate": "2026-10-23",
+      "signupDeadline": "2026-10-23T09:59:59Z",
       "category": "AI大模型赛",
       "score": 30,
       "tags": [
