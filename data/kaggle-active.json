@@ -3,8 +3,22 @@
   "generatedAt": "2026-10-10T03:12:37.556758Z",
   "timeZone": "UTC",
   "checked": 22,
-  "count": 5,
+  "count": 7,
   "competitions": [
+    {
+      "slug": "rsna-knee-abnormality-detection",
+      "title": "RSNA Knee Abnormality Detection",
+      "url": "https://www.kaggle.com/competitions/rsna-knee-abnormality-detection",
+      "deadline": "2026-10-22T23:59:00Z",
+      "category": "Research",
+      "score": 10,
+      "tags": [],
+      "awardTypes": [
+        "cash",
+        "medal"
+      ],
+      "reward": "$77,000"
+    },
     {
       "slug": "arc-prize-2026-arc-agi-2",
       "title": "ARC Prize 2026 - ARC-AGI-2",
@@ -30,6 +44,19 @@
         "cash"
       ],
       "reward": "$850,000"
+    },
+    {
+      "slug": "arc-prize-2026-paper-track",
+      "title": "ARC Prize 2026 - Paper Track",
+      "url": "https://www.kaggle.com/competitions/arc-prize-2026-paper-track",
+      "deadline": "2026-11-09T23:59:00Z",
+      "category": "Featured",
+      "score": 10,
+      "tags": [],
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "$450,000"
     },
     {
       "slug": "gemma-4-developer-agent-paper",

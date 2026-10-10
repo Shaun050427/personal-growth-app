@@ -32,6 +32,17 @@ class KaggleReportTests(unittest.TestCase):
         self.assertEqual(awards(SimpleNamespace(reward="Kudos", awardsPoints=True, awardsMedals=False, category="Featured"))[0], [])
         self.assertEqual(awards(SimpleNamespace(reward="Kudos", awardsPoints=True, category="Analytics"))[0], [])
 
+    def test_research_cash_and_medals_and_paper_cash_without_medals(self):
+        now = datetime(2026, 10, 10, tzinfo=timezone.utc)
+        rows = [
+            SimpleNamespace(ref="rsna-knee-abnormality-detection", title="RSNA Knee Abnormality Detection", deadline=now + timedelta(days=12), category="Research", reward="$77,000", awardsPoints=True),
+            SimpleNamespace(ref="arc-prize-2026-paper-track", title="ARC Prize 2026 - Paper Track", deadline=now + timedelta(days=30), category="Featured", reward="$450,000", awardsPoints=False),
+        ]
+        report = build_report([rows], now)
+        by_slug = {row["slug"]: row for row in report["competitions"]}
+        self.assertEqual(by_slug["rsna-knee-abnormality-detection"]["awardTypes"], ["cash", "medal"])
+        self.assertEqual(by_slug["arc-prize-2026-paper-track"]["awardTypes"], ["cash"])
+
     def test_relevance_and_explainable_tags(self):
         high, tags = relevance("Optical photonic chip image restoration", "Deep learning")
         low, low_tags = relevance("Housing prices", "")

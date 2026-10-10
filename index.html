@@ -591,13 +591,13 @@ function showKaggleReport(report){
     kaggleList.innerHTML='<div class="note-box">首次使用需在网站仓库设置 Kaggle API Token，然后手动运行一次日报更新。<a href="https://github.com/Shaun050427/personal-growth-app/blob/main/KAGGLE_DAILY_SETUP.md" target="_blank" rel="noopener noreferrer">查看启用步骤</a></div>';
     return
   }
-  const last=new Date(report.generatedAt),now=new Date();
-  if(Number.isNaN(last.getTime()))throw Error('日报更新时间格式错误');
+  const last=new Date(report.sourceSnapshotAt||report.generatedAt),now=new Date();
+  if(Number.isNaN(last.getTime()))throw Error('日报采集时间格式错误');
   const stale=now-last>36*3600000;
   const entries=(Array.isArray(report.competitions)?report.competitions:[]).filter(c=>new Date(c.deadline)>now&&kaggleLink(c.url)&&Array.isArray(c.awardTypes)&&c.awardTypes.some(x=>x==='cash'||x==='medal'))
     .sort((a,b)=>(+b.score||0)-(+a.score||0)||new Date(a.deadline)-new Date(b.deadline));
   const updated=last.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
-  kaggleMeta.textContent=`北京时间 ${updated} 更新 · 符合奖励条件 ${entries.length} 场${report.status==='partial'?' · 基于旧快照核验，可能遗漏新比赛':''}${report.awardFilterVersion!==1?' · 旧日报未包含奖励核验，等待下次采集':''}${stale?' · 日报已过期，请检查更新任务':''}`;
+  kaggleMeta.textContent=`北京时间 ${updated} 采集 · 符合奖励条件 ${entries.length} 场${report.status==='partial'?' · 已补充官网核验的比赛，可能遗漏新比赛':''}${report.awardFilterVersion!==1?' · 旧日报未包含奖励核验，等待下次采集':''}${stale?' · 自动采集已过期，请检查更新任务':''}`;
   kaggleList.innerHTML=entries.length?entries.map(c=>{
     const score=Math.min(100,Math.max(0,Number(c.score)||0));
     const deadline=new Date(c.deadline).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
