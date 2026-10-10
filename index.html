@@ -340,8 +340,8 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 
 <!-- CONFLICT -->
 <div class="modal" id="conflictModal"><div class="modal-card">
-<h3>检测到多设备修改冲突</h3>
-<div class="conflict-box">云端版本在本机上次同步后已被另一台设备更新。系统没有覆盖任何一边，请明确选择要保留的版本。GitHub 历史仍可回溯。</div>
+<h3>检测到数据修改冲突</h3>
+<div class="conflict-box">云端版本在本页上次同步后发生变化，可能来自同一设备的其他标签页。两边的数据都已保留，请选择要采用的版本。GitHub 历史仍可回溯。</div>
 <div id="conflictDetail" class="small" style="margin-top:10px"></div>
 <div class="toolbar" style="margin-top:14px">
   <button class="btn" id="downloadConflictBackupBtn">先下载本机备份</button>
@@ -359,7 +359,7 @@ const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],re
 const weekdaysCN=['周日','周一','周二','周三','周四','周五','周六'];
 const cats={course:'var(--course)',exercise:'var(--exercise)',research:'var(--research)',study:'var(--study)',stock:'var(--stock)',life:'var(--life)',project:'var(--project)'};
 let currentDate=new Date(),checkDate=new Date(),viewMode='week',editingEventId=null,editingTaskId=null,editingCourseId=null,editingProjectId=null,localDataExisted=false;
-const syncState={baseSha:null,dirty:false,busy:false,timer:null,conflict:null,lastSync:null};
+const syncState={baseSha:null,baseHash:null,dirty:false,busy:false,timer:null,conflict:null,lastSync:null};
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
 function fmtDate(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
 function parseDate(s){const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)}
@@ -402,8 +402,14 @@ function base64ToUtf8(value){const binary=atob(String(value||'').replace(/\s/g,'
 function encodeRepoPath(path){return path.split('/').filter(Boolean).map(encodeURIComponent).join('/')}
 function extractData(payload){const data=payload?.data||payload;if(!data||!Array.isArray(data.events)||!Array.isArray(data.tasks)||!data.done||!Array.isArray(data.courses)||!Array.isArray(data.training)||!Array.isArray(data.body)||!Array.isArray(data.research)||!Array.isArray(data.stock)||data.wisdom!=null&&!Array.isArray(data.wisdom)||data.projects!=null&&!Array.isArray(data.projects))throw Error('云端数据格式不正确');return {...data,wisdom:data.wisdom||[],projects:data.projects||[]}}
 function replaceDB(data){const d=extractData(data);DB.version=2;['events','tasks','courses','training','body','research','stock','wisdom','projects'].forEach(k=>DB[k]=Array.isArray(d[k])?d[k]:[]);DB.done=d.done&&typeof d.done==='object'?d.done:{};localStorage.setItem(KEY,JSON.stringify(DB));localDataExisted=true;renderAll()}
-function updateSyncMeta(sha){const c=getSyncConfig(),meta={repoKey:repoKey(c),sha,dataHash:dataHash(),syncedAt:new Date().toISOString()};localStorage.setItem(SYNC_META_KEY,JSON.stringify(meta));syncState.baseSha=sha;syncState.dirty=false;syncState.lastSync=new Date();setSyncStatus('已同步','ok')}
-function remotePayload(){return{schemaVersion:2,updatedAt:new Date().toISOString(),source:'personal-growth-app',data:DB}}
+function updateSyncMeta(sha,syncedHash=dataHash()){
+  const c=getSyncConfig(),meta={repoKey:repoKey(c),sha,dataHash:syncedHash,syncedAt:new Date().toISOString()};
+  localStorage.setItem(SYNC_META_KEY,JSON.stringify(meta));
+  syncState.baseSha=sha;syncState.baseHash=syncedHash;syncState.dirty=dataHash()!==syncedHash;syncState.lastSync=new Date();
+  setSyncStatus(syncState.dirty?'本机有未同步更改':'已同步',syncState.dirty?'warn':'ok');
+  if(syncState.dirty)scheduleCloudSync();
+}
+function remotePayload(data=DB){return{schemaVersion:2,updatedAt:new Date().toISOString(),source:'personal-growth-app',data}}
 
 async function githubRequest(route,options={}){
   const c=getSyncConfig();
@@ -435,13 +441,14 @@ async function readRemote(ref=getSyncConfig().branch){
   }
 }
 async function commitCurrent(remote,message){
-  const c=getSyncConfig(),body={message:message||`sync: ${new Date().toLocaleString('zh-CN',{hour12:false})}`,content:utf8ToBase64(JSON.stringify(remotePayload(),null,2)),branch:c.branch};
+  const c=getSyncConfig(),snapshot=JSON.parse(JSON.stringify(DB)),snapshotHash=dataHash(snapshot);
+  const body={message:message||`sync: ${new Date().toLocaleString('zh-CN',{hour12:false})}`,content:utf8ToBase64(JSON.stringify(remotePayload(snapshot),null,2)),branch:c.branch};
   if(remote?.sha)body.sha=remote.sha;
   const result=await githubRequest(`contents/${encodeRepoPath(c.path)}`,{method:'PUT',body:JSON.stringify(body)});
-  updateSyncMeta(result.content?.sha||result.commit?.sha||remote?.sha||null);
+  updateSyncMeta(result.content?.sha||remote?.sha||null,snapshotHash);
   return result;
 }
-function showConflict(remote){syncState.conflict=remote;setSyncStatus('冲突待处理','error');const when=remote?.updatedAt?new Date(remote.updatedAt).toLocaleString('zh-CN'):'时间未知';conflictDetail.textContent=`云端更新时间：${when}；本机改动尚未上传。`;openModal('conflictModal')}
+function showConflict(remote){const alreadyOpen=!!syncState.conflict;syncState.conflict=remote;setSyncStatus('冲突待处理','error');const when=remote?.updatedAt?new Date(remote.updatedAt).toLocaleString('zh-CN'):'时间未知';conflictDetail.textContent=`云端更新时间：${when}；本机改动尚未上传。`;if(!alreadyOpen)openModal('conflictModal')}
 function syncError(error){console.error(error);let text=error.message||'同步失败';if(error.status===401)text='Token 无效或已过期';else if(error.status===403)text='Token 权限不足或达到 API 限制';else if(error.status===404)text=error.message&&error.message!=='Not Found'?error.message:'GitHub 404：请检查 Token 对私有仓库的授权、分支和数据文件路径';else if(error.status===409)text='云端刚被其他设备更新，请重新同步';setSyncStatus(text,'error')}
 async function syncNow(options={}){
   if(!isSyncConfigured()){setSyncStatus('GitHub 未配置','idle');if(!options.quiet)openSyncSettings();return}
@@ -451,19 +458,22 @@ async function syncNow(options={}){
     const remote=await readRemote();
     if(!remote){await commitCurrent(null,'init: 创建个人成长数据');return}
     const localHash=dataHash(),remoteHash=dataHash(remote.data);
+    syncState.dirty=syncState.dirty||syncState.baseHash!==null&&localHash!==syncState.baseHash;
+    if(remoteHash===localHash){syncState.conflict=null;closeModal('conflictModal');updateSyncMeta(remote.sha,localHash);return}
     if(syncState.dirty){
-      if(syncState.baseSha&&remote.sha!==syncState.baseSha){if(remoteHash===localHash)updateSyncMeta(remote.sha);else showConflict(remote);return}
-      if(!syncState.baseSha){if(remoteHash===localHash)updateSyncMeta(remote.sha);else showConflict(remote);return}
+      if(syncState.baseSha&&remote.sha!==syncState.baseSha&&remoteHash!==syncState.baseHash){showConflict(remote);return}
+      if(!syncState.baseSha&&remoteHash!==syncState.baseHash){showConflict(remote);return}
       await commitCurrent(remote);return;
     }
-    if(remote.sha!==syncState.baseSha||remoteHash!==localHash){replaceDB(remote.data);updateSyncMeta(remote.sha)}else updateSyncMeta(remote.sha);
+    if(syncState.baseSha&&remote.sha===syncState.baseSha&&remoteHash!==localHash){await commitCurrent(remote);return}
+    if(remote.sha!==syncState.baseSha||remoteHash!==localHash){replaceDB(remote.data);updateSyncMeta(remote.sha,dataHash(remote.data))}else updateSyncMeta(remote.sha,remoteHash);
   }catch(error){syncError(error)}finally{syncState.busy=false}
 }
 function scheduleCloudSync(){clearTimeout(syncState.timer);if(isSyncConfigured())syncState.timer=setTimeout(()=>syncNow({quiet:true}),6000)}
 function initialiseSync(){
   if(!isSyncConfigured()){setSyncStatus('GitHub 未配置','idle');return}
   const meta=getSyncMeta();
-  if(meta.repoKey===repoKey()){syncState.baseSha=meta.sha||null;syncState.dirty=dataHash()!==meta.dataHash}else{syncState.baseSha=null;syncState.dirty=syncState.dirty||localDataExisted}
+  if(meta.repoKey===repoKey()){syncState.baseSha=meta.sha||null;syncState.baseHash=meta.dataHash||null;syncState.dirty=dataHash()!==meta.dataHash}else{syncState.baseSha=null;syncState.baseHash=null;syncState.dirty=syncState.dirty||localDataExisted}
   syncNow({quiet:true});
 }
 function openSyncSettings(){const c=getSyncConfig();syncOwner.value=c.owner;syncRepo.value=c.repo;syncBranch.value=c.branch;syncPath.value=c.path;syncToken.value=c.token;openModal('syncSettingsModal')}
@@ -539,8 +549,8 @@ saveEventBtn.onclick=()=>{if(!evTitle.value.trim())return alert('请填写标题
 deleteEventBtn.onclick=()=>{if(editingEventId&&confirm('确定删除？')){DB.events=DB.events.filter(x=>x.id!==editingEventId);save();closeModal('eventModal');renderAll()}};
 
 function renderChecklist(targetDate=checkDate,wrap=checklistWrap,mini=false){
-  const tasks=DB.tasks.filter(t=>t.group!=='股市行为'&&taskOccursOn(t,targetDate)),dk=fmtDate(targetDate);DB.done[dk]=DB.done[dk]||{};const groups=[...new Set(tasks.map(t=>t.group))];wrap.innerHTML='';let done=0;
-  groups.forEach(g=>{const box=document.createElement('div');box.className='check-group';box.innerHTML=`<h3>${esc(g)}</h3>`;tasks.filter(t=>t.group===g).forEach(t=>{const checked=!!DB.done[dk][t.id];if(checked)done++;const r=document.createElement('label');r.className='check-item'+(checked?' done':'');r.innerHTML=`<input type="checkbox" ${checked?'checked':''}><div><div class="check-name">${esc(t.name)}</div>${t.note?`<div class="check-note">${esc(t.note)}</div>`:''}</div>`;r.querySelector('input').onchange=e=>{DB.done[dk][t.id]=e.target.checked;save();renderAll()};box.appendChild(r)});wrap.appendChild(box)});
+  const tasks=DB.tasks.filter(t=>t.group!=='股市行为'&&taskOccursOn(t,targetDate)),dk=fmtDate(targetDate),dayDone=DB.done[dk]||{};const groups=[...new Set(tasks.map(t=>t.group))];wrap.innerHTML='';let done=0;
+  groups.forEach(g=>{const box=document.createElement('div');box.className='check-group';box.innerHTML=`<h3>${esc(g)}</h3>`;tasks.filter(t=>t.group===g).forEach(t=>{const checked=!!dayDone[t.id];if(checked)done++;const r=document.createElement('label');r.className='check-item'+(checked?' done':'');r.innerHTML=`<input type="checkbox" ${checked?'checked':''}><div><div class="check-name">${esc(t.name)}</div>${t.note?`<div class="check-note">${esc(t.note)}</div>`:''}</div>`;r.querySelector('input').onchange=e=>{DB.done[dk]=DB.done[dk]||{};DB.done[dk][t.id]=e.target.checked;save();renderAll()};box.appendChild(r)});wrap.appendChild(box)});
   if(!mini){checkDateTitle.textContent=targetDate.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});const pct=tasks.length?Math.round(done/tasks.length*100):0;progressText.textContent=`已完成 ${done}/${tasks.length} · ${pct}%`;progressBar.style.width=pct+'%'}
   return {done,total:tasks.length,pct:tasks.length?Math.round(done/tasks.length*100):0}
 }
@@ -780,7 +790,7 @@ function exportBackup(prefix='个人成长系统V2'){const blob=new Blob([JSON.s
 exportBtn.onclick=()=>exportBackup();
 importFile.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const o=JSON.parse(await f.text()),d=o.data||o;if(!d.events||!d.tasks||!d.done||d.wisdom!=null&&!Array.isArray(d.wisdom)||d.projects!=null&&!Array.isArray(d.projects))throw Error('备份格式不正确');if(confirm('导入会覆盖当前数据，是否继续？')){for(const k of Object.keys(DB)){if(k!=='version'&&d[k]!=null)DB[k]=d[k]}if(d.projects==null)DB.projects=[];save();renderAll()}}catch(err){alert('导入失败：'+err.message)}e.target.value=''}
 
-syncNowBtn.onclick=openSyncSettings;
+syncNowBtn.onclick=()=>syncState.conflict?openModal('conflictModal'):openSyncSettings();
 syncModalNowBtn.onclick=()=>{if(!isSyncConfigured())return alert('请先保存同步设置。');syncNow()};
 historyBtn.onclick=()=>{openModal('historyModal');loadHistory()};
 refreshHistoryBtn.onclick=loadHistory;
@@ -795,6 +805,19 @@ acceptRemoteBtn.onclick=()=>{const remote=syncState.conflict;if(!remote)return;i
 keepLocalBtn.onclick=async()=>{if(!syncState.conflict||syncState.busy)return;if(!confirm('确定保留本机版本并提交到云端？云端当前版本仍保留在 GitHub 历史中。'))return;syncState.busy=true;setSyncStatus('正在提交本机版本…','busy');try{const latest=await readRemote();await commitCurrent(latest,'conflict: 明确保留本机版本');syncState.conflict=null;closeModal('conflictModal')}catch(error){syncError(error);alert('提交失败：'+error.message)}finally{syncState.busy=false}};
 
 load();renderAll();initialiseSync();
+window.addEventListener('storage',e=>{
+  if(e.key===KEY&&e.newValue&&!syncState.dirty){
+    try{const next=extractData(JSON.parse(e.newValue));if(dataHash(next)!==dataHash()){
+      replaceDB(next);syncState.dirty=true;setSyncStatus('本机有未同步更改','warn');scheduleCloudSync();
+    }}catch(error){console.error('读取其他标签页的数据失败',error)}
+  }
+  if(e.key===SYNC_META_KEY&&e.newValue){
+    try{const meta=JSON.parse(e.newValue);if(meta.repoKey===repoKey()&&meta.dataHash===dataHash()){
+      syncState.baseSha=meta.sha||null;syncState.baseHash=meta.dataHash;syncState.dirty=false;
+      syncState.conflict=null;closeModal('conflictModal');setSyncStatus('已同步','ok');
+    }}catch(error){console.error('读取其他标签页的同步状态失败',error)}
+  }
+});
 setInterval(()=>syncNow({quiet:true}),30000);
 window.addEventListener('focus',()=>{syncNow({quiet:true});if(document.getElementById('kaggle').classList.contains('active')&&Date.now()-kaggleLoadedAt>1800000)loadKaggleReport();if(document.getElementById('tianchi').classList.contains('active')&&Date.now()-tianchiLoadedAt>1800000)loadTianchiReport()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncNow({quiet:true})});
