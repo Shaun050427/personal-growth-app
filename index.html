@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#2563eb">
-<meta name="description" content="个人全方位成长系统：日程、课程、训练、健康、科研、清风心法、Kaggle 与天池竞赛日报、每日清单，多设备 GitHub 同步。">
+<meta name="description" content="个人全方位成长系统：日程、课程、训练、健康、科研、清风心法、Kaggle 与天池竞赛日报、每日清单，每周复盘、项目评估、成果资产与 GitHub 同步。">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>个人全方位成长系统 · GitHub 云同步版</title>
 <style>
@@ -53,7 +53,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 @media(max-width:680px){.kaggle-row{grid-template-columns:minmax(0,1fr) 68px;gap:8px}.kaggle-score{font-size:19px;padding:6px}}
 .wisdom-list{display:grid;gap:10px}.wisdom-item{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff}.wisdom-item.dragging{opacity:.55}.wisdom-item.drag-before{border-top:3px solid var(--primary)}.wisdom-item.drag-after{border-bottom:3px solid var(--primary)}.wisdom-handle{flex:none;cursor:grab;touch-action:none;user-select:none;color:var(--muted);font-size:24px;line-height:1;padding:2px 4px}.wisdom-handle:active{cursor:grabbing}.wisdom-number{flex:none;min-width:24px;color:var(--muted);font-size:13px;padding-top:5px}.wisdom-content{flex:1;min-width:0}.wisdom-text{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8}.wisdom-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
 @media(max-width:680px){.wisdom-item{gap:7px;padding:10px}.wisdom-handle{font-size:22px}}
-.project-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}.project-group{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:#f8fafc}.project-group h3{margin:0 0 12px;font-size:16px}.project-group.drop-target{outline:2px dashed var(--project)}.project-group-list{display:grid;gap:12px;min-height:70px}.project-empty{color:var(--muted);font-size:12px;padding:18px 6px;text-align:center}.project-card{min-width:0;border:1px solid var(--line);border-left:4px solid var(--project);border-radius:12px;padding:14px;background:#fff}.project-card.dragging{opacity:.5}.project-card.drag-before{border-top:3px solid var(--primary)}.project-card.drag-after{border-bottom:3px solid var(--primary)}.project-card h3{margin:0 0 5px}.project-card .project-heading{display:flex;align-items:flex-start;gap:8px}.project-handle{flex:none;cursor:grab;user-select:none;color:var(--muted);font-size:22px;line-height:1}.project-handle:active{cursor:grabbing}.project-card .project-meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.project-card .project-goal{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.project-sessions{margin:10px 0;display:flex;gap:6px;flex-wrap:wrap}.project-sessions button{font-size:12px}.project-card .toolbar{margin-top:12px}
+.project-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}.project-group{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:#f8fafc}.project-group h3{margin:0 0 12px;font-size:16px}.project-group.drop-target{outline:2px dashed var(--project)}.project-group-list{display:grid;gap:12px;min-height:70px}.project-empty{color:var(--muted);font-size:12px;padding:18px 6px;text-align:center}.project-card{min-width:0;border:1px solid var(--line);border-left:4px solid var(--project);border-radius:12px;padding:14px;background:#fff}.project-card.dragging{opacity:.5}.project-card.drag-before{border-top:3px solid var(--primary)}.project-card.drag-after{border-bottom:3px solid var(--primary)}.project-card h3{margin:0 0 5px}.project-card .project-heading{display:flex;align-items:flex-start;gap:8px}.project-handle{flex:none;cursor:grab;user-select:none;color:var(--muted);font-size:22px;line-height:1}.project-handle:active{cursor:grabbing}.project-card .project-meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.project-card .project-goal{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.project-sessions{margin:10px 0;display:flex;gap:6px;flex-wrap:wrap}.project-sessions button{font-size:12px}.project-card .toolbar{margin-top:12px}
 @media(max-width:920px){.project-list{grid-template-columns:1fr}}
 .sync-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:#fff;font-size:12px;font-weight:700}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}.sync-badge[data-tone="ok"] .sync-dot{background:#16a34a}.sync-badge[data-tone="busy"] .sync-dot{background:#2563eb;animation:pulse 1s infinite}.sync-badge[data-tone="warn"] .sync-dot{background:#ea580c}.sync-badge[data-tone="error"] .sync-dot{background:#dc2626}
@@ -87,6 +87,8 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
     <button class="tab" data-tab="training">训练</button>
     <button class="tab" data-tab="research">科研</button>
     <button class="tab" data-tab="projects">中长期</button>
+    <button class="tab" data-tab="weekly">每周复盘</button>
+    <button class="tab" data-tab="assets">成果资产</button>
     <button class="tab" data-tab="wisdom">清风心法</button>
     <button class="tab" data-tab="kaggle">Kaggle</button>
     <button class="tab" data-tab="tianchi">天池</button>
@@ -96,6 +98,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
   <!-- HOME -->
   <section class="module active" id="home">
     <div class="grid g4" id="homeStats"></div>
+    <div class="card row" style="justify-content:space-between"><div><b>让记录变成下一周的决策</b><div class="small" id="growthHomeStatus"></div></div><button class="btn primary" onclick="switchTab('weekly')">每周成长复盘</button></div>
     <div class="card">
       <div class="section-title">
         <div><h2>今日时间安排</h2><div class="small">课程库中的课程会自动进入时间表</div></div>
@@ -165,6 +168,35 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
       <div class="project-list" id="projectList"></div>
     </div>
   </section>
+
+  <section class="module" id="weekly">
+    <div class="card">
+      <div class="section-title"><div><h2>每周成长复盘</h2><div class="small">从事实与阻碍出发，决定下一周最值得做的事</div></div><div class="toolbar"><button class="btn" id="reviewPrev">← 上周</button><button class="btn" id="reviewCurrent">本周</button><button class="btn" id="reviewNext">下周 →</button></div></div>
+      <div class="row"><label for="reviewDate">选择一周中的日期</label><input type="date" id="reviewDate"><b id="reviewRange"></b></div>
+      <div class="grid g4" id="reviewStats" style="margin-top:12px"></div>
+      <div class="small" style="margin-top:10px">日程表示计划；未勾选的清单不等于实际未完成。未来日期不计入实际进展。</div>
+    </div>
+    <div class="card"><h3>本周事实与待审查项目</h3><div id="reviewFacts"></div></div>
+    <div class="card">
+      <h3>我的复盘与 AI 建议草稿</h3><div class="small">可把 ChatGPT 的建议粘贴到下周重点，再自行修订。草稿自动保存在当前浏览器；点击确认保存后才进入备份和云同步。</div>
+      <div class="form-grid" style="margin-top:12px">
+        <div class="field"><label for="reviewOutput">实际成果与证据</label><textarea id="reviewOutput" maxlength="6000"></textarea></div>
+        <div class="field"><label for="reviewUnfinished">未完成事项</label><textarea id="reviewUnfinished" maxlength="6000"></textarea></div>
+        <div class="field"><label for="reviewBlockers">最重要的阻碍</label><textarea id="reviewBlockers" maxlength="6000"></textarea></div>
+        <div class="field"><label for="reviewPlan">下周最多三个重点与验收标准</label><textarea id="reviewPlan" maxlength="6000"></textarea></div>
+      </div>
+      <div class="toolbar" style="margin-top:12px"><button class="btn primary" id="saveReviewBtn">确认保存复盘</button><button class="btn" id="restoreReviewBtn">载入已保存复盘</button><button class="btn danger" id="deleteReviewBtn">删除已保存复盘</button><span class="small" id="reviewDraftStatus" role="status"></span></div>
+    </div>
+    <div class="card"><h3>导出给 ChatGPT</h3><div class="small">报告仅在本页生成。预览后复制或下载 Markdown，由你选择交给 ChatGPT；不会自动调用外部模型。</div>
+      <div class="toolbar" style="margin:12px 0"><label><input type="checkbox" id="reviewIncludeTraining" checked> 纳入训练</label><label><input type="checkbox" id="reviewIncludeBody"> 纳入身体数据</label><button class="btn" id="previewReviewBtn">刷新预览</button><button class="btn" id="copyReviewBtn">复制报告</button><button class="btn primary" id="downloadReviewBtn">下载 Markdown</button></div>
+      <textarea id="reviewPreview" readonly aria-label="Markdown 报告预览" style="width:100%;min-height:320px"></textarea><div class="small" id="reviewExportStatus" role="status"></div>
+    </div>
+  </section>
+  <section class="module" id="assets"><div class="card">
+    <div class="section-title"><div><h2>成果资产库</h2><div class="small">把报告、代码、笔记与作品关联到长期目标，记录证据与复用方式</div></div><button class="btn primary" id="addAssetBtn">+ 新增成果</button></div>
+    <div class="toolbar"><label for="assetFilter">关联项目</label><select id="assetFilter"><option value="">全部项目</option></select><label for="assetSearch">搜索成果</label><input id="assetSearch" placeholder="标题、类型或备注"></div>
+    <div id="assetList" class="grid g2" style="margin-top:12px"></div>
+  </div></section>
 
   <!-- WISDOM -->
   <section class="module" id="wisdom">
@@ -297,14 +329,36 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 <h3 id="projectModalTitle">新建中长期项目</h3>
 <div class="form-grid">
 <div class="field full"><label for="projectTitle">项目名称</label><input id="projectTitle" maxlength="120" placeholder="例如：完成图像复原课题"></div>
+<div class="field full"><label for="projectSourceUrl">项目 / 竞赛链接（可选）</label><input id="projectSourceUrl" type="url" maxlength="2000"></div>
 <div class="field full"><label for="projectGoal">目标与阶段成果</label><textarea id="projectGoal" maxlength="3000" placeholder="希望达成什么？下一阶段具体交付什么？"></textarea></div>
 <div class="field"><label for="projectDeadline">目标日期（可选）</label><input id="projectDeadline" type="date"></div>
-<div class="field"><label for="projectStatus">状态</label><select id="projectStatus"><option value="active">进行中</option><option value="paused">暂缓</option><option value="done">已完成</option></select></div>
+<div class="field"><label for="projectStatus">状态</label><select id="projectStatus"><option value="active">进行中</option><option value="paused">暂缓</option><option value="done">已完成</option><option value="stopped">已终止</option></select></div>
+<div class="field full"><label for="projectExpectedOutcome">预期成果与验收标准</label><textarea id="projectExpectedOutcome" maxlength="3000" placeholder="例如：完成可复现的 baseline，提交报告与代码"></textarea></div>
+<div class="field"><label for="projectBudgetHours">预计有效工时（可选）</label><input id="projectBudgetHours" type="number" min="0" step="0.5"></div>
+<div class="field"><label for="projectBudgetCost">费用 / 算力预算（可选）</label><input id="projectBudgetCost" maxlength="300" placeholder="例如：¥200、T4 10小时"></div>
+<div class="field"><label for="projectReviewDate">下次审查日期</label><input id="projectReviewDate" type="date"></div>
+<div class="field"><label for="projectRewardEligibility">奖励与资格核验</label><input id="projectRewardEligibility" maxlength="1000" placeholder="现金 / 奖牌条件、资格和来源"></div>
+<div class="field full"><label for="projectBaselineGap">当前基线与竞争差距</label><textarea id="projectBaselineGap" maxlength="3000"></textarea></div>
+<div class="field"><label for="projectAdvantage">个人优势</label><textarea id="projectAdvantage" maxlength="3000"></textarea></div>
+<div class="field"><label for="projectTransferValue">可迁移价值</label><textarea id="projectTransferValue" maxlength="3000"></textarea></div>
+<div class="field"><label for="projectContinueCondition">继续投入的条件</label><textarea id="projectContinueCondition" maxlength="3000" placeholder="什么证据支持继续？"></textarea></div>
+<div class="field"><label for="projectStopCondition">暂缓 / 终止条件</label><textarea id="projectStopCondition" maxlength="3000" placeholder="例如：固定预算内3次独立实验仍低于基线"></textarea></div>
+<div class="field full"><label for="projectDecisionNote">最近决策与依据</label><textarea id="projectDecisionNote" maxlength="3000" placeholder="为什么继续、暂缓或终止？"></textarea></div>
 <div class="field full"><label for="projectNote">备注（可选）</label><textarea id="projectNote" maxlength="3000"></textarea></div>
 </div>
 <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn danger hide" id="deleteProjectBtn">删除项目</button><button class="btn" data-close="projectModal">取消</button><button class="btn primary" id="saveProjectBtn">保存</button></div>
 </div></div>
 
+<div class="modal" id="assetModal"><div class="modal-card"><h3 id="assetModalTitle">新增成果资产</h3>
+<div class="form-grid">
+<div class="field full"><label for="assetTitle">成果名称</label><input id="assetTitle" maxlength="200"></div>
+<div class="field"><label for="assetType">类型</label><select id="assetType"><option>科研报告</option><option>竞赛经验</option><option>代码仓库</option><option>学习笔记</option><option>可展示作品</option><option>其他</option></select></div>
+<div class="field"><label for="assetDate">成果日期</label><input type="date" id="assetDate"></div>
+<div class="field full"><label for="assetProject">关联中长期项目（可选）</label><select id="assetProject"></select></div>
+<div class="field full"><label for="assetUrl">成果链接（可选，HTTP / HTTPS）</label><input id="assetUrl" type="url" maxlength="2000" placeholder="代码、报告或笔记的地址"></div>
+<div class="field full"><label for="assetNote">成果证据与复用方式</label><textarea id="assetNote" maxlength="6000" placeholder="完成了什么，在哪种场景可以再次使用？"></textarea></div>
+</div><div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="assetModal">取消</button><button class="btn primary" id="saveAssetBtn">保存成果</button></div>
+</div></div>
 <!-- WISDOM MODAL -->
 <div class="modal" id="wisdomModal"><div class="modal-card">
 <h3 id="wisdomModalTitle">记录一句</h3>
@@ -341,25 +395,28 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 <!-- CONFLICT -->
 <div class="modal" id="conflictModal"><div class="modal-card">
 <h3>检测到数据修改冲突</h3>
-<div class="conflict-box">云端版本在本页上次同步后发生变化，可能来自同一设备的其他标签页。两边的数据都已保留，请选择要采用的版本。GitHub 历史仍可回溯。</div>
+<div class="conflict-box">检测到无法自动合并的修改，可能来自同一设备的其他标签页。冲突副本已保存在当前浏览器，请选择要采用的版本。已同步的历史可从 GitHub 回溯。</div>
 <div id="conflictDetail" class="small" style="margin-top:10px"></div>
 <div class="toolbar" style="margin-top:14px">
-  <button class="btn" id="downloadConflictBackupBtn">先下载本机备份</button>
+  <button class="btn" id="downloadConflictBackupBtn">下载两边冲突副本</button>
   <button class="btn" id="acceptRemoteBtn">采用云端版本</button>
   <button class="btn danger" id="keepLocalBtn">保留本机并提交新版本</button>
 </div>
 <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="conflictModal">暂不处理</button></div>
 </div></div>
 
+<script src="./growth-model.js"></script>
+<script src="./growth-ui.js"></script>
 <script>
 const KEY='personalPlanner_v2';
 const SYNC_CONFIG_KEY='personalGrowthGithubSync_v1';
 const SYNC_META_KEY='personalGrowthGithubMeta_v1';
-const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[],projects:[]};
+const SYNC_BASE_KEY='personalGrowthGithubBase_v1';
+const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[],projects:[],assets:[],weeklyReviews:[]};
 const weekdaysCN=['周日','周一','周二','周三','周四','周五','周六'];
 const cats={course:'var(--course)',exercise:'var(--exercise)',research:'var(--research)',study:'var(--study)',stock:'var(--stock)',life:'var(--life)',project:'var(--project)'};
 let currentDate=new Date(),checkDate=new Date(),viewMode='week',editingEventId=null,editingTaskId=null,editingCourseId=null,editingProjectId=null,localDataExisted=false;
-const syncState={baseSha:null,baseHash:null,dirty:false,busy:false,timer:null,conflict:null,lastSync:null};
+const syncState={baseSha:null,baseHash:null,dirty:false,busy:false,timer:null,conflict:null,lastSync:null,baseData:null};
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
 function fmtDate(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
 function parseDate(s){const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)}
@@ -367,7 +424,8 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=new Date(d);const day=x.getDay();x.setDate(x.getDate()+(day===0?-6:1-day));x.setHours(0,0,0,0);return x}
 function sameDate(a,b){return fmtDate(a)===fmtDate(b)}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function dataHash(data=DB){let h=2166136261,s=JSON.stringify(data);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
+function legacyDataHash(data=DB){const d={...data};['assets','weeklyReviews'].forEach(k=>{if(Array.isArray(d[k])&&!d[k].length)delete d[k]});let h=2166136261,s=JSON.stringify(d);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
+function dataHash(data=DB){return GrowthModel.hash(data)}
 function getSyncConfig(){try{return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:'',...JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY)||'{}')}}catch(e){return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:''}}}
 function getSyncMeta(){try{return JSON.parse(localStorage.getItem(SYNC_META_KEY)||'{}')}catch(e){return{}}}
 function repoKey(c=getSyncConfig()){return `${c.owner}/${c.repo}/${c.branch}/${c.path}`}
@@ -383,6 +441,8 @@ function load(){
   }
   if(!Array.isArray(DB.wisdom))DB.wisdom=[];
   if(!Array.isArray(DB.projects))DB.projects=[];
+  if(!Array.isArray(DB.assets))DB.assets=[];
+  if(!Array.isArray(DB.weeklyReviews))DB.weeklyReviews=[];
   if(!DB.tasks.length)seedTasks();
 }
 function seedTasks(){
@@ -400,10 +460,12 @@ function seedTasks(){
 function utf8ToBase64(text){const bytes=new TextEncoder().encode(text);let binary='';for(let i=0;i<bytes.length;i+=32768)binary+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(binary)}
 function base64ToUtf8(value){const binary=atob(String(value||'').replace(/\s/g,'')),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return new TextDecoder().decode(bytes)}
 function encodeRepoPath(path){return path.split('/').filter(Boolean).map(encodeURIComponent).join('/')}
-function extractData(payload){const data=payload?.data||payload;if(!data||!Array.isArray(data.events)||!Array.isArray(data.tasks)||!data.done||!Array.isArray(data.courses)||!Array.isArray(data.training)||!Array.isArray(data.body)||!Array.isArray(data.research)||!Array.isArray(data.stock)||data.wisdom!=null&&!Array.isArray(data.wisdom)||data.projects!=null&&!Array.isArray(data.projects))throw Error('云端数据格式不正确');return {...data,wisdom:data.wisdom||[],projects:data.projects||[]}}
-function replaceDB(data){const d=extractData(data);DB.version=2;['events','tasks','courses','training','body','research','stock','wisdom','projects'].forEach(k=>DB[k]=Array.isArray(d[k])?d[k]:[]);DB.done=d.done&&typeof d.done==='object'?d.done:{};localStorage.setItem(KEY,JSON.stringify(DB));localDataExisted=true;renderAll()}
-function updateSyncMeta(sha,syncedHash=dataHash()){
+function extractData(payload){return GrowthModel.normalize(payload)}
+function replaceDB(data){const d=extractData(data);Object.keys(DB).forEach(k=>delete DB[k]);Object.assign(DB,d);localStorage.setItem(KEY,JSON.stringify(DB));localDataExisted=true;renderAll()}
+function updateSyncMeta(sha,syncedHash=dataHash(),snapshot=DB){
   const c=getSyncConfig(),meta={repoKey:repoKey(c),sha,dataHash:syncedHash,syncedAt:new Date().toISOString()};
+  syncState.baseData=JSON.parse(JSON.stringify(snapshot));
+  localStorage.setItem(SYNC_BASE_KEY,JSON.stringify({repoKey:repoKey(c),data:syncState.baseData}));
   localStorage.setItem(SYNC_META_KEY,JSON.stringify(meta));
   syncState.baseSha=sha;syncState.baseHash=syncedHash;syncState.dirty=dataHash()!==syncedHash;syncState.lastSync=new Date();
   setSyncStatus(syncState.dirty?'本机有未同步更改':'已同步',syncState.dirty?'warn':'ok');
@@ -416,6 +478,7 @@ async function githubRequest(route,options={}){
   if(!c.token)throw Error('请先配置当前设备的 GitHub Token');
   const response=await fetch(`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}${route?'/'+route:''}`,{
     ...options,
+    cache:'no-store',
     headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${c.token}`,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json',...(options.headers||{})}
   });
   let body=null;try{body=await response.json()}catch(e){}
@@ -445,35 +508,57 @@ async function commitCurrent(remote,message){
   const body={message:message||`sync: ${new Date().toLocaleString('zh-CN',{hour12:false})}`,content:utf8ToBase64(JSON.stringify(remotePayload(snapshot),null,2)),branch:c.branch};
   if(remote?.sha)body.sha=remote.sha;
   const result=await githubRequest(`contents/${encodeRepoPath(c.path)}`,{method:'PUT',body:JSON.stringify(body)});
-  updateSyncMeta(result.content?.sha||remote?.sha||null,snapshotHash);
+  updateSyncMeta(result.content?.sha||remote?.sha||null,snapshotHash,snapshot);
   return result;
 }
-function showConflict(remote){const alreadyOpen=!!syncState.conflict;syncState.conflict=remote;setSyncStatus('冲突待处理','error');const when=remote?.updatedAt?new Date(remote.updatedAt).toLocaleString('zh-CN'):'时间未知';conflictDetail.textContent=`云端更新时间：${when}；本机改动尚未上传。`;if(!alreadyOpen)openModal('conflictModal')}
+function showConflict(remote){try{localStorage.setItem('personalGrowthConflictBackup_v1',JSON.stringify({createdAt:new Date().toISOString(),local:DB,other:remote.data}))}catch(error){console.error('保留冲突副本失败',error)}const alreadyOpen=!!syncState.conflict;syncState.conflict=remote;setSyncStatus('冲突待处理','error');const when=remote?.updatedAt?new Date(remote.updatedAt).toLocaleString('zh-CN'):'时间未知';conflictDetail.textContent=`其他版本更新时间：${when}；本机改动尚未上传。`;if(!alreadyOpen)openModal('conflictModal')}
 function syncError(error){console.error(error);let text=error.message||'同步失败';if(error.status===401)text='Token 无效或已过期';else if(error.status===403)text='Token 权限不足或达到 API 限制';else if(error.status===404)text=error.message&&error.message!=='Not Found'?error.message:'GitHub 404：请检查 Token 对私有仓库的授权、分支和数据文件路径';else if(error.status===409)text='云端刚被更新，请重新同步';setSyncStatus(text,'error')}
 async function syncNow(options={}){
   if(!isSyncConfigured()){setSyncStatus('GitHub 未配置','idle');if(!options.quiet)openSyncSettings();return}
   if(syncState.busy)return;
-  syncState.busy=true;setSyncStatus('正在检查云端…','busy');
-  try{
-    const remote=await readRemote();
-    if(!remote){await commitCurrent(null,'init: 创建个人成长数据');return}
-    const localHash=dataHash(),remoteHash=dataHash(remote.data);
-    syncState.dirty=syncState.dirty||syncState.baseHash!==null&&localHash!==syncState.baseHash;
-    if(remoteHash===localHash){syncState.conflict=null;closeModal('conflictModal');updateSyncMeta(remote.sha,localHash);return}
-    if(syncState.dirty){
-      if(syncState.baseSha&&remote.sha!==syncState.baseSha&&remoteHash!==syncState.baseHash){showConflict(remote);return}
-      if(!syncState.baseSha&&remoteHash!==syncState.baseHash){showConflict(remote);return}
-      await commitCurrent(remote);return;
+  syncState.busy=true;
+  const work=async()=>{
+    if(!refreshSyncBaseline())return;setSyncStatus('正在检查云端…','busy');
+    try{
+      const remote=await readRemote();
+      if(!remote){await commitCurrent(null,'init: 创建个人成长数据');return}
+      const localHash=dataHash(),remoteHash=dataHash(remote.data);
+      syncState.dirty=syncState.dirty||syncState.baseHash!==null&&localHash!==syncState.baseHash;
+      if(remoteHash===localHash){syncState.conflict=null;closeModal('conflictModal');updateSyncMeta(remote.sha,localHash,remote.data);return}
+      if(syncState.dirty){
+        if((syncState.baseSha&&remote.sha!==syncState.baseSha&&remoteHash!==syncState.baseHash)||(!syncState.baseSha&&remoteHash!==syncState.baseHash)){
+          const merged=syncState.baseData&&GrowthModel.mergeData(syncState.baseData,DB,remote.data);
+          if(!merged?.ok){showConflict(remote);return}
+          replaceDB(merged.data);
+        }
+        await commitCurrent(remote);syncState.conflict=null;closeModal('conflictModal');return;
+      }
+      replaceDB(remote.data);updateSyncMeta(remote.sha,remoteHash,remote.data);
+    }catch(error){syncError(error)}
+  };
+  try{if(navigator.locks)await navigator.locks.request('personal-growth-sync:'+repoKey(),work);else await work()}
+  finally{syncState.busy=false}
+}
+function refreshSyncBaseline(){
+  const meta=getSyncMeta();
+  try{const base=JSON.parse(localStorage.getItem(SYNC_BASE_KEY)||'null');
+    if(base?.repoKey===repoKey()&&meta.repoKey===repoKey()&&dataHash(base.data)===meta.dataHash){
+      if(syncState.baseData&&dataHash(syncState.baseData)!==meta.dataHash){
+        const merged=GrowthModel.mergeData(syncState.baseData,DB,base.data);
+        if(!merged.ok){showConflict({sha:meta.sha,data:base.data,updatedAt:meta.syncedAt});return false}
+        if(dataHash(merged.data)!==dataHash())replaceDB(merged.data);
+      }
+      syncState.baseData=base.data;syncState.baseSha=meta.sha;syncState.baseHash=meta.dataHash;syncState.dirty=dataHash()!==meta.dataHash;
     }
-    if(syncState.baseSha&&remote.sha===syncState.baseSha&&remoteHash!==localHash){await commitCurrent(remote);return}
-    if(remote.sha!==syncState.baseSha||remoteHash!==localHash){replaceDB(remote.data);updateSyncMeta(remote.sha,dataHash(remote.data))}else updateSyncMeta(remote.sha,remoteHash);
-  }catch(error){syncError(error)}finally{syncState.busy=false}
+  }catch(error){console.error('读取同步基线失败',error)}
+  return true;
 }
 function scheduleCloudSync(){clearTimeout(syncState.timer);if(isSyncConfigured())syncState.timer=setTimeout(()=>syncNow({quiet:true}),6000)}
 function initialiseSync(){
   if(!isSyncConfigured()){setSyncStatus('GitHub 未配置','idle');return}
   const meta=getSyncMeta();
-  if(meta.repoKey===repoKey()){syncState.baseSha=meta.sha||null;syncState.baseHash=meta.dataHash||null;syncState.dirty=dataHash()!==meta.dataHash}else{syncState.baseSha=null;syncState.baseHash=null;syncState.dirty=syncState.dirty||localDataExisted}
+  if(meta.repoKey===repoKey()){syncState.baseSha=meta.sha||null;const legacyMatch=legacyDataHash()===meta.dataHash;syncState.baseHash=legacyMatch?dataHash():meta.dataHash||null;syncState.dirty=!legacyMatch&&dataHash()!==meta.dataHash;if(!syncState.dirty)syncState.baseData=JSON.parse(JSON.stringify(DB))}else{syncState.baseSha=null;syncState.baseHash=null;syncState.baseData=null;syncState.dirty=syncState.dirty||localDataExisted}
+  refreshSyncBaseline();
   syncNow({quiet:true});
 }
 function openSyncSettings(){const c=getSyncConfig();syncOwner.value=c.owner;syncRepo.value=c.repo;syncBranch.value=c.branch;syncPath.value=c.path;syncToken.value=c.token;openModal('syncSettingsModal')}
@@ -485,7 +570,7 @@ async function loadHistory(){
 async function restoreVersion(commitSha,dateLabel){
   if(!confirm(`确定恢复 ${dateLabel} 的数据？当前版本不会被删除，恢复操作会创建一个新提交。`))return;
   if(syncState.busy)return;syncState.busy=true;setSyncStatus('正在恢复版本…','busy');
-  try{const old=await readRemote(commitSha);if(!old)throw Error('该历史版本中没有数据文件');const current=await readRemote();replaceDB(old.data);syncState.dirty=true;syncState.baseSha=current?.sha||null;await commitCurrent(current,`restore: 恢复 ${commitSha.slice(0,7)} 版本`);closeModal('historyModal');alert('历史版本已恢复，并已作为新版本提交。')}catch(error){syncError(error);alert('恢复失败：'+error.message)}finally{syncState.busy=false}
+  try{const old=await readRemote(commitSha);if(!old)throw Error('该历史版本中没有数据文件');const current=await readRemote();replaceDB(old.data);syncState.dirty=true;syncState.baseSha=current?.sha||null;syncState.baseData=current?.data||null;await commitCurrent(current,`restore: 恢复 ${commitSha.slice(0,7)} 版本`);closeModal('historyModal');alert('历史版本已恢复，并已作为新版本提交。')}catch(error){syncError(error);alert('恢复失败：'+error.message)}finally{syncState.busy=false}
 }
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
@@ -603,7 +688,7 @@ function showKaggleReport(report){
     const deadline=new Date(c.deadline).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
     const awards=(c.awardTypes.includes('cash')?`<span>现金奖励${c.reward?' · '+esc(c.reward):''}</span>`:'')+(c.awardTypes.includes('medal')?'<span>竞赛奖牌</span>':'');
     const tags=awards+(Array.isArray(c.tags)?c.tags:[]).map(x=>`<span>${esc(x)}</span>`).join('');
-    return `<article class="kaggle-row"><div><a href="${esc(kaggleLink(c.url))}" target="_blank" rel="noopener noreferrer">${esc(c.title||c.slug)}</a><div class="kaggle-tags">${tags}</div><div class="small">${esc(c.category||'Kaggle 竞赛')} · 截止：${deadline}（北京时间）</div></div><div class="kaggle-score">${score}<small>推荐指数 / 100</small></div></article>`
+    return `<article class="kaggle-row"><div><a href="${esc(kaggleLink(c.url))}" target="_blank" rel="noopener noreferrer">${esc(c.title||c.slug)}</a><div class="kaggle-tags">${tags}</div><div class="small">${esc(c.category||'Kaggle 竞赛')} · 截止：${deadline}（北京时间）</div><div style="margin-top:10px"><button class="btn" data-assessment="${esc(JSON.stringify({title:c.title||c.slug,url:c.url,reward:(c.awardTypes||[]).join(' / ')+(c.reward?' · '+c.reward:'')}))}">评估是否参赛</button></div></div><div class="kaggle-score">${score}<small>推荐指数 / 100</small></div></article>`
   }).join(''):'<div class="small">当前日报没有已核验的现金奖励或奖牌竞赛；旧日报需等待下一次采集。</div>'
 }
 async function loadKaggleReport(){
@@ -620,6 +705,7 @@ async function loadKaggleReport(){
   finally{kaggleBusy=false}
 }
 kaggleReloadBtn.onclick=loadKaggleReport;
+kaggleList.addEventListener('click',competitionAssessmentClick);
 let tianchiBusy=false,tianchiLoadedAt=0;
 function tianchiLink(raw){
   try{const u=new URL(raw);return u.protocol==='https:'&&u.hostname==='tianchi.aliyun.com'&&/^\/competition\/entrance\/\d+\/?$/.test(u.pathname)&&!u.search&&!u.hash?u.href:null}
@@ -644,7 +730,7 @@ function showTianchiReport(report){
     const signup=c.signupDeadline?` · 报名截止：${new Date(c.signupDeadline).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false})}`:'';
     const awards=(c.awardTypes.includes('cash')?`<span>现金奖励${c.reward?' · '+esc(c.reward):''}</span>`:'')+(c.awardTypes.includes('medal')?'<span>奖牌</span>':'');
     const tags=awards+(Array.isArray(c.tags)?c.tags:[]).map(x=>`<span>${esc(x)}</span>`).join('');
-    return `<article class="kaggle-row"><div><a href="${esc(tianchiLink(c.url))}" target="_blank" rel="noopener noreferrer">${esc(c.title||c.slug)}</a><div class="kaggle-tags">${tags}</div><div class="small">${esc(c.category||'天池竞赛')} · 比赛截止：${deadline}（北京时间）${signup}</div></div><div class="kaggle-score">${score}<small>推荐指数 / 100</small></div></article>`
+    return `<article class="kaggle-row"><div><a href="${esc(tianchiLink(c.url))}" target="_blank" rel="noopener noreferrer">${esc(c.title||c.slug)}</a><div class="kaggle-tags">${tags}</div><div class="small">${esc(c.category||'天池竞赛')} · 比赛截止：${deadline}（北京时间）${signup}</div><div style="margin-top:10px"><button class="btn" data-assessment="${esc(JSON.stringify({title:c.title||c.slug,url:c.url,reward:(c.awardTypes||[]).join(' / ')+(c.reward?' · '+c.reward:'')}))}">评估是否参赛</button></div></div><div class="kaggle-score">${score}<small>推荐指数 / 100</small></div></article>`
   }).join(''):'<div class="small">当前日报没有已核验的现金奖励或奖牌竞赛；未明确公开奖励的赛事会暂时隐藏。</div>'
 }
 async function loadTianchiReport(){
@@ -660,6 +746,7 @@ async function loadTianchiReport(){
   finally{tianchiBusy=false}
 }
 tianchiReloadBtn.onclick=loadTianchiReport;
+tianchiList.addEventListener('click',competitionAssessmentClick);
 let editingWisdomId=null;
 function openNewWisdom(){editingWisdomId=null;wisdomModalTitle.textContent='记录一句';wisdomText.value='';openModal('wisdomModal');wisdomText.focus()}
 function editWisdom(id){const item=DB.wisdom.find(x=>x.id===id);if(!item)return;editingWisdomId=id;wisdomModalTitle.textContent='编辑句子';wisdomText.value=item.text;openModal('wisdomModal');wisdomText.focus()}
@@ -711,10 +798,10 @@ saveWisdomBtn.onclick=()=>{
 };
 
 
-function openNewProject(){editingProjectId=null;projectModalTitle.textContent='新建中长期项目';deleteProjectBtn.classList.add('hide');projectTitle.value='';projectGoal.value='';projectDeadline.value='';projectStatus.value='active';projectNote.value='';openModal('projectModal')}
-function editProject(id){const p=DB.projects.find(x=>x.id===id);if(!p)return;editingProjectId=id;projectModalTitle.textContent='编辑中长期项目';deleteProjectBtn.classList.remove('hide');projectTitle.value=p.title;projectGoal.value=p.goal||'';projectDeadline.value=p.deadline||'';projectStatus.value=p.status||'active';projectNote.value=p.note||'';openModal('projectModal')}
+function openNewProject(){fillProjectAssessment();editingProjectId=null;projectModalTitle.textContent='新建中长期项目';deleteProjectBtn.classList.add('hide');projectTitle.value='';projectSourceUrl.value='';projectGoal.value='';projectDeadline.value='';document.getElementById('projectStatus').value='active';projectNote.value='';openModal('projectModal')}
+function editProject(id){const p=DB.projects.find(x=>x.id===id);if(!p)return;fillProjectAssessment(p);editingProjectId=id;projectModalTitle.textContent='编辑中长期项目';deleteProjectBtn.classList.remove('hide');projectTitle.value=p.title;projectSourceUrl.value=p.sourceUrl||'';projectGoal.value=p.goal||'';projectDeadline.value=p.deadline||'';document.getElementById('projectStatus').value=p.status||'active';projectNote.value=p.note||'';openModal('projectModal')}
 function planProject(id){const p=DB.projects.find(x=>x.id===id);if(!p)return;openNewEvent(currentDate);evCategory.value='project';toggleEventProject();evProject.value=id;evTitle.value=p.title;eventModalTitle.textContent='安排项目时间'}
-const projectStatuses={active:'进行中',paused:'暂缓',done:'已完成'};
+const projectStatuses={active:'进行中',paused:'暂缓',done:'已完成',stopped:'已终止'};
 let draggingProjectId=null;
 function projectStatus(p){return Object.hasOwn(projectStatuses,p.status)?p.status:'active'}
 function reorderProject(id,status,targetId=null,after=false){
@@ -745,12 +832,13 @@ function renderProjects(){
     const card=document.createElement('article');card.className='project-card';card.dataset.id=p.id;
     const linked=DB.events.filter(e=>e.projectId===p.id&&e.category==='project');
     const future=linked.filter(e=>e.repeat==='weekly'||e.date>=fmtDate(new Date())).sort((a,b)=>(a.repeat==='weekly'?'':a.date).localeCompare(b.repeat==='weekly'?'':b.date)||a.start.localeCompare(b.start));
-    card.innerHTML=`<div class="project-heading"><span class="project-handle" role="button" tabindex="0" draggable="true" title="按住拖动排序或更改状态" aria-label="拖动${esc(p.title)}排序">⠿</span><h3>${esc(p.title)}</h3></div><div class="project-meta">${p.deadline?`<span class="pill">目标 ${esc(p.deadline)}</span>`:''}<span class="pill">已安排 ${linked.length} 个时间段</span></div>${p.goal?`<div class="project-goal">${esc(p.goal)}</div>`:''}${p.note?`<div class="small project-goal" style="margin-top:8px">${esc(p.note)}</div>`:''}<div class="project-sessions"></div><div class="toolbar"><button class="btn primary plan" type="button">安排时间</button><button class="btn edit" type="button">编辑项目</button></div>`;
+    card.innerHTML=`<div class="project-heading"><span class="project-handle" role="button" tabindex="0" draggable="true" title="按住拖动排序或更改状态" aria-label="拖动${esc(p.title)}排序">⠿</span><h3>${esc(p.title)}</h3></div><div class="project-meta">${p.deadline?`<span class="pill">目标 ${esc(p.deadline)}</span>`:''}<span class="pill">已安排 ${linked.length} 个时间段</span></div>${projectAssessmentHTML(p)}${p.goal?`<div class="project-goal">${esc(p.goal)}</div>`:''}${p.note?`<div class="small project-goal" style="margin-top:8px">${esc(p.note)}</div>`:''}<div class="project-sessions"></div><div class="toolbar"><button class="btn primary plan" type="button">安排时间</button><button class="btn edit" type="button">编辑项目</button></div>`;
     const sessions=card.querySelector('.project-sessions');
     if(future.length){const label=document.createElement('span');label.className='small';label.textContent='接下来：';sessions.appendChild(label)}
     future.slice(0,4).forEach(ev=>{const b=document.createElement('button');b.className='btn';b.type='button';b.textContent=(ev.repeat==='weekly'?'每周'+(ev.weekdays||[]).map(d=>weekdaysCN[d]).join('、'):ev.date)+' '+ev.start+'–'+ev.end+' · '+ev.title;b.onclick=()=>editEvent(ev.id);sessions.appendChild(b)});
     card.querySelector('.plan').onclick=()=>planProject(p.id);
     card.querySelector('.edit').onclick=()=>editProject(p.id);
+    card.querySelector('[data-project-assets]').onclick=()=>showProjectAssets(p.id);
     const handle=card.querySelector('.project-handle');
     handle.addEventListener('dragstart',e=>{draggingProjectId=p.id;e.dataTransfer.setData('text/plain',p.id);e.dataTransfer.effectAllowed='move';card.classList.add('dragging')});
     handle.addEventListener('dragend',()=>{draggingProjectId=null;projectList.querySelectorAll('.project-card,.project-group').forEach(x=>x.classList.remove('dragging','drag-before','drag-after','drop-target'))});
@@ -765,7 +853,9 @@ function renderProjects(){
 addProjectBtn.onclick=openNewProject;
 saveProjectBtn.onclick=()=>{
   const title=projectTitle.value.trim();if(!title)return alert('请填写项目名称');
-  const o={title,goal:projectGoal.value.trim(),deadline:projectDeadline.value,status:projectStatus.value,note:projectNote.value.trim(),updatedAt:new Date().toISOString()};
+  const assessment=readProjectAssessment();if(assessment===null)return;
+  if(GrowthModel.safeUrl(projectSourceUrl.value.trim())===null)return alert('项目链接需为有效的 HTTP / HTTPS 地址');
+  const o={...assessment,title,sourceUrl:projectSourceUrl.value.trim(),goal:projectGoal.value.trim(),deadline:projectDeadline.value,status:document.getElementById('projectStatus').value,note:projectNote.value.trim(),updatedAt:new Date().toISOString()};
   if(editingProjectId){const p=DB.projects.find(x=>x.id===editingProjectId);if(!p)return;Object.assign(p,o)}
   else DB.projects.push({id:uid(),createdAt:new Date().toISOString(),...o});
   save();closeModal('projectModal');renderAll()
@@ -775,6 +865,7 @@ deleteProjectBtn.onclick=()=>{
   const count=DB.events.filter(e=>e.projectId===editingProjectId).length;
   if(!confirm(`确定删除项目？已安排的 ${count} 个时间段会保留在日程表中，转为普通事项。`))return;
   DB.events.forEach(e=>{if(e.projectId===editingProjectId){e.projectId=null;e.category='life'}});
+  DB.assets.forEach(a=>{if(a.projectId===editingProjectId){a.projectId=null;a.updatedAt=new Date().toISOString()}});
   DB.projects=DB.projects.filter(p=>p.id!==editingProjectId);
   save();closeModal('projectModal');renderAll()
 };
@@ -784,13 +875,13 @@ function renderHome(){const today=new Date(),events=getEventsForDate(today),stat
   homeStats.innerHTML=`<div class="stat"><div class="k">今日安排</div><div class="v">${events.length}</div></div><div class="stat"><div class="k">今日清单完成率</div><div class="v">${stats.pct}%</div></div><div class="stat"><div class="k">近7天训练</div><div class="v">${weekTrain}</div></div><div class="stat"><div class="k">今日科研</div><div class="v">${rs?rs.hours+" h":"未记录"}</div></div>`;homeProgress.style.width=stats.pct+'%';
   homeAgenda.innerHTML=events.length?events.map(e=>`<div class="event" style="--cat:${cats[e.category]||cats.life}"><div class="event-time">${e.start}–${e.end}</div><div class="event-title">${esc(e.title)}</div>${projectLabel(e)?`<div class="event-note">项目：${esc(projectLabel(e))}</div>`:''}<div class="event-note">${esc(e.note||'')}</div></div>`).join(''):'<div class="small">今天没有时间安排</div>';
 }
-function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome()}
+function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome();if(typeof renderGrowth==='function')renderGrowth()}
 prevBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?-7:-1);renderSchedule()};nextBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?7:1);renderSchedule()};todayBtn.onclick=()=>{currentDate=new Date();renderSchedule()};weekViewBtn.onclick=()=>{viewMode='week';renderSchedule()};dayViewBtn.onclick=()=>{viewMode='day';renderSchedule()};addEventBtn.onclick=()=>openNewEvent(currentDate);
 addTaskBtn.onclick=openNewTask;manageTasksBtn.onclick=()=>{renderTaskTable();openModal('manageModal')};prevDayCheck.onclick=()=>{checkDate=addDays(checkDate,-1);renderChecklist()};nextDayCheck.onclick=()=>{checkDate=addDays(checkDate,1);renderChecklist()};checkToday.onclick=()=>{checkDate=new Date();renderChecklist()};
 
 function exportBackup(prefix='个人成长系统V2'){const blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),data:DB},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${prefix}_${fmtDate(new Date())}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 exportBtn.onclick=()=>exportBackup();
-importFile.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const o=JSON.parse(await f.text()),d=o.data||o;if(!d.events||!d.tasks||!d.done||d.wisdom!=null&&!Array.isArray(d.wisdom)||d.projects!=null&&!Array.isArray(d.projects))throw Error('备份格式不正确');if(confirm('导入会覆盖当前数据，是否继续？')){for(const k of Object.keys(DB)){if(k!=='version'&&d[k]!=null)DB[k]=d[k]}if(d.projects==null)DB.projects=[];save();renderAll()}}catch(err){alert('导入失败：'+err.message)}e.target.value=''}
+importFile.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=extractData(JSON.parse(await f.text()));if(confirm('导入会覆盖当前数据，是否继续？')){replaceDB(d);save();renderAll()}}catch(err){alert('导入失败：'+err.message)}e.target.value=''}
 
 syncNowBtn.onclick=()=>syncState.conflict?openModal('conflictModal'):openSyncSettings();
 syncModalNowBtn.onclick=()=>{if(!isSyncConfigured())return alert('请先保存同步设置。');syncNow()};
@@ -802,20 +893,24 @@ saveSyncSettingsBtn.onclick=()=>{
   localStorage.setItem(SYNC_CONFIG_KEY,JSON.stringify(config));closeModal('syncSettingsModal');syncState.baseSha=null;syncState.conflict=null;const meta=getSyncMeta();syncState.dirty=meta.repoKey===repoKey(config)?dataHash()!==meta.dataHash:(syncState.dirty||localDataExisted);initialiseSync();
 };
 removeTokenBtn.onclick=()=>{if(!confirm('只移除此设备保存的 Token？业务数据和 GitHub 仓库不会删除。'))return;const c=getSyncConfig();c.token='';localStorage.setItem(SYNC_CONFIG_KEY,JSON.stringify(c));clearTimeout(syncState.timer);closeModal('syncSettingsModal');setSyncStatus('GitHub 未配置','idle')};
-downloadConflictBackupBtn.onclick=()=>exportBackup('冲突前_本机备份');
-acceptRemoteBtn.onclick=()=>{const remote=syncState.conflict;if(!remote)return;if(!confirm('采用云端版本将替换当前本机副本。建议先下载本机备份。是否继续？'))return;replaceDB(remote.data);updateSyncMeta(remote.sha);syncState.conflict=null;closeModal('conflictModal')};
-keepLocalBtn.onclick=async()=>{if(!syncState.conflict||syncState.busy)return;if(!confirm('确定保留本机版本并提交到云端？云端当前版本仍保留在 GitHub 历史中。'))return;syncState.busy=true;setSyncStatus('正在提交本机版本…','busy');try{const latest=await readRemote();await commitCurrent(latest,'conflict: 明确保留本机版本');syncState.conflict=null;closeModal('conflictModal')}catch(error){syncError(error);alert('提交失败：'+error.message)}finally{syncState.busy=false}};
+downloadConflictBackupBtn.onclick=()=>{const other=syncState.conflict?.data;const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),local:DB,other},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='个人成长_冲突副本_'+fmtDate(new Date())+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+acceptRemoteBtn.onclick=()=>{const remote=syncState.conflict;if(!remote)return;if(!confirm('采用云端版本将替换当前本机副本。建议先下载本机备份。是否继续？'))return;replaceDB(remote.data);if(remote.localTab){save();scheduleCloudSync()}else updateSyncMeta(remote.sha,dataHash(),remote.data);syncState.conflict=null;closeModal('conflictModal')};
+keepLocalBtn.onclick=async()=>{if(!syncState.conflict||syncState.busy)return;
+  if(syncState.conflict.localTab){if(!confirm('保留本标签页版本？另一版本已保留在冲突副本中。'))return;syncState.conflict=null;save();closeModal('conflictModal');return}
+if(!confirm('确定保留本机版本并提交到云端？云端当前版本仍保留在 GitHub 历史中。'))return;syncState.busy=true;setSyncStatus('正在提交本机版本…','busy');try{const latest=await readRemote();if(latest&&dataHash(latest.data)!==dataHash(syncState.conflict.data)){showConflict(latest);alert('云端再次变化，请先检查更新后的版本再选择。');return}await commitCurrent(latest,'conflict: 明确保留本机版本');syncState.conflict=null;closeModal('conflictModal')}catch(error){syncError(error);alert('提交失败：'+error.message)}finally{syncState.busy=false}};
 
-load();renderAll();initialiseSync();
+load();initGrowth();renderAll();initialiseSync();
 window.addEventListener('storage',e=>{
-  if(e.key===KEY&&e.newValue&&!syncState.dirty){
+  if(e.key===KEY&&e.newValue){
     try{const next=extractData(JSON.parse(e.newValue));if(dataHash(next)!==dataHash()){
-      replaceDB(next);syncState.dirty=true;setSyncStatus('本机有未同步更改','warn');scheduleCloudSync();
+      if(syncState.dirty){const merged=syncState.baseData&&GrowthModel.mergeData(syncState.baseData,DB,next);if(merged?.ok)replaceDB(merged.data);else{showConflict({data:next,updatedAt:new Date().toISOString(),localTab:true});return}}
+      else replaceDB(next);
+      syncState.dirty=true;setSyncStatus('本机有未同步更改','warn');scheduleCloudSync();
     }}catch(error){console.error('读取其他标签页的数据失败',error)}
   }
   if(e.key===SYNC_META_KEY&&e.newValue){
     try{const meta=JSON.parse(e.newValue);if(meta.repoKey===repoKey()&&meta.dataHash===dataHash()){
-      syncState.baseSha=meta.sha||null;syncState.baseHash=meta.dataHash;syncState.dirty=false;
+      syncState.baseSha=meta.sha||null;syncState.baseHash=meta.dataHash;syncState.dirty=false;refreshSyncBaseline();
       syncState.conflict=null;closeModal('conflictModal');setSyncStatus('已同步','ok');
     }}catch(error){console.error('读取其他标签页的同步状态失败',error)}
   }
