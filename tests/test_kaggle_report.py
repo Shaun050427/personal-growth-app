@@ -5,14 +5,14 @@ from pathlib import Path
 from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-from update_kaggle import build_report, collect_pages, competition_link, relevance
+from update_kaggle import awards, build_report, collect_pages, competition_link, relevance
 
 
 class KaggleReportTests(unittest.TestCase):
     def test_only_future_deadlines_and_official_links(self):
         now = datetime(2026, 9, 19, tzinfo=timezone.utc)
         def item(title, delta, ref):
-            return SimpleNamespace(title=title, deadline=now + timedelta(days=delta), ref=ref, category="Research")
+            return SimpleNamespace(title=title, deadline=now + timedelta(days=delta), ref=ref, category="Research", reward="$10,000", awardsPoints=False)
         rows = [
             item("Photonics chip modeling", 5, "https://www.kaggle.com/competitions/photonics-chip"),
             item("Expired", -1, "https://www.kaggle.com/competitions/expired"),
@@ -23,6 +23,14 @@ class KaggleReportTests(unittest.TestCase):
         self.assertEqual(report["count"], 1)
         self.assertEqual(report["competitions"][0]["slug"], "photonics-chip")
         self.assertEqual(report["competitions"][0]["url"], "https://www.kaggle.com/competitions/photonics-chip")
+        self.assertEqual(report["competitions"][0]["awardTypes"], ["cash"])
+
+    def test_cash_medals_and_nonqualifying_rewards(self):
+        self.assertEqual(awards(SimpleNamespace(reward="USD $35,000", awardsPoints=False, category="Community"))[0], ["cash"])
+        self.assertEqual(awards(SimpleNamespace(reward="Kudos", awardsPoints=True, category="Featured"))[0], ["medal"])
+        self.assertEqual(awards(SimpleNamespace(reward="Swag", awardsPoints=False, category="Playground"))[0], [])
+        self.assertEqual(awards(SimpleNamespace(reward="Kudos", awardsPoints=True, awardsMedals=False, category="Featured"))[0], [])
+        self.assertEqual(awards(SimpleNamespace(reward="Kudos", awardsPoints=True, category="Analytics"))[0], [])
 
     def test_relevance_and_explainable_tags(self):
         high, tags = relevance("Optical photonic chip image restoration", "Deep learning")
@@ -47,10 +55,12 @@ class KaggleReportTests(unittest.TestCase):
         self.assertEqual(list(map(len, pages)), [20, 1])
         self.assertEqual(api.calls[0], {"group": "general", "sort_by": "latestDeadline", "page": 1})
 
-    def test_empty_active_report_is_an_error(self):
+    def test_empty_listing_is_an_error_but_no_qualifying_awards_is_valid(self):
         now = datetime(2026, 9, 19, tzinfo=timezone.utc)
         with self.assertRaises(RuntimeError):
-            build_report([[SimpleNamespace(title="Expired", deadline=now-timedelta(days=1), ref="old")]], now)
+            build_report([[]], now)
+        report = build_report([[SimpleNamespace(title="No prize", deadline=now+timedelta(days=1), ref="practice", reward="Swag", category="Playground", awardsPoints=False)]], now)
+        self.assertEqual(report["count"], 0)
 
 
 if __name__ == "__main__":

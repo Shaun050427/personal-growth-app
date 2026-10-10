@@ -11,6 +11,8 @@ from urllib.parse import urlsplit
 OUTPUT = Path(__file__).resolve().parent.parent / "data" / "kaggle-active.json"
 MAX_PAGES = 10
 PAGE_SIZE = 20  # The official competition list uses 20 results per page.
+MONEY = re.compile(r"(?:USD|EUR|GBP|AUD|CAD|CNY|RMB|INR|JPY|HKD|NTD|[$€£¥₹])\s*[$€£¥₹]?\s*([\d,]+(?:\.\d+)?)|([\d,]+(?:\.\d+)?)\s*(?:USD|EUR|GBP|AUD|CAD|CNY|RMB|INR|JPY|HKD)\b", re.I)
+MEDAL_CATEGORIES = {"featured", "research", "masters"}
 
 RULES = (
     ("光芯片", 40, re.compile(r"photonic[s]?\s*(integrated|chip|circuit|processor|accelerator)|silicon\s+photonics|optical\s+(computing|chip|neural\s+network|processor|accelerator)|光芯片|光计算|光子芯片|硅光", re.I)),
@@ -61,12 +63,36 @@ def relevance(title, subtitle=""):
     return min(points, 100), tags
 
 
+def awards(competition):
+    """Only accept explicit cash rewards or a medal-eligible Kaggle competition."""
+    reward = getattr(competition, "reward", None)
+    if isinstance(reward, dict):
+        currency = str(reward.get("id") or "").upper()
+        amount = reward.get("quantity")
+        cash = currency in {"USD", "EUR", "GBP", "AUD", "CAD", "CNY", "RMB", "INR", "JPY", "HKD", "NTD"} and isinstance(amount, (int, float)) and not isinstance(amount, bool) and amount > 0
+        reward_label = f"{currency} {amount:g}" if cash else ""
+    else:
+        reward_label = str(reward or "").strip()[:100]
+        match = MONEY.search(reward_label)
+        cash = bool(match and float((match.group(1) or match.group(2)).replace(",", "")) > 0)
+    explicit_medals = getattr(competition, "awardsMedals", None)
+    # Kaggle's public list exposes awardsPoints; eligible leaderboard competitions
+    # normally award both points and medals. Exclude non-standard categories and
+    # honor an explicit awardsMedals=False if the API supplies it.
+    medal = explicit_medals is True or explicit_medals is None and getattr(competition, "awardsPoints", None) is True and str(getattr(competition, "category", "") or "").casefold() in MEDAL_CATEGORIES
+    kinds = (["cash"] if cash else []) + (["medal"] if medal else [])
+    return kinds, reward_label if cash else ""
+
+
 def normalize(competition, now):
     deadline = as_utc(getattr(competition, "deadline", None))
     if not deadline or deadline <= now:
         return None
     url = competition_link(getattr(competition, "ref", ""))
     if not url:
+        return None
+    award_types, reward = awards(competition)
+    if not award_types:
         return None
     slug = url.rsplit("/", 1)[-1]
     title = str(getattr(competition, "title", "") or getattr(competition, "name", "") or slug.replace("-", " ").title()).strip()
@@ -75,7 +101,7 @@ def normalize(competition, now):
     return {
         "slug": slug, "title": title[:300], "url": url, "deadline": deadline.isoformat().replace("+00:00", "Z"),
         "category": str(getattr(competition, "category", "") or "")[:100],
-        "score": score, "tags": tags,
+        "awardTypes": award_types, "reward": reward, "score": score, "tags": tags,
     }
 
 
@@ -88,12 +114,12 @@ def build_report(pages, now):
             item = normalize(competition, now)
             if item:
                 by_slug[item["slug"]] = item
-    if not fetched or not by_slug:
-        raise RuntimeError("Kaggle returned no active competitions; keeping the previous report for investigation")
+    if not fetched:
+        raise RuntimeError("Kaggle returned no competitions; keeping the previous report for investigation")
     items = sorted(by_slug.values(), key=lambda x: (-x["score"], x["deadline"], x["slug"]))
     return {
         "source": "Kaggle official competitions API", "generatedAt": now.isoformat().replace("+00:00", "Z"),
-        "timeZone": "UTC", "checked": fetched, "count": len(items), "competitions": items,
+        "timeZone": "UTC", "awardFilterVersion": 1, "checked": fetched, "count": len(items), "competitions": items,
     }
 
 

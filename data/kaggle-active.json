@@ -1,79 +1,10 @@
 {
-  "source": "Kaggle official competitions API",
-  "generatedAt": "2026-09-29T06:53:31.324210Z",
+  "source": "Kaggle API snapshot with first-party prize verification",
+  "generatedAt": "2026-10-10T03:12:37.556758Z",
   "timeZone": "UTC",
   "checked": 22,
-  "count": 22,
+  "count": 5,
   "competitions": [
-    {
-      "slug": "the-pokemon-company-ptcg-ai-battle-challenge-playground",
-      "title": "The Pokémon Company - PTCG AI Battle Challenge Playground",
-      "url": "https://www.kaggle.com/competitions/the-pokemon-company-ptcg-ai-battle-challenge-playground",
-      "deadline": "2027-01-08T23:59:59Z",
-      "category": "Playground",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "titanic",
-      "title": "Titanic - Machine Learning from Disaster",
-      "url": "https://www.kaggle.com/competitions/titanic",
-      "deadline": "2030-01-01T00:00:00Z",
-      "category": "Getting Started",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "llm-classification-finetuning",
-      "title": "LLM Classification Finetuning",
-      "url": "https://www.kaggle.com/competitions/llm-classification-finetuning",
-      "deadline": "2030-07-01T23:59:00Z",
-      "category": "Getting Started",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "biohub-cell-tracking-during-development",
-      "title": "Biohub - Cell Tracking During Development",
-      "url": "https://www.kaggle.com/competitions/biohub-cell-tracking-during-development",
-      "deadline": "2026-09-29T23:59:00Z",
-      "category": "Research",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "kaggriculture",
-      "title": "Kaggriculture",
-      "url": "https://www.kaggle.com/competitions/kaggriculture",
-      "deadline": "2026-09-30T23:59:00Z",
-      "category": "Featured",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "playground-series-s6e9",
-      "title": "Predicting Electric Vehicle Purchases",
-      "url": "https://www.kaggle.com/competitions/playground-series-s6e9",
-      "deadline": "2026-09-30T23:59:00Z",
-      "category": "Playground",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "rsna-knee-abnormality-detection",
-      "title": "RSNA Knee Abnormality Detection",
-      "url": "https://www.kaggle.com/competitions/rsna-knee-abnormality-detection",
-      "deadline": "2026-10-22T23:59:00Z",
-      "category": "Research",
-      "score": 10,
-      "tags": []
-    },
     {
       "slug": "arc-prize-2026-arc-agi-2",
       "title": "ARC Prize 2026 - ARC-AGI-2",
@@ -81,7 +12,11 @@
       "deadline": "2026-11-02T23:59:00Z",
       "category": "Featured",
       "score": 10,
-      "tags": []
+      "tags": [],
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "$700,000"
     },
     {
       "slug": "arc-prize-2026-arc-agi-3",
@@ -90,16 +25,11 @@
       "deadline": "2026-11-02T23:59:00Z",
       "category": "Featured",
       "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "arc-prize-2026-paper-track",
-      "title": "ARC Prize 2026 - Paper Track",
-      "url": "https://www.kaggle.com/competitions/arc-prize-2026-paper-track",
-      "deadline": "2026-11-09T23:59:00Z",
-      "category": "Featured",
-      "score": 10,
-      "tags": []
+      "tags": [],
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "$850,000"
     },
     {
       "slug": "gemma-4-developer-agent-paper",
@@ -108,7 +38,11 @@
       "deadline": "2026-11-12T23:59:00.807000Z",
       "category": "Featured",
       "score": 10,
-      "tags": []
+      "tags": [],
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "$35,000"
     },
     {
       "slug": "gemma-4-developer-agent",
@@ -117,7 +51,11 @@
       "deadline": "2026-12-02T23:59:00Z",
       "category": "Featured",
       "score": 10,
-      "tags": []
+      "tags": [],
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "$65,000"
     },
     {
       "slug": "enveda-CASMI26-molecule-id-mass-spectra",
@@ -126,88 +64,14 @@
       "deadline": "2026-12-14T23:59:00Z",
       "category": "Featured",
       "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "connectx",
-      "title": "Connect X",
-      "url": "https://www.kaggle.com/competitions/connectx",
-      "deadline": "2030-01-01T00:00:00Z",
-      "category": "Getting Started",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "digit-recognizer",
-      "title": "Digit Recognizer",
-      "url": "https://www.kaggle.com/competitions/digit-recognizer",
-      "deadline": "2030-01-01T00:00:00Z",
-      "category": "Getting Started",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "house-prices-advanced-regression-techniques",
-      "title": "House Prices - Advanced Regression Techniques",
-      "url": "https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques",
-      "deadline": "2030-01-01T00:00:00Z",
-      "category": "Getting Started",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "nlp-getting-started",
-      "title": "Natural Language Processing with Disaster Tweets",
-      "url": "https://www.kaggle.com/competitions/nlp-getting-started",
-      "deadline": "2030-01-01T00:00:00Z",
-      "category": "Getting Started",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "spaceship-titanic",
-      "title": "Spaceship Titanic",
-      "url": "https://www.kaggle.com/competitions/spaceship-titanic",
-      "deadline": "2030-01-01T00:00:00Z",
-      "category": "Getting Started",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "home-data-for-ml-course",
-      "title": "Housing Prices Competition for Kaggle Learn Users",
-      "url": "https://www.kaggle.com/competitions/home-data-for-ml-course",
-      "deadline": "2030-01-01T23:59:00Z",
-      "category": "Getting Started",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "tpu-getting-started",
-      "title": "Petals to the Metal - Flower Classification on TPU",
-      "url": "https://www.kaggle.com/competitions/tpu-getting-started",
-      "deadline": "2030-06-03T23:59:00Z",
-      "category": "Getting Started",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "store-sales-time-series-forecasting",
-      "title": "Store Sales - Time Series Forecasting",
-      "url": "https://www.kaggle.com/competitions/store-sales-time-series-forecasting",
-      "deadline": "2030-06-30T23:59:00Z",
-      "category": "Getting Started",
-      "score": 10,
-      "tags": []
-    },
-    {
-      "slug": "contradictory-my-dear-watson",
-      "title": "Contradictory, My Dear Watson",
-      "url": "https://www.kaggle.com/competitions/contradictory-my-dear-watson",
-      "deadline": "2030-07-01T23:59:00Z",
-      "category": "Getting Started",
-      "score": 10,
-      "tags": []
+      "tags": [],
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "$50,000"
     }
-  ]
+  ],
+  "sourceSnapshotAt": "2026-09-29T06:53:31.324210Z",
+  "status": "partial",
+  "awardFilterVersion": 1
 }

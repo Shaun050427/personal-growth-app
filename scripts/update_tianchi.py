@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import re
+from html import unescape
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlencode
@@ -16,6 +18,11 @@ API = "https://tianchi.aliyun.com/v3/proxy/competition/api/race/page"
 BEIJING = ZoneInfo("Asia/Shanghai")
 MAX_PAGES = 100
 CATEGORIES = {1: "AI大模型赛", 2: "数据算法赛", 3: "工程开发赛", 4: "日常学习赛"}
+CASH_AMOUNT = re.compile(r"(?:奖金|现金奖励|现金奖|现金|奖金池|奖池|奖金总额|现金奖池)[^。；;\n]{0,45}?(?:[￥¥$]\s*\d[\d,]*(?:\.\d+)?|\d[\d,]*(?:\.\d+)?\s*(?:万|万元|元|人民币|美元))|(?:[￥¥$]\s*\d[\d,]*(?:\.\d+)?|\d[\d,]*(?:\.\d+)?\s*(?:万|万元|元|人民币|美元))[^。；;\n]{0,25}?(?:奖金|现金奖励|现金奖)")
+MONEY_VALUE = re.compile(r"[￥¥$]\s*([\d,]+(?:\.\d+)?)|([\d,]+(?:\.\d+)?)\s*(?:万|万元|元|人民币|美元)")
+NO_AWARD = re.compile(r"(?:不设|没有|无|不提供|不发放|不授予|不颁发|不奖励)[^。；;\n]{0,8}(?:奖金|现金奖励|奖牌)")
+MEDAL = re.compile(r"(?:颁发|授予|获得|赢得|奖励|发放)[^。；;\n]{0,16}奖牌|奖牌[^。；;\n]{0,16}(?:颁发|授予|奖励)")
+REWARD_FIELD = re.compile(r"prize|award|reward|bonus|奖金|奖牌|奖励", re.I)
 
 
 def official_time(raw):
@@ -28,7 +35,27 @@ def official_time(raw):
     return value.replace(tzinfo=BEIJING) if value.tzinfo is None else value.astimezone(BEIJING)
 
 
-def normalize(row, now, parent_name=""):
+def awards(row):
+    """Use only explicit prize evidence from the official race listing."""
+    introduction = str(row.get("introduction") or "")[:10000]
+    fields = [str(value)[:3000] for key, value in row.items() if REWARD_FIELD.search(str(key)) and isinstance(value, str)]
+    text = unescape(re.sub(r"<[^>]*>", " ", "。".join([introduction, *fields])))
+    text = NO_AWARD.sub("", text)
+    cash_match = CASH_AMOUNT.search(text)
+    direct_money = next((value[:100] for value in fields if (match := MONEY_VALUE.fullmatch(value.strip()))
+                         and float((match.group(1) or match.group(2)).replace(",", "")) > 0), "")
+    medal = bool(MEDAL.search(text))
+    # Some listing responses provide a numeric cash prize in a named field.
+    cash_field = next((f"{key}: {value}" for key, value in row.items()
+                       if re.search(r"(?:cash|prize|award(?:Money|Amount)|bonus|reward(?:Money|Amount)|奖金)", str(key), re.I)
+                       and not re.search(r"(?:count|num|id|status|rank|point)", str(key), re.I)
+                       and isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0), "")
+    kinds = (["cash"] if cash_match or direct_money or cash_field else []) + (["medal"] if medal else [])
+    evidence = (cash_match.group(0) if cash_match else direct_money or cash_field or "奖牌")[:100] if kinds else ""
+    return kinds, evidence
+
+
+def normalize(row, now, parent_name="", inherited_awards=None):
     """Only publish races with verified active dates and numeric official IDs."""
     race_id = str(row.get("raceId") or "")
     # Series containers have small IDs and their own landing pages. Their
@@ -40,6 +67,11 @@ def normalize(row, now, parent_name=""):
         return None
     name = str(row.get("name") or "").strip()
     if not name:
+        return None
+    award_types, evidence = awards(row)
+    if not award_types and inherited_awards:
+        award_types, evidence = inherited_awards
+    if not award_types:
         return None
     title = (parent_name + " - " + name if parent_name else name)[:300]
     description = str(row.get("introduction") or "").strip()[:1500]
@@ -54,7 +86,8 @@ def normalize(row, now, parent_name=""):
         "deadline": end.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
         "endDate": end.astimezone(BEIJING).date().isoformat(),
         "signupDeadline": signup_end.astimezone(timezone.utc).isoformat().replace("+00:00", "Z") if signup_end else None,
-        "category": category, "score": score, "tags": tags,
+        "category": category, "awardTypes": award_types, "reward": evidence,
+        "score": score, "tags": tags,
     }
 
 
@@ -69,7 +102,7 @@ def build_report(pages, now, *, expected_total=None):
                 found[parent["slug"]] = parent
             for track in row.get("trackList") or []:
                 checked += 1
-                child = normalize(track, now, str(row.get("name") or ""))
+                child = normalize(track, now, str(row.get("name") or ""), awards(row))
                 if child:
                     found[child["slug"]] = child
     if not checked or expected_total is not None and sum(len(page) for page in pages) != expected_total:
@@ -77,7 +110,7 @@ def build_report(pages, now, *, expected_total=None):
     items = sorted(found.values(), key=lambda x: (-x["score"], x["deadline"], x["slug"]))
     return {
         "source": "Tianchi official public competition listing", "generatedAt": now.isoformat().replace("+00:00", "Z"),
-        "timeZone": "Asia/Shanghai", "deadlineKind": "race_end_timestamp", "checked": checked,
+        "timeZone": "Asia/Shanghai", "deadlineKind": "race_end_timestamp", "awardFilterVersion": 1, "checked": checked,
         "count": len(items), "competitions": items,
     }
 

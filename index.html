@@ -182,12 +182,12 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
   <section class="module" id="kaggle">
     <div class="card">
       <div class="section-title">
-        <div><h2>Kaggle 竞赛日报</h2><div class="small">仅展示截止时间未到的比赛 · 推荐指数按研究方向关键词匹配</div></div>
+        <div><h2>Kaggle 竞赛日报</h2><div class="small">仅展示有现金奖励或可获竞赛奖牌、尚未截止的比赛</div></div>
         <button class="btn" id="kaggleReloadBtn">刷新日报</button>
       </div>
       <div class="small" id="kaggleMeta" role="status">正在读取日报…</div>
       <div class="kaggle-list" id="kaggleList" style="margin-top:12px"></div>
-      <details class="small" style="margin-top:14px"><summary>推荐指数如何计算</summary><p>基础 10 分；标题或副标题命中光芯片 +40、图像生成/复原 +32、光学 +24、AI 算法 +20；跨方向命中还有少量加分，最高 100。仅衡量方向相关性，不代表获奖难度或赛题质量。截止和报名条件以 Kaggle 官方页面为准。</p><p><a href="https://github.com/Kaggle/kaggle-cli" target="_blank" rel="noopener noreferrer">数据接口：Kaggle 官方 CLI</a></p></details>
+      <details class="small" style="margin-top:14px"><summary>筛选与推荐指数</summary><p>现金奖励按 Kaggle 官方列表的奖励字段识别；奖牌资格依据官方积分赛标记筛选，具体资格以比赛页面为准。基础 10 分；标题或副标题命中光芯片 +40、图像生成/复原 +32、光学 +24、AI 算法 +20；跨方向命中还有少量加分，最高 100。推荐指数只衡量方向相关性。</p><p><a href="https://github.com/Kaggle/kaggle-cli" target="_blank" rel="noopener noreferrer">数据接口：Kaggle 官方 CLI</a></p></details>
     </div>
   </section>
 
@@ -195,12 +195,12 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
   <section class="module" id="tianchi">
     <div class="card">
       <div class="section-title">
-        <div><h2>天池竞赛日报</h2><div class="small">按天池官方竞赛状态与截止时间筛选 · 推荐指数按研究方向关键词匹配</div></div>
+        <div><h2>天池竞赛日报</h2><div class="small">仅展示官方列表明确写有现金奖励或奖牌、尚未截止的比赛</div></div>
         <button class="btn" id="tianchiReloadBtn">刷新日报</button>
       </div>
       <div class="small" id="tianchiMeta" role="status">正在读取日报…</div>
       <div class="kaggle-list" id="tianchiList" style="margin-top:12px"></div>
-      <details class="small" style="margin-top:14px"><summary>推荐指数如何计算</summary><p>基础 10 分；标题、简介、分类或标签命中光芯片 +40、图像生成/复原 +32、光学 +24、AI 算法 +20；跨方向有少量加分，最高 100。该指数仅衡量方向相关性。比赛结束时间与报名截止时间来自天池公开列表，具体提交规则请以单场官方页面为准。</p><p><a href="https://tianchi.aliyun.com/competition/" target="_blank" rel="noopener noreferrer">数据来源：天池官方比赛列表</a></p></details>
+      <details class="small" style="margin-top:14px"><summary>筛选与推荐指数</summary><p>仅采纳天池官方列表中明确的现金金额或奖牌说明；未公开奖励信息的比赛暂不展示。基础 10 分；标题、简介、分类或标签命中光芯片 +40、图像生成/复原 +32、光学 +24、AI 算法 +20；跨方向有少量加分，最高 100。具体参赛与领奖条件以单场比赛页面为准。</p><p><a href="https://tianchi.aliyun.com/competition/" target="_blank" rel="noopener noreferrer">数据来源：天池官方比赛列表</a></p></details>
     </div>
   </section>
 
@@ -594,16 +594,17 @@ function showKaggleReport(report){
   const last=new Date(report.generatedAt),now=new Date();
   if(Number.isNaN(last.getTime()))throw Error('日报更新时间格式错误');
   const stale=now-last>36*3600000;
-  const entries=(Array.isArray(report.competitions)?report.competitions:[]).filter(c=>new Date(c.deadline)>now&&kaggleLink(c.url))
+  const entries=(Array.isArray(report.competitions)?report.competitions:[]).filter(c=>new Date(c.deadline)>now&&kaggleLink(c.url)&&Array.isArray(c.awardTypes)&&c.awardTypes.some(x=>x==='cash'||x==='medal'))
     .sort((a,b)=>(+b.score||0)-(+a.score||0)||new Date(a.deadline)-new Date(b.deadline));
   const updated=last.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
-  kaggleMeta.textContent=`北京时间 ${updated} 更新 · 尚未截止 ${entries.length} 场${stale?' · 日报已过期，请检查更新任务':''}`;
+  kaggleMeta.textContent=`北京时间 ${updated} 更新 · 符合奖励条件 ${entries.length} 场${report.status==='partial'?' · 基于旧快照核验，可能遗漏新比赛':''}${report.awardFilterVersion!==1?' · 旧日报未包含奖励核验，等待下次采集':''}${stale?' · 日报已过期，请检查更新任务':''}`;
   kaggleList.innerHTML=entries.length?entries.map(c=>{
     const score=Math.min(100,Math.max(0,Number(c.score)||0));
     const deadline=new Date(c.deadline).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
-    const tags=(Array.isArray(c.tags)?c.tags:[]).map(x=>`<span>${esc(x)}</span>`).join('');
+    const awards=(c.awardTypes.includes('cash')?`<span>现金奖励${c.reward?' · '+esc(c.reward):''}</span>`:'')+(c.awardTypes.includes('medal')?'<span>竞赛奖牌</span>':'');
+    const tags=awards+(Array.isArray(c.tags)?c.tags:[]).map(x=>`<span>${esc(x)}</span>`).join('');
     return `<article class="kaggle-row"><div><a href="${esc(kaggleLink(c.url))}" target="_blank" rel="noopener noreferrer">${esc(c.title||c.slug)}</a><div class="kaggle-tags">${tags}</div><div class="small">${esc(c.category||'Kaggle 竞赛')} · 截止：${deadline}（北京时间）</div></div><div class="kaggle-score">${score}<small>推荐指数 / 100</small></div></article>`
-  }).join(''):'<div class="small">本次采集没有尚未截止的比赛。可到 Kaggle 官网核对最新列表。</div>'
+  }).join(''):'<div class="small">当前日报没有已核验的现金奖励或奖牌竞赛；旧日报需等待下一次采集。</div>'
 }
 async function loadKaggleReport(){
   if(kaggleBusy)return;
@@ -633,17 +634,18 @@ function showTianchiReport(report){
   const last=new Date(report.generatedAt),now=new Date();
   if(Number.isNaN(last.getTime()))throw Error('日报更新时间格式错误');
   const stale=now-last>36*3600000;
-  const entries=(Array.isArray(report.competitions)?report.competitions:[]).filter(c=>new Date(c.deadline)>now&&tianchiLink(c.url))
+  const entries=(Array.isArray(report.competitions)?report.competitions:[]).filter(c=>new Date(c.deadline)>now&&tianchiLink(c.url)&&Array.isArray(c.awardTypes)&&c.awardTypes.some(x=>x==='cash'||x==='medal'))
     .sort((a,b)=>(+b.score||0)-(+a.score||0)||new Date(a.deadline)-new Date(b.deadline));
   const updated=last.toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
-  tianchiMeta.textContent=`北京时间 ${updated} 更新 · ${report.status==='partial'?'已扫描范围内':'赛期内'} ${entries.length} 场${report.status==='partial'?` · 官网翻页未完成，仅检查 ${report.pagesChecked||'?'} / ${report.totalPages||'?'} 页，可能遗漏比赛`:''}${stale?' · 日报已过期，请检查更新任务':''}`;
+  tianchiMeta.textContent=`北京时间 ${updated} 更新 · 符合奖励条件 ${entries.length} 场${report.status==='curated'?' · 基于旧快照核验，可能遗漏新比赛':''}${report.awardFilterVersion!==1?' · 旧日报未包含奖励核验，等待下次采集':''}${report.status==='partial'?` · 官网翻页未完成，仅检查 ${report.pagesChecked||'?'} / ${report.totalPages||'?'} 页，可能遗漏比赛`:''}${stale?' · 日报已过期，请检查更新任务':''}`;
   tianchiList.innerHTML=entries.length?entries.map(c=>{
     const score=Math.min(100,Math.max(0,Number(c.score)||0));
     const deadline=new Date(c.deadline).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
     const signup=c.signupDeadline?` · 报名截止：${new Date(c.signupDeadline).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false})}`:'';
-    const tags=(Array.isArray(c.tags)?c.tags:[]).map(x=>`<span>${esc(x)}</span>`).join('');
+    const awards=(c.awardTypes.includes('cash')?`<span>现金奖励${c.reward?' · '+esc(c.reward):''}</span>`:'')+(c.awardTypes.includes('medal')?'<span>奖牌</span>':'');
+    const tags=awards+(Array.isArray(c.tags)?c.tags:[]).map(x=>`<span>${esc(x)}</span>`).join('');
     return `<article class="kaggle-row"><div><a href="${esc(tianchiLink(c.url))}" target="_blank" rel="noopener noreferrer">${esc(c.title||c.slug)}</a><div class="kaggle-tags">${tags}</div><div class="small">${esc(c.category||'天池竞赛')} · 比赛截止：${deadline}（北京时间）${signup}</div></div><div class="kaggle-score">${score}<small>推荐指数 / 100</small></div></article>`
-  }).join(''):'<div class="small">本次采集未发现仍在公示赛期内的比赛，请到天池官网核对。</div>'
+  }).join(''):'<div class="small">当前日报没有已核验的现金奖励或奖牌竞赛；未明确公开奖励的赛事会暂时隐藏。</div>'
 }
 async function loadTianchiReport(){
   if(tianchiBusy)return;
