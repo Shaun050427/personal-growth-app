@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#2563eb">
-<meta name="description" content="个人全方位成长系统：日程、课程、训练、健康、科研、清风心法、Kaggle 与天池竞赛日报、每日清单，每周复盘、项目评估、成果资产与 GitHub 同步。">
+<meta name="description" content="个人全方位成长系统：日程、课程、训练、健康、科研、传统文化学习、清风心法、竞赛日报、每日清单、每周复盘、项目评估、成果资产与 GitHub 同步。">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>个人全方位成长系统 · GitHub 云同步版</title>
 <style>
@@ -63,6 +63,9 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 @keyframes pulse{50%{opacity:.35}}
 @media(max-width:920px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
 @media(max-width:680px){.g4,.g3,.g2,.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.app{padding:10px}.exercise-entry{grid-template-columns:1fr 1fr}.exercise-entry button{grid-column:1/-1}}
+.culture-pane p{line-height:1.75}.culture-detail{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px;margin-bottom:10px}.culture-detail summary{cursor:pointer;font-weight:700;line-height:1.8}.culture-detail p{line-height:1.8}.culture-path{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.culture-path h3{margin:0 0 8px}.culture-yao{display:grid;grid-template-columns:45px 120px 65px;align-items:center;gap:12px;min-height:36px}.yao-line{display:flex;width:120px;gap:14px}.yao-line i{height:8px;background:var(--text);flex:1}.yao-line.yang{gap:0}.culture-yao-panel{padding:14px;border:1px solid var(--line);border-radius:12px;overflow:auto}.culture-loshu{width:150px;table-layout:fixed;margin:12px auto}.culture-loshu td{text-align:center;font-size:23px;border:1px solid var(--line)}.culture-intro{background:linear-gradient(120deg,#f1f7f4,#eef4ff);border-color:#cbded6}.culture-intro h2{margin:0 0 8px}.culture-intro select{max-width:100%}.culture-subnav{margin:14px 0}.culture-path .stat{background:#fff}.culture-pane h3{font-size:17px}.culture-pane .stat{overflow-wrap:anywhere}.culture-record-toolbar{margin:12px 0}.culture-record-toolbar input{max-width:100%}
+@media(max-width:920px){.culture-path{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.culture-path{grid-template-columns:1fr}.culture-yao{grid-template-columns:38px 100px 55px;gap:8px}.yao-line{width:100px}}
 </style>
 </head>
 <body>
@@ -70,7 +73,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
   <div class="topbar">
     <div class="brand">
       <h1>个人全方位成长系统</h1>
-      <small>日程 · 课程 · 训练 · 科研 · 中长期 · 清风心法 · Kaggle · 天池 · 每日清单</small>
+      <small>日程 · 课程 · 训练 · 科研 · 中长期 · 传统文化 · 清风心法 · Kaggle · 天池 · 每日清单</small>
     </div>
     <div class="toolbar">
       <button class="btn sync-badge" id="syncNowBtn" data-tone="idle" title="打开同步设置"><span class="sync-dot"></span>同步 <span id="syncText">未配置</span></button>
@@ -87,6 +90,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
     <button class="tab" data-tab="training">训练</button>
     <button class="tab" data-tab="research">科研</button>
     <button class="tab" data-tab="projects">中长期</button>
+    <button class="tab" data-tab="culture">传统文化</button>
     <button class="tab" data-tab="weekly">每周复盘</button>
     <button class="tab" data-tab="assets">成果资产</button>
     <button class="tab" data-tab="wisdom">清风心法</button>
@@ -167,6 +171,44 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
       <div class="section-title"><div><h2>中长期项目</h2><div class="small">按状态查看项目；拖动左侧把手调整顺序，也可拖到其他状态</div></div><button class="btn primary" id="addProjectBtn">+ 新建项目</button></div>
       <div class="project-list" id="projectList"></div>
     </div>
+  </section>
+
+  <section class="module" id="culture">
+    <div class="card culture-intro">
+      <h2>中华传统文化 · 学习与体悟</h2><p>从阴阳的变化观，到干支与节气的时间秩序，再到《易》、河洛与占筮传统。用经典、观察与练习逐层建立理解。</p>
+      <div id="cultureProgressText" class="small"></div><div class="progress" style="margin:10px 0"><div id="cultureProgressBar"></div></div>
+      <div class="toolbar"><label for="cultureProjectChoice">总体目标</label><select id="cultureProjectChoice"><option value="">建立预设长期项目</option></select><button class="btn primary" id="cultureConnectProject">建立 / 关联项目</button><button class="btn" id="cultureEditProject">编辑目标</button><button class="btn" id="culturePlanTime">安排学习时间</button><button class="btn" id="cultureShowAssets">关联成果</button><button class="btn" id="cultureToWeekly">每周复盘</button></div>
+      <p class="small" id="cultureProjectLabel"></p><div class="small" id="cultureStatus" role="status"></div>
+    </div>
+    <div class="culture-path" aria-label="与成长系统的关系">
+      <div class="stat"><h3>中长期 · 定方向</h3><div class="small">总体目标、时间预算、审查日期。已有项目可直接关联。</div></div>
+      <div class="stat"><h3>传统文化 · 学与练</h3><div class="small">知识地图、12周路线、卡片与观察；实际记录进入每周复盘。</div></div>
+      <div class="stat"><h3>成果资产 · 留作品</h3><div class="small">主动收录成熟笔记与专题成果；保留证据、出处与复用方法。</div></div>
+      <div class="stat"><h3>清风心法 · 提体悟</h3><div class="small">从学习记录打开心法草稿，精炼成自己的句子后保存。</div></div>
+    </div>
+    <div class="toolbar culture-subnav" aria-label="传统文化内容"><button class="btn active" data-culture-pane="map" aria-pressed="true">知识地图</button><button class="btn" data-culture-pane="route" aria-pressed="false">12周路线</button><button class="btn" data-culture-pane="practice" aria-pressed="false">实践与体悟</button><button class="btn" data-culture-pane="records" aria-pressed="false">我的学习卡片</button></div>
+    <div class="culture-pane" id="culture-map">
+      <div class="card"><div class="section-title"><h3>由四个问题串起知识</h3><label for="cultureTopicSearch" class="small">搜索概念</label></div><input id="cultureTopicSearch" placeholder="阴阳、节气、洛书、六爻……" style="width:100%;margin-bottom:12px">
+        <p class="small">世界如何变化 → 怎样组织时间和方位 → 怎样用卦画表达变化 → 怎样建立传统推演规则。这是学习关系，不能当作历史产生顺序。</p>
+        <div class="note-box" style="margin-bottom:12px">阅读时始终标注：古籍原文 / 后世诠释 / 现代可验证知识。
+阴阳五行提供传统思想与分类视角；占测的象征解释与可检验预测需要分开。</div><div id="cultureKnowledge"></div>
+      </div>
+      <div class="card"><h3>现代解释 + 古代原文 + 历史考证</h3><p class="small">先读基础与译注，再进入思想史。以下资料承接本次学习对话，点击外部链接阅读。</p><div class="grid g2" id="cultureReadings"></div></div>
+    </div>
+    <div class="culture-pane hide" id="culture-route">
+      <div class="card"><h3>12周打基础，一年深化</h3><p>建议每天30–45分钟，每周另做一次60分钟实践；可以按课程、科研负担降低频次。“周”表示学习单元，可自由延长。完成验收成果后，再勾选已验收。</p><div class="note-box">第一季度：完成12周基础。
+第二季度：读《易》义理、象数与思想史，写一篇专题笔记。
+第三季度：在易学义理、历法天文、某一种术数规则中选一条主线。
+第四季度：整理知识地图、至少24条观察、经典解读与专题成果。</div></div>
+      <div id="cultureWeeks" class="grid g2"></div>
+    </div>
+    <div class="culture-pane hide" id="culture-practice">
+      <div class="card"><h3>第一课 · 90分钟</h3><div class="grid g3"><div class="stat"><b>20分钟 · 画地图</b><p>把阴阳五行、干支节气、《易》、河洛、三式放回四类问题。</p></div><div class="stat"><b>25分钟 · 验证十五</b><p>画洛书，算河图五组和，分清幻方常数、黄经角与方位角。</p></div><div class="stat"><b>20分钟 · 读原文</b><p>对读《系辞》太极段，记录原文与自己的解释。</p></div><div class="stat"><b>15分钟 · 观察变化</b><p>记录窗外光照、植物与天气，标明地点和实际观察。</p></div><div class="stat"><b>10分钟 · 留卡片</b><p>用自己的话解释“十五”，保存一张辨析卡。</p></div></div></div>
+      <div class="card"><h3>“十五”辨析练习</h3><div class="grid g3"><div class="stat"><b>洛书 · 幻方常数</b><table class="culture-loshu" aria-label="洛书南上北下九宫"><tbody><tr><td>4</td><td>9</td><td>2</td></tr><tr><td>3</td><td>5</td><td>7</td></tr><tr><td>8</td><td>1</td><td>6</td></tr></tbody></table><p class="small">南上北下；横竖斜8条线皆15。请亲自验证。</p></div><div class="stat"><b>河图 · 五组配对</b><p>北1+6=7<br>南2+7=9<br>东3+8=11<br>西4+9=13<br>中5+10=15</p><p class="small">不是统一的15；1至10总和55。</p></div><div class="stat"><b>节气与方位 · 角度</b><p>定气：360°÷24=15°黄经<br>平均间隔：约15.22天<br>二十四山：每山15°方位角</p><p class="small">数字相同不构成共同起源或自然因果的证据。</p></div></div><button class="btn" data-culture-practice="fifteen" style="margin-top:12px">写“十五”辨析卡</button></div>
+      <div class="grid g3"><div class="card"><h3>节气与阴阳观察</h3><p>记录地点、节气来源、日照和植物；分开亲眼观察与自己的解释。优先选择一个两周周期，坚持少量真实记录。</p><button class="btn" data-culture-practice="seasons">打开观察模板</button></div><div class="card"><h3>真实决策与《易》对读</h3><p>先写事实、有利条件、制约关系与改变选择的条件，再读一卦，比较启发与局限。</p><button class="btn" data-culture-practice="decision">打开决策模板</button></div><div class="card"><h3>罗盘与方位</h3><p>测一个窗户的朝向，记录仪器、磁北或地理北的约定，以及金属和电器干扰。</p><button class="btn" data-culture-practice="compass">打开测量模板</button></div></div>
+      <div class="card"><h3>六爻构卦练习</h3><p>三枚相同硬币，投掷前固定一面3、另一面2；每次合计6 / 7 / 8 / 9。投六次，自下而上。6老阴、9老阳是动爻，变卦翻转这些爻。这里练符号结构。</p><div class="grid g2"><div class="culture-yao-panel"><b>本卦</b><div id="cultureOriginalLines"></div></div><div class="culture-yao-panel"><b>变卦</b><div id="cultureChangedLines"></div></div></div><p class="small" id="cultureLineStatus" role="status"></p><div class="toolbar"><label for="cultureLineValue">本次合计</label><select id="cultureLineValue"><option value="6">6 · 老阴</option><option value="7">7 · 少阳</option><option value="8">8 · 少阴</option><option value="9">9 · 老阳</option></select><button class="btn primary" id="cultureAddLine">记录一爻</button><button class="btn" id="cultureUndoLine">撤销一爻</button><button class="btn" id="cultureResetLines">重置</button><button class="btn" id="cultureSaveLines">保存为实践卡</button></div><p class="small">构卦输入在本页临时保留，保存实践卡后才进入备份与同步。研究预测能力时，需事先定义结果标准与对照，避免事后任意解释。</p></div>
+    </div>
+    <div class="culture-pane hide" id="culture-records"><div class="card"><div class="section-title"><div><h3>我的学习卡片</h3><div class="small">每周少量高质量输出，保留出处、事实与疑问。收录成果是独立快照，后续修改请在成果库编辑。</div></div><button class="btn primary" id="cultureAddRecord">+ 新增卡片</button></div><div class="toolbar culture-record-toolbar"><label for="cultureRecordFilter">类型</label><select id="cultureRecordFilter"><option value="">全部卡片</option><option>概念卡</option><option>原文卡</option><option>实践卡</option><option>辨析卡</option></select><label for="cultureRecordSearch">搜索</label><input id="cultureRecordSearch" placeholder="标题、内容、依据"></div><div id="cultureRecords" class="grid g2"></div></div></div>
   </section>
 
   <section class="module" id="weekly">
@@ -282,6 +324,14 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 </div>
 <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="courseModal">取消</button><button class="btn primary" id="saveCourseBtn">保存</button></div>
 </div></div>
+
+<div class="modal" id="cultureRecordModal"><div class="modal-card"><h3 id="cultureRecordModalTitle">新增学习记录</h3><div class="form-grid">
+<div class="field full"><label for="cultureRecordTitle">标题</label><input id="cultureRecordTitle" maxlength="200"></div>
+<div class="field"><label for="cultureRecordDate">实际学习日期</label><input id="cultureRecordDate" type="date"></div><div class="field"><label for="cultureRecordType">卡片类型</label><select id="cultureRecordType"><option>概念卡</option><option>原文卡</option><option>实践卡</option><option>辨析卡</option></select></div>
+<div class="field"><label for="cultureRecordTopic">主题</label><select id="cultureRecordTopic"></select></div><div class="field"><label for="cultureRecordWeek">关联学习单元</label><select id="cultureRecordWeek"></select></div>
+<div class="field full"><label for="cultureRecordText">学习内容、观察事实与个人体悟</label><textarea id="cultureRecordText" maxlength="12000" style="min-height:180px"></textarea><button class="btn" id="cultureUseTemplate">使用当前类型模板</button></div>
+<div class="field full"><label for="cultureRecordEvidence">出处、证据与解释边界</label><textarea id="cultureRecordEvidence" maxlength="6000"></textarea></div><div class="field full"><label for="cultureRecordSource">来源链接（可选）</label><input id="cultureRecordSource" type="url" placeholder="https://"></div>
+</div><div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="cultureRecordModal">取消</button><button class="btn primary" id="cultureRecordSave">保存学习记录</button></div></div></div>
 
 <!-- TASK MODAL -->
 <div class="modal" id="taskModal"><div class="modal-card">
@@ -407,12 +457,14 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 
 <script src="./growth-model.js"></script>
 <script src="./growth-ui.js"></script>
+<script src="./culture-model.js"></script>
+<script src="./culture-ui.js"></script>
 <script>
 const KEY='personalPlanner_v2';
 const SYNC_CONFIG_KEY='personalGrowthGithubSync_v1';
 const SYNC_META_KEY='personalGrowthGithubMeta_v1';
 const SYNC_BASE_KEY='personalGrowthGithubBase_v1';
-const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[],projects:[],assets:[],weeklyReviews:[]};
+const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[],projects:[],assets:[],weeklyReviews:[],cultureRecords:[],cultureProgress:[]};
 const weekdaysCN=['周日','周一','周二','周三','周四','周五','周六'];
 const cats={course:'var(--course)',exercise:'var(--exercise)',research:'var(--research)',study:'var(--study)',stock:'var(--stock)',life:'var(--life)',project:'var(--project)'};
 let currentDate=new Date(),checkDate=new Date(),viewMode='week',editingEventId=null,editingTaskId=null,editingCourseId=null,editingProjectId=null,localDataExisted=false;
@@ -424,7 +476,7 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=new Date(d);const day=x.getDay();x.setDate(x.getDate()+(day===0?-6:1-day));x.setHours(0,0,0,0);return x}
 function sameDate(a,b){return fmtDate(a)===fmtDate(b)}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function legacyDataHash(data=DB){const d={...data};['assets','weeklyReviews'].forEach(k=>{if(Array.isArray(d[k])&&!d[k].length)delete d[k]});let h=2166136261,s=JSON.stringify(d);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
+function legacyDataHash(data=DB){const d={...data};['assets','weeklyReviews','cultureRecords','cultureProgress'].forEach(k=>{if(Array.isArray(d[k])&&!d[k].length)delete d[k]});let h=2166136261,s=JSON.stringify(d);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
 function dataHash(data=DB){return GrowthModel.hash(data)}
 function getSyncConfig(){try{return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:'',...JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY)||'{}')}}catch(e){return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:''}}}
 function getSyncMeta(){try{return JSON.parse(localStorage.getItem(SYNC_META_KEY)||'{}')}catch(e){return{}}}
@@ -443,6 +495,8 @@ function load(){
   if(!Array.isArray(DB.projects))DB.projects=[];
   if(!Array.isArray(DB.assets))DB.assets=[];
   if(!Array.isArray(DB.weeklyReviews))DB.weeklyReviews=[];
+  if(!Array.isArray(DB.cultureRecords))DB.cultureRecords=[];
+  if(!Array.isArray(DB.cultureProgress))DB.cultureProgress=[];
   if(!DB.tasks.length)seedTasks();
 }
 function seedTasks(){
@@ -748,7 +802,7 @@ async function loadTianchiReport(){
 tianchiReloadBtn.onclick=loadTianchiReport;
 tianchiList.addEventListener('click',competitionAssessmentClick);
 let editingWisdomId=null;
-function openNewWisdom(){editingWisdomId=null;wisdomModalTitle.textContent='记录一句';wisdomText.value='';openModal('wisdomModal');wisdomText.focus()}
+function openNewWisdom(){cultureWisdomSourceId=null;editingWisdomId=null;wisdomModalTitle.textContent='记录一句';wisdomText.value='';openModal('wisdomModal');wisdomText.focus()}
 function editWisdom(id){const item=DB.wisdom.find(x=>x.id===id);if(!item)return;editingWisdomId=id;wisdomModalTitle.textContent='编辑句子';wisdomText.value=item.text;openModal('wisdomModal');wisdomText.focus()}
 function reorderWisdom(fromId,toId,after=false){
   if(fromId===toId)return;
@@ -793,7 +847,8 @@ addWisdomBtn.onclick=openNewWisdom;
 saveWisdomBtn.onclick=()=>{
   const value=wisdomText.value.trim();if(!value)return alert('请先填写句子。');
   if(editingWisdomId){const item=DB.wisdom.find(x=>x.id===editingWisdomId);if(!item)return;item.text=value;item.updatedAt=new Date().toISOString()}
-  else DB.wisdom.push({id:uid(),text:value,createdAt:new Date().toISOString()});
+  else DB.wisdom.push({id:uid(),text:value,...(cultureWisdomSourceId?{sourceCultureRecordId:cultureWisdomSourceId}:{}),createdAt:new Date().toISOString()});
+  cultureWisdomSourceId=null;
   save();closeModal('wisdomModal');renderWisdom();
 };
 
@@ -866,6 +921,7 @@ deleteProjectBtn.onclick=()=>{
   if(!confirm(`确定删除项目？已安排的 ${count} 个时间段会保留在日程表中，转为普通事项。`))return;
   DB.events.forEach(e=>{if(e.projectId===editingProjectId){e.projectId=null;e.category='life'}});
   DB.assets.forEach(a=>{if(a.projectId===editingProjectId){a.projectId=null;a.updatedAt=new Date().toISOString()}});
+  DB.cultureRecords.forEach(r=>{if(r.projectId===editingProjectId){r.projectId=null;r.updatedAt=new Date().toISOString()}});
   DB.projects=DB.projects.filter(p=>p.id!==editingProjectId);
   save();closeModal('projectModal');renderAll()
 };
@@ -875,7 +931,7 @@ function renderHome(){const today=new Date(),events=getEventsForDate(today),stat
   homeStats.innerHTML=`<div class="stat"><div class="k">今日安排</div><div class="v">${events.length}</div></div><div class="stat"><div class="k">今日清单完成率</div><div class="v">${stats.pct}%</div></div><div class="stat"><div class="k">近7天训练</div><div class="v">${weekTrain}</div></div><div class="stat"><div class="k">今日科研</div><div class="v">${rs?rs.hours+" h":"未记录"}</div></div>`;homeProgress.style.width=stats.pct+'%';
   homeAgenda.innerHTML=events.length?events.map(e=>`<div class="event" style="--cat:${cats[e.category]||cats.life}"><div class="event-time">${e.start}–${e.end}</div><div class="event-title">${esc(e.title)}</div>${projectLabel(e)?`<div class="event-note">项目：${esc(projectLabel(e))}</div>`:''}<div class="event-note">${esc(e.note||'')}</div></div>`).join(''):'<div class="small">今天没有时间安排</div>';
 }
-function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome();if(typeof renderGrowth==='function')renderGrowth()}
+function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome();if(typeof renderGrowth==='function')renderGrowth();if(typeof renderCulture==='function')renderCulture()}
 prevBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?-7:-1);renderSchedule()};nextBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?7:1);renderSchedule()};todayBtn.onclick=()=>{currentDate=new Date();renderSchedule()};weekViewBtn.onclick=()=>{viewMode='week';renderSchedule()};dayViewBtn.onclick=()=>{viewMode='day';renderSchedule()};addEventBtn.onclick=()=>openNewEvent(currentDate);
 addTaskBtn.onclick=openNewTask;manageTasksBtn.onclick=()=>{renderTaskTable();openModal('manageModal')};prevDayCheck.onclick=()=>{checkDate=addDays(checkDate,-1);renderChecklist()};nextDayCheck.onclick=()=>{checkDate=addDays(checkDate,1);renderChecklist()};checkToday.onclick=()=>{checkDate=new Date();renderChecklist()};
 
@@ -899,7 +955,7 @@ keepLocalBtn.onclick=async()=>{if(!syncState.conflict||syncState.busy)return;
   if(syncState.conflict.localTab){if(!confirm('保留本标签页版本？另一版本已保留在冲突副本中。'))return;syncState.conflict=null;save();closeModal('conflictModal');return}
 if(!confirm('确定保留本机版本并提交到云端？云端当前版本仍保留在 GitHub 历史中。'))return;syncState.busy=true;setSyncStatus('正在提交本机版本…','busy');try{const latest=await readRemote();if(latest&&dataHash(latest.data)!==dataHash(syncState.conflict.data)){showConflict(latest);alert('云端再次变化，请先检查更新后的版本再选择。');return}await commitCurrent(latest,'conflict: 明确保留本机版本');syncState.conflict=null;closeModal('conflictModal')}catch(error){syncError(error);alert('提交失败：'+error.message)}finally{syncState.busy=false}};
 
-load();initGrowth();renderAll();initialiseSync();
+load();initGrowth();initCulture();renderAll();initialiseSync();
 window.addEventListener('storage',e=>{
   if(e.key===KEY&&e.newValue){
     try{const next=extractData(JSON.parse(e.newValue));if(dataHash(next)!==dataHash()){

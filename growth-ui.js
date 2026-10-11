@@ -11,7 +11,7 @@ function readProjectAssessment(){
 function projectAssessmentHTML(p){
   const due=p.reviewDate&&p.reviewDate<=fmtDate(new Date())&&['active','paused'].includes(projectStatus(p));
   const count=DB.assets.filter(a=>a.projectId===p.id).length;
-  return `<div class="project-meta">${p.reviewDate?`<span class="pill" style="${due?'color:var(--orange)':''}">${due?'待审查':'审查'} ${esc(p.reviewDate)}</span>`:''}<button class="btn" data-project-assets="${esc(p.id)}">成果 ${count}</button></div>${p.expectedOutcome?`<div class="small project-goal">预期成果：${esc(p.expectedOutcome)}</div>`:''}${p.budgetHours!=null||p.budgetCost?`<div class="small">预算：${p.budgetHours!=null?esc(p.budgetHours)+' h':''} ${esc(p.budgetCost||'')}</div>`:''}${p.stopCondition?`<div class="small project-goal" style="margin-top:6px">停止条件：${esc(p.stopCondition)}</div>`:''}`;
+  return `<div class="project-meta">${p.learningKey==='traditional-culture'?'<button class="btn" onclick="switchTab(\'culture\')">传统文化学习</button>':''}${p.reviewDate?`<span class="pill" style="${due?'color:var(--orange)':''}">${due?'待审查':'审查'} ${esc(p.reviewDate)}</span>`:''}<button class="btn" data-project-assets="${esc(p.id)}">成果 ${count}</button></div>${p.expectedOutcome?`<div class="small project-goal">预期成果：${esc(p.expectedOutcome)}</div>`:''}${p.budgetHours!=null||p.budgetCost?`<div class="small">预算：${p.budgetHours!=null?esc(p.budgetHours)+' h':''} ${esc(p.budgetCost||'')}</div>`:''}${p.stopCondition?`<div class="small project-goal" style="margin-top:6px">停止条件：${esc(p.stopCondition)}</div>`:''}`;
 }
 function showProjectAssets(id){assetFilter.value=id;switchTab('assets')}
 function reviewStart(){return GrowthModel.weekStart(reviewDate.value||fmtDate(new Date()))}
@@ -33,8 +33,10 @@ function renderWeekly(){
   const s=GrowthModel.summarize(DB,reviewStart()),completed=s.checklist.reduce((n,d)=>n+d.done.length,0);
   reviewRange.textContent=`${s.start} — ${s.end}`;
   reviewStats.innerHTML=[['科研实际记录',s.research.length+' 天'],['科研投入',s.research.reduce((n,x)=>n+(Number(x.hours)||0),0)+' h'],['训练记录',s.training.length+' 次'],['新增成果',s.assets.length+' 项']].map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  reviewStats.innerHTML+=`<div class="stat"><div class="k">传统文化学习记录</div><div class="v">${s.cultureRecords.length} 条</div></div>`;
   const due=DB.projects.filter(p=>['active','paused'].includes(projectStatus(p))&&p.reviewDate&&p.reviewDate<=s.end);
   reviewFacts.innerHTML=`<div class="grid g2"><div><b>已记录的推进</b><div class="note-box" style="margin-top:8px">${esc(s.research.map(x=>`${x.date}：${x.output||'未填写实际推进'}`).join('\n')||'本周暂无科研记录')}</div><p class="small">日程计划 ${s.schedule.length} 项 · 清单已勾选 ${completed} 项 · 未记录清单 ${s.checklist.filter(x=>!x.recorded).length} 天</p></div><div><b>科研卡点</b><div class="note-box" style="margin-top:8px">${esc(s.research.filter(x=>x.block).map(x=>`${x.date}：${x.block}`).join('\n')||'尚未记录卡点')}</div></div></div><h4>审查日期不晚于本周结束的项目（当前状态）</h4>${due.map(p=>`<div class="row" style="margin:8px 0"><button class="btn" data-review-project="${esc(p.id)}">${esc(p.title)}</button><span class="small">${esc(p.reviewDate)} · ${esc(p.stopCondition||'尚未设置停止条件')}</span></div>`).join('')||'<div class="small">暂无待审查项目。可在中长期项目中设置审查日期。</div>'}`;
+  reviewFacts.innerHTML+=`<h4>传统文化：实际学习与实践</h4><div class="note-box">${esc(s.cultureRecords.map(x=>`${x.date} · ${x.type} · ${x.title}\n${x.text}\n依据：${x.evidence||'未填写'}`).join('\n\n')||'本周尚无学习记录；路线与日程计划不计为实际成果。')}</div>`;
   reviewFacts.querySelectorAll('[data-review-project]').forEach(b=>b.onclick=()=>editProject(b.dataset.reviewProject));
   deleteReviewBtn.disabled=!DB.weeklyReviews.some(r=>r.start===s.start);updateReviewPreview();
 }

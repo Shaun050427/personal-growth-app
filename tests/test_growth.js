@@ -3,6 +3,7 @@ const test=require('node:test');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const M=require('../growth-model.js');
+const C=require('../culture-model.js');
 function db(){return{version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[],projects:[],assets:[],weeklyReviews:[]}}
 const clone=x=>JSON.parse(JSON.stringify(x));
 
@@ -124,8 +125,8 @@ test('project assessment budgets accept zero, reject negative values and preserv
 });
 test('all HTML scripts parse and script files exist before app initialization',()=>{
   const path=require('node:path'),root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['growth-model.js','growth-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
-  new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes('load();initGrowth();renderAll();initialiseSync();'));
+  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['growth-model.js','growth-ui.js','culture-model.js','culture-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
+  new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes('load();initGrowth();initCulture();renderAll();initialiseSync();'));
   assert.ok(!html.includes('projectStatus.value'), 'project status select must not be shadowed by the helper function');
 });
 function appHarness(initial=db()){
@@ -133,13 +134,18 @@ function appHarness(initial=db()){
   function element(id=''){
     if(id&&elements.has(id))return elements.get(id);const query=new Map(),classes=new Set();
     const e={id,value:'',textContent:'',innerHTML:'',checked:false,disabled:false,dataset:{},children:[],style:{setProperty(){}},classList:{add(...xs){xs.forEach(x=>classes.add(x))},remove(...xs){xs.forEach(x=>classes.delete(x))},toggle(x,on){if(on)classes.add(x);else classes.delete(x)},contains(x){return classes.has(x)}},
-      appendChild(x){this.children.push(x);return x},querySelector(sel){if(!query.has(sel))query.set(sel,element());return query.get(sel)},querySelectorAll(){return[]},addEventListener(){},focus(){},select(){}};
+      appendChild(x){this.children.push(x);return x},querySelector(sel){if(!query.has(sel))query.set(sel,element());return query.get(sel)},querySelectorAll(sel){
+        const attr=sel.match(/^\[([a-z-]+)\]$/)?.[1];if(!attr)return[];
+        const values=[...this.innerHTML.matchAll(new RegExp(attr+'="([^"]+)"','g'))].map(x=>x[1]);
+        return values.map(value=>{const key=sel+value;if(!query.has(key)){const node=element();node.dataset[attr.slice(5).replace(/-([a-z])/g,(_,s)=>s.toUpperCase())]=value;query.set(key,node)}return query.get(key)});
+      },addEventListener(){},focus(){},select(){}};
     if(id)elements.set(id,e);return e;
   }
-  const context={GrowthModel:M,console,Date,Math,JSON,URL,TextEncoder,TextDecoder,navigator:{},location:{protocol:'https:'},setTimeout:()=>0,setInterval:()=>0,clearTimeout(){},alert(){},confirm:()=>true,
+  const context={GrowthModel:M,CultureModel:C,console,Date,Math,JSON,URL,TextEncoder,TextDecoder,navigator:{},location:{protocol:'https:'},setTimeout:()=>0,setInterval:()=>0,clearTimeout(){},alert(){},confirm:()=>true,
     localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},document:{getElementById:element,createElement:()=>element(),querySelectorAll:()=>[],addEventListener(){}},addEventListener(){}};
   context.window=context;for(const m of html.matchAll(/\bid="([A-Za-z][A-Za-z0-9]+)"/g))context[m[1]]=element(m[1]);
   vm.createContext(context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../growth-ui.js'),'utf8'),context);
+  vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../culture-ui.js'),'utf8'),context);
   vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1]+'\nglobalThis.db=DB;',context);
   return{context,element,storage};
 }
@@ -153,4 +159,44 @@ test('competition assessment pre-fills a draft and reuses a matching project wit
   const click=()=>context.competitionAssessmentClick({target:{closest:()=>({dataset:{assessment:JSON.stringify(item)}})}});
   click();assert.equal(context.db.projects.length,0);assert.equal(element('projectTitle').value,'示例竞赛');assert.equal(element('projectSourceUrl').value,item.url);
   context.saveProjectBtn.onclick();assert.equal(context.db.projects.length,1);click();assert.equal(context.db.projects.length,1);assert.equal(element('projectModalTitle').textContent,'编辑中长期项目');
+});
+
+test('culture upgrade preserves sync fingerprints, merges independent records and restores older backups cleanly',()=>{
+  const old=db(),normalized=M.normalize(old);assert.equal(M.hash(old),M.hash(normalized));assert.deepEqual(normalized.cultureRecords,[]);assert.deepEqual(normalized.cultureProgress,[]);
+  const l=clone(normalized),r=clone(normalized);l.cultureRecords.push({id:'left',title:'本机观察'});r.cultureRecords.push({id:'right',title:'云端原文'});r.cultureProgress.push({id:'culture-week-1',completed:true});
+  const merged=M.mergeData(old,l,r);assert.equal(merged.ok,true);assert.equal(merged.data.cultureRecords.length,2);assert.equal(merged.data.cultureProgress.length,1);
+  const{h}=harness(merged.data);h.replaceDB(old);assert.equal(h.DB.cultureRecords.length,0);assert.equal(h.DB.cultureProgress.length,0);
+  assert.throws(()=>M.normalize({...old,cultureRecords:{}}));
+});
+test('culture weekly report excludes future records, carries evidence and distinguishes self-confirmed progress',()=>{
+  const d=M.normalize(db());d.cultureRecords=[{id:'a',date:'2026-10-06',type:'辨析卡',title:'洛书十五',text:'45÷3=15',evidence:'核对8条线',sourceUrl:'https://example.com/source'},{id:'b',date:'2026-10-11',type:'概念卡',title:'未来记录'}];
+  d.cultureProgress=[{id:'culture-week-1',completed:true,updatedAt:'2026-10-06T01:00:00Z'},{id:'culture-week-2',completed:false,updatedAt:'2026-10-06T01:00:00Z'}];
+  const s=M.summarize(d,'2026-10-05','2026-10-10'),md=M.markdown(d,s);assert.equal(s.cultureRecords.length,1);assert.equal(s.cultureProgress.length,1);assert.match(md,/45÷3=15/);assert.match(md,/核对8条线/);assert.match(md,/不等于独立能力评测/);assert.doesNotMatch(md,/未来记录/);
+});
+test('opening culture does not create personal achievements; linking projects and planning time reuse the same ID',()=>{
+  const{context,element}=appHarness();assert.equal(context.db.projects.length,0);assert.equal(context.db.cultureRecords.length,0);assert.equal(context.db.cultureProgress.length,0);
+  context.cultureConnectProject.onclick();const p=context.db.projects[0];assert.equal(p.learningKey,'traditional-culture');assert.equal(context.db.projects.length,1);
+  context.cultureConnectProject.onclick();assert.equal(context.db.projects.length,1);context.culturePlanTime.onclick();assert.equal(element('evProject').value,p.id);assert.equal(element('evCategory').value,'project');
+  const existing={id:'existing',title:'已有文化学习',status:'active'};context.db.projects.push(existing);element('cultureProjectChoice').value='existing';context.cultureConnectProject.onclick();assert.equal(C.project(context.db).id,'existing');assert.equal(p.learningKey,undefined);
+});
+test('culture cards validate URLs, edit in place, escape user content and promote once to linked asset',()=>{
+  const{context,element}=appHarness();context.cultureConnectProject.onclick();context.openCultureRecord();
+  element('cultureRecordTitle').value='<img src=x onerror=alert(1)>';element('cultureRecordText').value='观察事实与解释';element('cultureRecordDate').value='2026-10-06';element('cultureRecordEvidence').value='自己的读数';element('cultureRecordSource').value='javascript:alert(1)';
+  context.cultureRecordSave.onclick();assert.equal(context.db.cultureRecords.length,0);element('cultureRecordSource').value='https://example.com/source';context.cultureRecordSave.onclick();
+  const r=context.db.cultureRecords[0];assert.equal(r.projectId,context.db.projects[0].id);assert.match(element('cultureRecords').innerHTML,/&lt;img/);assert.ok(!element('cultureRecords').innerHTML.includes('<img'));
+  context.openCultureRecord(r.id);element('cultureRecordTitle').value='节气观察';context.cultureRecordSave.onclick();assert.equal(context.db.cultureRecords.length,1);assert.equal(r.title,'节气观察');
+  context.promoteCultureRecord(r.id,'asset');context.promoteCultureRecord(r.id,'asset');assert.equal(context.db.assets.length,1);assert.equal(context.db.assets[0].projectId,r.projectId);assert.equal(context.db.assets[0].sourceCultureRecordId,r.id);
+  const box=element('cultureRecords').querySelectorAll('[data-culture-delete]')[0];box.onclick();assert.equal(context.db.cultureRecords.length,0);assert.equal(context.db.assets.length,1);
+});
+test('culture learning progress is explicitly reversible, source notes require refined wisdom confirmation',()=>{
+  const{context,element}=appHarness();const checkbox=element('cultureWeeks').querySelectorAll('[data-culture-week]')[0];checkbox.checked=true;checkbox.onchange();assert.equal(context.db.cultureProgress[0].completed,true);checkbox.checked=false;checkbox.onchange();assert.equal(context.db.cultureProgress.length,1);assert.equal(context.db.cultureProgress[0].completed,false);
+  context.openCultureRecord();element('cultureRecordTitle').value='阴阳体悟';element('cultureRecordText').value='一段需要精炼的学习记录';context.cultureRecordSave.onclick();
+  element('cultureRecords').querySelectorAll('[data-culture-wisdom]')[0].onclick();assert.equal(context.db.wisdom.length,0);element('wisdomText').value='看见变化，也辨别联系的边界。';context.saveWisdomBtn.onclick();assert.equal(context.db.wisdom.length,1);assert.equal(context.db.wisdom[0].sourceCultureRecordId,context.db.cultureRecords[0].id);
+  element('cultureRecords').querySelectorAll('[data-culture-wisdom]')[0].onclick();assert.equal(context.db.wisdom.length,1);
+});
+test('six-line construction follows bottom-to-top order, flips only moving lines and saves only after confirmation',()=>{
+  const values=[6,7,8,9,7,8],lines=C.hexagram(values);assert.deepEqual(lines.map(x=>x.yang),[false,true,false,true,true,false]);assert.deepEqual(lines.map(x=>x.changedYang),[true,true,false,false,true,false]);assert.throws(()=>C.hexagram([5]));assert.throws(()=>C.hexagram([...values,6]));
+  const{context,element}=appHarness();for(const n of values){element('cultureLineValue').value=String(n);context.cultureAddLine.onclick()}
+  assert.equal(element('cultureAddLine').disabled,true);assert.equal(element('cultureSaveLines').disabled,false);context.cultureSaveLines.onclick();assert.equal(context.db.cultureRecords.length,0);assert.match(element('cultureRecordText').value,/6、7、8、9、7、8/);
+  context.cultureRecordSave.onclick();assert.equal(context.db.cultureRecords.length,1);assert.equal(context.db.cultureRecords[0].type,'实践卡');context.cultureUndoLine.onclick();assert.equal(element('cultureSaveLines').disabled,true);
 });
