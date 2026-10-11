@@ -125,8 +125,8 @@ test('project assessment budgets accept zero, reject negative values and preserv
 });
 test('all HTML scripts parse and script files exist before app initialization',()=>{
   const path=require('node:path'),root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['growth-model.js','growth-ui.js','culture-model.js','culture-ui.js','yi-integration.js','japanese-transfer.js','japanese-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
-  new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes('load();initGrowth();initCulture();initJapanese();renderAll();'));assert.ok(html.includes('initialiseSync();'));
+  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['growth-model.js','growth-ui.js','culture-model.js','culture-ui.js','yi-integration.js','japanese-transfer.js','japanese-ui.js','cs-curriculum.js','cs-transfer.js','cs-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
+  new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes('load();initGrowth();initCulture();initJapanese();initCS();renderAll();'));assert.ok(html.includes('initialiseSync();'));
   assert.ok(!html.includes('projectStatus.value'), 'project status select must not be shadowed by the helper function');
 });
 function appHarness(initial=db()){
@@ -148,6 +148,7 @@ function appHarness(initial=db()){
   vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../culture-ui.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../japanese-transfer.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../japanese-ui.js'),'utf8'),context);
+  for(const script of ['cs-curriculum.js','cs-transfer.js','cs-ui.js'])vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'..',script),'utf8'),context);
   vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1]+'\nglobalThis.db=DB;',context);
   return{context,element,storage};
 }
@@ -220,4 +221,15 @@ test('japanese import stays a draft until confirmed and repeat imports do not du
 test('japanese outputs enter dated weekly reports, future records and backups are not treated as achievements',()=>{
   const d=M.normalize(db());d.japaneseRecords=[{id:'a',date:'2026-10-06',title:'数字汇报',type:'能力验收',stage:3,text:'分清百分比与百分点',evidence:'核对原始数字',feedback:'教师反馈',scores:{口语:2}},{id:'b',date:'2026-10-11',title:'未来日语'}];d.japaneseBackups=[{id:'finance-japanese-lab',state:{secret:'不是成果'}}];
   const s=M.summarize(d,'2026-10-05','2026-10-10'),md=M.markdown(d,s);assert.equal(s.japaneseRecords.length,1);assert.match(md,/核对原始数字/);assert.match(md,/教师反馈/);assert.match(md,/非标准化等级/);assert.doesNotMatch(md,/未来日语|不是成果/);
+});
+
+
+test('CS entry leaves records untouched until association and retains original scheduled links',()=>{
+ const d=db();d.projects=[{id:'cs-old',title:'计算机深入底层机理',status:'active',goal:'结合CS 234去做'}];d.events=[{id:'session',projectId:'cs-old',category:'project',title:'学习',date:'2026-10-11',repeat:'once',start:'10:00',end:'11:00'}];
+ const {context,element}=appHarness(d);assert.equal(context.db.projects[0].learningKey,undefined);assert.equal(context.db.assets.length,0);element('csProjectChoice').value='cs-old';context.connectCS();context.connectCS();assert.equal(context.db.projects.length,1);assert.equal(context.db.projects[0].id,'cs-old');assert.equal(context.db.projects[0].goal,'结合CS 234去做');assert.equal(context.db.events[0].projectId,'cs-old');assert.equal(context.db.projects[0].learningKey,'cs-foundations');
+});
+test('CS JSON transfer previews, confirms once, updates in place and enters weekly evidence',async()=>{
+ const {context,element}=appHarness();const payload={schema:'cs-foundations-lab/v1',state:{weeklyHours:4,progress:[{id:'bytes',evidence:'独立解释',updatedAt:''}],records:[{id:'result-1',date:'2026-10-06',title:'布局对照',lesson:'cache',minutes:30,text:'相同工作量的模型结果',evidence:'16次未命中，非CPU实测',next:'本机验证',url:'https://example.com/report',updatedAt:''}]}};
+ const read=()=>element('csFile').onchange({target:{files:[{size:1000,text:async()=>JSON.stringify(payload)}],value:'file'}});
+ await read();assert.equal(context.db.assets.length,0);assert.equal(context.db.projects.length,0);assert.equal(element('csPreview').hidden,false);element('csConfirm').onclick();assert.equal(context.db.assets.length,1);assert.equal(context.db.projects.length,1);assert.equal(context.db.assets[0].projectId,context.db.projects[0].id);assert.equal(context.db.projects[0].learningSummary.nextMilestone,'增长率与工作量');await read();element('csConfirm').onclick();assert.equal(context.db.assets.length,1);payload.state.records[0].text='更新后的结果';await read();element('csConfirm').onclick();assert.equal(context.db.assets.length,1);assert.match(context.db.assets[0].note,/更新后的结果/);const report=M.markdown(context.db,M.summarize(context.db,'2026-10-05','2026-10-11'));assert.match(report,/布局对照/);assert.match(report,/非CPU实测/);
 });

@@ -92,6 +92,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
     <button class="tab" data-tab="projects">中长期</button>
     <button class="tab" data-tab="culture">传统文化</button>
     <button class="tab" data-tab="japanese">金融日语</button>
+    <button class="tab" data-tab="cs">计算机科学</button>
     <button class="tab" data-tab="weekly">每周复盘</button>
     <button class="tab" data-tab="assets">成果资产</button>
     <button class="tab" data-tab="wisdom">清风心法</button>
@@ -172,6 +173,12 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
       <div class="section-title"><div><h2>中长期项目</h2><div class="small">按状态查看项目；拖动左侧把手调整顺序，也可拖到其他状态</div></div><button class="btn primary" id="addProjectBtn">+ 新建项目</button></div>
       <div class="project-list" id="projectList"></div>
     </div>
+  </section>
+
+  <section class="module" id="cs">
+    <div class="card culture-intro"><h2>计算机科学实验室 · 算法 × 底层原理 × 工程实践</h2><p>独立项目维护五阶段学习路线、知识连接、算法可视化、缓存模型和可复现代码；本系统管理目标、时间、里程碑与成果。</p><div class="toolbar"><a class="btn primary" href="https://shaun050427.github.io/cs-foundations-lab/" target="_blank" rel="noopener noreferrer">进入独立实验室 ↗</a><a class="btn" href="https://github.com/Shaun050427/cs-foundations-lab" target="_blank" rel="noopener noreferrer">GitHub 项目 ↗</a><button class="btn" id="csWeekly">每周复盘</button></div><p class="small">学习记录保存在独立应用所在浏览器。换设备前导出备份；导入本系统的成果随已有私人数据同步。</p></div>
+    <div class="card"><h3>升级原有计算机学习目标</h3><div class="toolbar"><label for="csProjectChoice">总体目标</label><select id="csProjectChoice"></select><button class="btn primary" id="csConnect">建立 / 关联目标</button><button class="btn" id="csEdit">编辑目标</button><button class="btn" id="csPlan">安排学习时间</button><button class="btn" id="csAssets">关联成果</button></div><p id="csProjectLabel" class="small"></p><div class="note-box" id="csSummary"></div><p class="small" id="csCount"></p></div>
+    <div class="card"><h3>把学习成果纳入每周复盘</h3><p>在独立应用「复盘与迁移」导出完整 JSON → 选择文件 → 检查预览 → 确认导入。每条学习记录保留输出、证据、链接与下一步，重复导入同一记录不会创建副本。</p><div class="toolbar"><button class="btn primary" id="csPick">选择实验室导出文件</button><input id="csFile" type="file" accept=".json,application/json" hidden></div><div id="csStatus" class="small" role="status"></div><div id="csPreview" hidden style="margin-top:16px"><div id="csPreviewText" class="note-box"></div><div class="toolbar" style="margin-top:12px"><button class="btn primary" id="csConfirm">确认导入</button><button class="btn" id="csCancel">取消</button></div></div></div>
   </section>
 
   <section class="module" id="culture">
@@ -479,6 +486,9 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 <script src="./yi-integration.js"></script>
 <script src="./japanese-transfer.js"></script>
 <script src="./japanese-ui.js"></script>
+<script src="./cs-curriculum.js"></script>
+<script src="./cs-transfer.js"></script>
+<script src="./cs-ui.js"></script>
 <script>
 const KEY='personalPlanner_v2';
 const SYNC_CONFIG_KEY='personalGrowthGithubSync_v1';
@@ -915,6 +925,7 @@ function renderProjects(){
     future.slice(0,4).forEach(ev=>{const b=document.createElement('button');b.className='btn';b.type='button';b.textContent=(ev.repeat==='weekly'?'每周'+(ev.weekdays||[]).map(d=>weekdaysCN[d]).join('、'):ev.date)+' '+ev.start+'–'+ev.end+' · '+ev.title;b.onclick=()=>editEvent(ev.id);sessions.appendChild(b)});
     card.querySelector('.plan').onclick=()=>planProject(p.id);
     card.querySelector('.edit').onclick=()=>editProject(p.id);
+    if(p.learningKey==='cs-foundations'){const b=document.createElement('button');b.className='btn';b.textContent='计算机科学实验室';b.onclick=()=>switchTab('cs');card.querySelector('.toolbar').appendChild(b)}
     card.querySelector('[data-project-assets]').onclick=()=>showProjectAssets(p.id);
     const handle=card.querySelector('.project-handle');
     handle.addEventListener('dragstart',e=>{draggingProjectId=p.id;e.dataTransfer.setData('text/plain',p.id);e.dataTransfer.effectAllowed='move';card.classList.add('dragging')});
@@ -954,7 +965,7 @@ function renderHome(){const today=new Date(),events=getEventsForDate(today),stat
   homeStats.innerHTML=`<div class="stat"><div class="k">今日安排</div><div class="v">${events.length}</div></div><div class="stat"><div class="k">今日清单完成率</div><div class="v">${stats.pct}%</div></div><div class="stat"><div class="k">近7天训练</div><div class="v">${weekTrain}</div></div><div class="stat"><div class="k">今日科研</div><div class="v">${rs?rs.hours+" h":"未记录"}</div></div>`;homeProgress.style.width=stats.pct+'%';
   homeAgenda.innerHTML=events.length?events.map(e=>`<div class="event" style="--cat:${cats[e.category]||cats.life}"><div class="event-time">${e.start}–${e.end}</div><div class="event-title">${esc(e.title)}</div>${projectLabel(e)?`<div class="event-note">项目：${esc(projectLabel(e))}</div>`:''}<div class="event-note">${esc(e.note||'')}</div></div>`).join(''):'<div class="small">今天没有时间安排</div>';
 }
-function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome();if(typeof renderGrowth==='function')renderGrowth();if(typeof renderCulture==='function')renderCulture();if(typeof renderJapanese==='function')renderJapanese()}
+function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome();if(typeof renderGrowth==='function')renderGrowth();if(typeof renderCulture==='function')renderCulture();if(typeof renderJapanese==='function')renderJapanese();if(typeof renderCS==='function')renderCS()}
 prevBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?-7:-1);renderSchedule()};nextBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?7:1);renderSchedule()};todayBtn.onclick=()=>{currentDate=new Date();renderSchedule()};weekViewBtn.onclick=()=>{viewMode='week';renderSchedule()};dayViewBtn.onclick=()=>{viewMode='day';renderSchedule()};addEventBtn.onclick=()=>openNewEvent(currentDate);
 addTaskBtn.onclick=openNewTask;manageTasksBtn.onclick=()=>{renderTaskTable();openModal('manageModal')};prevDayCheck.onclick=()=>{checkDate=addDays(checkDate,-1);renderChecklist()};nextDayCheck.onclick=()=>{checkDate=addDays(checkDate,1);renderChecklist()};checkToday.onclick=()=>{checkDate=new Date();renderChecklist()};
 
@@ -978,7 +989,7 @@ keepLocalBtn.onclick=async()=>{if(!syncState.conflict||syncState.busy)return;
   if(syncState.conflict.localTab){if(!confirm('保留本标签页版本？另一版本已保留在冲突副本中。'))return;syncState.conflict=null;save();closeModal('conflictModal');return}
 if(!confirm('确定保留本机版本并提交到云端？云端当前版本仍保留在 GitHub 历史中。'))return;syncState.busy=true;setSyncStatus('正在提交本机版本…','busy');try{const latest=await readRemote();if(latest&&dataHash(latest.data)!==dataHash(syncState.conflict.data)){showConflict(latest);alert('云端再次变化，请先检查更新后的版本再选择。');return}await commitCurrent(latest,'conflict: 明确保留本机版本');syncState.conflict=null;closeModal('conflictModal')}catch(error){syncError(error);alert('提交失败：'+error.message)}finally{syncState.busy=false}};
 
-load();initGrowth();initCulture();initJapanese();renderAll();if(location.hash==='#japanese')switchTab('japanese');initialiseSync();
+load();initGrowth();initCulture();initJapanese();initCS();renderAll();if(location.hash==='#japanese')switchTab('japanese');if(location.hash==='#cs')switchTab('cs');initialiseSync();
 window.addEventListener('storage',e=>{
   if(e.key===KEY&&e.newValue){
     try{const next=extractData(JSON.parse(e.newValue));if(dataHash(next)!==dataHash()){
@@ -1001,3 +1012,4 @@ if('serviceWorker'in navigator&&location.protocol.startsWith('http'))window.addE
 </script>
 </body>
 </html>
+
