@@ -1,10 +1,13 @@
 import sys
+import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import update_kaggle
 from update_kaggle import awards, build_report, collect_pages, competition_link, relevance
 
 
@@ -72,6 +75,19 @@ class KaggleReportTests(unittest.TestCase):
             build_report([[]], now)
         report = build_report([[SimpleNamespace(title="No prize", deadline=now+timedelta(days=1), ref="practice", reward="Swag", category="Playground", awardsPoints=False)]], now)
         self.assertEqual(report["count"], 0)
+
+    def test_main_reuses_kaggle_authenticated_client(self):
+        api = object()
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.dict(sys.modules, {"kaggle": SimpleNamespace(api=api)}), \
+             patch.object(update_kaggle, "OUTPUT", Path(directory) / "report.json"), \
+             patch.object(update_kaggle, "collect_pages", return_value=[[SimpleNamespace(
+                 title="Awarded", ref="awarded", deadline=datetime.now(timezone.utc) + timedelta(days=3),
+                 category="Research", reward="$100", awardsPoints=True,
+             )]]) as collect:
+            update_kaggle.main()
+            collect.assert_called_once_with(api)
+            self.assertTrue((Path(directory) / "report.json").exists())
 
 
 if __name__ == "__main__":

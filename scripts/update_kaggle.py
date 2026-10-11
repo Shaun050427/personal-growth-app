@@ -145,11 +145,11 @@ def collect_pages(api):
 
 def main():
     # Import only in the scheduled job; unit tests can run without credentials.
-    from kaggle.api.kaggle_api_extended import KaggleApi
+    import kaggle
 
-    api = KaggleApi()
-    api.authenticate()
-    pages = collect_pages(api)
+    # kaggle imports with an authenticated singleton. Creating another client
+    # consumes the one-use KAGGLE_API_TOKEN twice and fails the scheduled job.
+    pages = collect_pages(kaggle.api)
     report = build_report(pages, datetime.now(timezone.utc))
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     tmp = OUTPUT.with_suffix(".json.tmp")
