@@ -1,23 +1,36 @@
 {
-  "source": "Kaggle API snapshot with first-party prize verification",
-  "generatedAt": "2026-10-10T03:12:37.556758Z",
+  "source": "Kaggle official competitions API",
+  "generatedAt": "2026-10-11T12:46:35.045539Z",
   "timeZone": "UTC",
+  "awardFilterVersion": 1,
   "checked": 22,
-  "count": 7,
+  "count": 9,
   "competitions": [
+    {
+      "slug": "kaggriculture",
+      "title": "Kaggriculture",
+      "url": "https://www.kaggle.com/competitions/kaggriculture",
+      "deadline": "2026-10-14T23:59:00Z",
+      "category": "Featured",
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "50,000 Usd",
+      "score": 10,
+      "tags": []
+    },
     {
       "slug": "rsna-knee-abnormality-detection",
       "title": "RSNA Knee Abnormality Detection",
       "url": "https://www.kaggle.com/competitions/rsna-knee-abnormality-detection",
       "deadline": "2026-10-22T23:59:00Z",
       "category": "Research",
-      "score": 10,
-      "tags": [],
       "awardTypes": [
-        "cash",
-        "medal"
+        "cash"
       ],
-      "reward": "$77,000"
+      "reward": "77,000 Usd",
+      "score": 10,
+      "tags": []
     },
     {
       "slug": "arc-prize-2026-arc-agi-2",
@@ -25,12 +38,12 @@
       "url": "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2",
       "deadline": "2026-11-02T23:59:00Z",
       "category": "Featured",
-      "score": 10,
-      "tags": [],
       "awardTypes": [
         "cash"
       ],
-      "reward": "$700,000"
+      "reward": "700,000 Usd",
+      "score": 10,
+      "tags": []
     },
     {
       "slug": "arc-prize-2026-arc-agi-3",
@@ -38,12 +51,12 @@
       "url": "https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-3",
       "deadline": "2026-11-02T23:59:00Z",
       "category": "Featured",
-      "score": 10,
-      "tags": [],
       "awardTypes": [
         "cash"
       ],
-      "reward": "$850,000"
+      "reward": "850,000 Usd",
+      "score": 10,
+      "tags": []
     },
     {
       "slug": "arc-prize-2026-paper-track",
@@ -51,12 +64,12 @@
       "url": "https://www.kaggle.com/competitions/arc-prize-2026-paper-track",
       "deadline": "2026-11-09T23:59:00Z",
       "category": "Featured",
-      "score": 10,
-      "tags": [],
       "awardTypes": [
         "cash"
       ],
-      "reward": "$450,000"
+      "reward": "450,000 Usd",
+      "score": 10,
+      "tags": []
     },
     {
       "slug": "gemma-4-developer-agent-paper",
@@ -64,12 +77,12 @@
       "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent-paper",
       "deadline": "2026-11-12T23:59:00.807000Z",
       "category": "Featured",
-      "score": 10,
-      "tags": [],
       "awardTypes": [
         "cash"
       ],
-      "reward": "$35,000"
+      "reward": "35,000 Usd",
+      "score": 10,
+      "tags": []
     },
     {
       "slug": "gemma-4-developer-agent",
@@ -77,12 +90,12 @@
       "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent",
       "deadline": "2026-12-02T23:59:00Z",
       "category": "Featured",
-      "score": 10,
-      "tags": [],
       "awardTypes": [
         "cash"
       ],
-      "reward": "$65,000"
+      "reward": "65,000 Usd",
+      "score": 10,
+      "tags": []
     },
     {
       "slug": "enveda-CASMI26-molecule-id-mass-spectra",
@@ -90,15 +103,25 @@
       "url": "https://www.kaggle.com/competitions/enveda-CASMI26-molecule-id-mass-spectra",
       "deadline": "2026-12-14T23:59:00Z",
       "category": "Featured",
-      "score": 10,
-      "tags": [],
       "awardTypes": [
         "cash"
       ],
-      "reward": "$50,000"
+      "reward": "50,000 Usd",
+      "score": 10,
+      "tags": []
+    },
+    {
+      "slug": "nfl-big-data-bowl-2027",
+      "title": "NFL Big Data Bowl 2027",
+      "url": "https://www.kaggle.com/competitions/nfl-big-data-bowl-2027",
+      "deadline": "2027-01-06T23:59:00Z",
+      "category": "Featured",
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "100,000 Usd",
+      "score": 10,
+      "tags": []
     }
-  ],
-  "sourceSnapshotAt": "2026-09-29T06:53:31.324210Z",
-  "status": "partial",
-  "awardFilterVersion": 1
+  ]
 }
