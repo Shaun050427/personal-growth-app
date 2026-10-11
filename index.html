@@ -91,6 +91,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
     <button class="tab" data-tab="research">科研</button>
     <button class="tab" data-tab="projects">中长期</button>
     <button class="tab" data-tab="culture">传统文化</button>
+    <button class="tab" data-tab="japanese">金融日语</button>
     <button class="tab" data-tab="weekly">每周复盘</button>
     <button class="tab" data-tab="assets">成果资产</button>
     <button class="tab" data-tab="wisdom">清风心法</button>
@@ -209,6 +210,13 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
       <div class="card"><h3>六爻构卦练习</h3><p>三枚相同硬币，投掷前固定一面3、另一面2；每次合计6 / 7 / 8 / 9。投六次，自下而上。6老阴、9老阳是动爻，变卦翻转这些爻。这里练符号结构。</p><div class="grid g2"><div class="culture-yao-panel"><b>本卦</b><div id="cultureOriginalLines"></div></div><div class="culture-yao-panel"><b>变卦</b><div id="cultureChangedLines"></div></div></div><p class="small" id="cultureLineStatus" role="status"></p><div class="toolbar"><label for="cultureLineValue">本次合计</label><select id="cultureLineValue"><option value="6">6 · 老阴</option><option value="7">7 · 少阳</option><option value="8">8 · 少阴</option><option value="9">9 · 老阳</option></select><button class="btn primary" id="cultureAddLine">记录一爻</button><button class="btn" id="cultureUndoLine">撤销一爻</button><button class="btn" id="cultureResetLines">重置</button><button class="btn" id="cultureSaveLines">保存为实践卡</button></div><p class="small">构卦输入在本页临时保留，保存实践卡后才进入备份与同步。研究预测能力时，需事先定义结果标准与对照，避免事后任意解释。</p></div>
     </div>
     <div class="culture-pane hide" id="culture-records"><div class="card"><div class="section-title"><div><h3>我的学习卡片</h3><div class="small">每周少量高质量输出，保留出处、事实与疑问。收录成果是独立快照，后续修改请在成果库编辑。</div></div><button class="btn primary" id="cultureAddRecord">+ 新增卡片</button></div><div class="toolbar culture-record-toolbar"><label for="cultureRecordFilter">类型</label><select id="cultureRecordFilter"><option value="">全部卡片</option><option>概念卡</option><option>原文卡</option><option>实践卡</option><option>辨析卡</option></select><label for="cultureRecordSearch">搜索</label><input id="cultureRecordSearch" placeholder="标题、内容、依据"></div><div id="cultureRecords" class="grid g2"></div></div></div>
+  </section>
+
+  <section class="module" id="japanese">
+    <div class="card culture-intro"><h2>金融日语研习室 · 独立学习应用</h2><p>从假名与生活交流，到商务沟通、公开财报阅读和股票研究＋量化金融。以真实输出、真人反馈与月度作品衡量进步。</p><div class="toolbar"><a class="btn primary" href="https://finance-japanese-lab.feybud130.chatgpt.site" target="_blank" rel="noopener noreferrer">进入独立研习室 ↗</a><a class="btn" href="https://github.com/Shaun050427/finance-japanese-lab" target="_blank" rel="noopener noreferrer">独立 GitHub 项目</a><button class="btn" id="japaneseWeekly">每周复盘</button></div><p class="small">研习室采用私有访问，首次打开需使用本账号登录。由独立项目维护课程与练习，本系统承载总体目标、日程、成果与私人记录同步。</p></div>
+    <div class="card"><h3>与成长系统连接</h3><div class="toolbar"><label for="japaneseProjectChoice">总体目标</label><select id="japaneseProjectChoice"></select><button class="btn primary" id="japaneseConnect">建立 / 关联目标</button><button class="btn" id="japaneseEditProject">编辑目标</button><button class="btn" id="japanesePlanTime">安排学习时间</button><button class="btn" id="japaneseAssets">关联成果</button></div><p class="small" id="japaneseProjectLabel"></p><div id="japaneseStats" class="small"></div></div>
+    <div class="card"><h3>把实际训练纳入复盘</h3><p>① 在研习室完成训练或作品并保存　② 点击「导出到成长系统」　③ 在此选择 JSON，检查预览并确认导入。原始课程进度与词卡复习也会作为完整备份保存。</p><div class="toolbar"><button class="btn primary" id="japaneseImportButton">选择研习室导出文件</button><button class="btn" id="japaneseBackup">下载研习室恢复备份</button><input type="file" id="japaneseFile" accept=".json,application/json" hidden></div><div id="japaneseStatus" class="small" role="status"></div><div id="japanesePreview" hidden style="margin-top:16px"><div class="note-box" id="japanesePreviewText"></div><div class="toolbar" style="margin-top:12px"><button class="btn primary" id="japaneseConfirm">确认导入</button><button class="btn" id="japaneseCancel">取消草稿</button></div></div><p class="small">导入不会自动收录成果；成熟输出可在下方单独收录。删除或修改的成果快照独立保留。</p></div>
+    <div class="card"><div class="section-title"><h3>已导入学习摘要</h3><input id="japaneseSearch" placeholder="搜索标题、输出和反馈" aria-label="搜索日语摘要"></div><div id="japaneseRecords" class="grid g2"></div></div>
   </section>
 
   <section class="module" id="weekly">
@@ -459,12 +467,14 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 <script src="./growth-ui.js"></script>
 <script src="./culture-model.js"></script>
 <script src="./culture-ui.js"></script>
+<script src="./japanese-transfer.js"></script>
+<script src="./japanese-ui.js"></script>
 <script>
 const KEY='personalPlanner_v2';
 const SYNC_CONFIG_KEY='personalGrowthGithubSync_v1';
 const SYNC_META_KEY='personalGrowthGithubMeta_v1';
 const SYNC_BASE_KEY='personalGrowthGithubBase_v1';
-const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[],projects:[],assets:[],weeklyReviews:[],cultureRecords:[],cultureProgress:[]};
+const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[],projects:[],assets:[],weeklyReviews:[],cultureRecords:[],cultureProgress:[],japaneseRecords:[],japaneseBackups:[]};
 const weekdaysCN=['周日','周一','周二','周三','周四','周五','周六'];
 const cats={course:'var(--course)',exercise:'var(--exercise)',research:'var(--research)',study:'var(--study)',stock:'var(--stock)',life:'var(--life)',project:'var(--project)'};
 let currentDate=new Date(),checkDate=new Date(),viewMode='week',editingEventId=null,editingTaskId=null,editingCourseId=null,editingProjectId=null,localDataExisted=false;
@@ -476,7 +486,7 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=new Date(d);const day=x.getDay();x.setDate(x.getDate()+(day===0?-6:1-day));x.setHours(0,0,0,0);return x}
 function sameDate(a,b){return fmtDate(a)===fmtDate(b)}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function legacyDataHash(data=DB){const d={...data};['assets','weeklyReviews','cultureRecords','cultureProgress'].forEach(k=>{if(Array.isArray(d[k])&&!d[k].length)delete d[k]});let h=2166136261,s=JSON.stringify(d);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
+function legacyDataHash(data=DB){const d={...data};['assets','weeklyReviews','cultureRecords','cultureProgress','japaneseRecords','japaneseBackups'].forEach(k=>{if(Array.isArray(d[k])&&!d[k].length)delete d[k]});let h=2166136261,s=JSON.stringify(d);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
 function dataHash(data=DB){return GrowthModel.hash(data)}
 function getSyncConfig(){try{return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:'',...JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY)||'{}')}}catch(e){return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:''}}}
 function getSyncMeta(){try{return JSON.parse(localStorage.getItem(SYNC_META_KEY)||'{}')}catch(e){return{}}}
@@ -497,6 +507,8 @@ function load(){
   if(!Array.isArray(DB.weeklyReviews))DB.weeklyReviews=[];
   if(!Array.isArray(DB.cultureRecords))DB.cultureRecords=[];
   if(!Array.isArray(DB.cultureProgress))DB.cultureProgress=[];
+  if(!Array.isArray(DB.japaneseRecords))DB.japaneseRecords=[];
+  if(!Array.isArray(DB.japaneseBackups))DB.japaneseBackups=[];
   if(!DB.tasks.length)seedTasks();
 }
 function seedTasks(){
@@ -922,6 +934,7 @@ deleteProjectBtn.onclick=()=>{
   DB.events.forEach(e=>{if(e.projectId===editingProjectId){e.projectId=null;e.category='life'}});
   DB.assets.forEach(a=>{if(a.projectId===editingProjectId){a.projectId=null;a.updatedAt=new Date().toISOString()}});
   DB.cultureRecords.forEach(r=>{if(r.projectId===editingProjectId){r.projectId=null;r.updatedAt=new Date().toISOString()}});
+  DB.japaneseRecords.forEach(r=>{if(r.projectId===editingProjectId)r.projectId=null});
   DB.projects=DB.projects.filter(p=>p.id!==editingProjectId);
   save();closeModal('projectModal');renderAll()
 };
@@ -931,7 +944,7 @@ function renderHome(){const today=new Date(),events=getEventsForDate(today),stat
   homeStats.innerHTML=`<div class="stat"><div class="k">今日安排</div><div class="v">${events.length}</div></div><div class="stat"><div class="k">今日清单完成率</div><div class="v">${stats.pct}%</div></div><div class="stat"><div class="k">近7天训练</div><div class="v">${weekTrain}</div></div><div class="stat"><div class="k">今日科研</div><div class="v">${rs?rs.hours+" h":"未记录"}</div></div>`;homeProgress.style.width=stats.pct+'%';
   homeAgenda.innerHTML=events.length?events.map(e=>`<div class="event" style="--cat:${cats[e.category]||cats.life}"><div class="event-time">${e.start}–${e.end}</div><div class="event-title">${esc(e.title)}</div>${projectLabel(e)?`<div class="event-note">项目：${esc(projectLabel(e))}</div>`:''}<div class="event-note">${esc(e.note||'')}</div></div>`).join(''):'<div class="small">今天没有时间安排</div>';
 }
-function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome();if(typeof renderGrowth==='function')renderGrowth();if(typeof renderCulture==='function')renderCulture()}
+function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome();if(typeof renderGrowth==='function')renderGrowth();if(typeof renderCulture==='function')renderCulture();if(typeof renderJapanese==='function')renderJapanese()}
 prevBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?-7:-1);renderSchedule()};nextBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?7:1);renderSchedule()};todayBtn.onclick=()=>{currentDate=new Date();renderSchedule()};weekViewBtn.onclick=()=>{viewMode='week';renderSchedule()};dayViewBtn.onclick=()=>{viewMode='day';renderSchedule()};addEventBtn.onclick=()=>openNewEvent(currentDate);
 addTaskBtn.onclick=openNewTask;manageTasksBtn.onclick=()=>{renderTaskTable();openModal('manageModal')};prevDayCheck.onclick=()=>{checkDate=addDays(checkDate,-1);renderChecklist()};nextDayCheck.onclick=()=>{checkDate=addDays(checkDate,1);renderChecklist()};checkToday.onclick=()=>{checkDate=new Date();renderChecklist()};
 
@@ -955,7 +968,7 @@ keepLocalBtn.onclick=async()=>{if(!syncState.conflict||syncState.busy)return;
   if(syncState.conflict.localTab){if(!confirm('保留本标签页版本？另一版本已保留在冲突副本中。'))return;syncState.conflict=null;save();closeModal('conflictModal');return}
 if(!confirm('确定保留本机版本并提交到云端？云端当前版本仍保留在 GitHub 历史中。'))return;syncState.busy=true;setSyncStatus('正在提交本机版本…','busy');try{const latest=await readRemote();if(latest&&dataHash(latest.data)!==dataHash(syncState.conflict.data)){showConflict(latest);alert('云端再次变化，请先检查更新后的版本再选择。');return}await commitCurrent(latest,'conflict: 明确保留本机版本');syncState.conflict=null;closeModal('conflictModal')}catch(error){syncError(error);alert('提交失败：'+error.message)}finally{syncState.busy=false}};
 
-load();initGrowth();initCulture();renderAll();initialiseSync();
+load();initGrowth();initCulture();initJapanese();renderAll();if(location.hash==='#japanese')switchTab('japanese');initialiseSync();
 window.addEventListener('storage',e=>{
   if(e.key===KEY&&e.newValue){
     try{const next=extractData(JSON.parse(e.newValue));if(dataHash(next)!==dataHash()){

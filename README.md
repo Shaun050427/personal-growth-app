@@ -46,3 +46,11 @@ python -m unittest discover -s tests -p 'test_*_report.py'
 ```
 
 前端测试使用模拟的 GitHub 响应验证同步与保存逻辑，不读取或改写实际私人记录。
+
+## 金融日语研习室
+
+独立私有项目：`Shaun050427/finance-japanese-lab`。学习应用由独立仓库维护，私有部署入口： https://finance-japanese-lab.feybud130.chatgpt.site 。
+
+成长系统新增「金融日语」栏目，支持关联中长期目标、安排学习时间、预览并确认导入训练 / 作品 / 验收、收录成果快照。日语摘要进入每周复盘；完整研习室备份（含词卡与路线）纳入原有私有数据同步。研习室采用普通页面入口，首次访问需本账号登录。
+
+导入契约：`finance-japanese-lab/v1`。相同 ID 显式更新，保留成长端不在导入包中的摘要；作品资产为独立快照。应用没有自动发送记录给 AI。`japaneseRecords` 与 `japaneseBackups` 是可选字段，兼容旧备份和原有三方合并。

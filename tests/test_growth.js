@@ -125,8 +125,8 @@ test('project assessment budgets accept zero, reject negative values and preserv
 });
 test('all HTML scripts parse and script files exist before app initialization',()=>{
   const path=require('node:path'),root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['growth-model.js','growth-ui.js','culture-model.js','culture-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
-  new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes('load();initGrowth();initCulture();renderAll();initialiseSync();'));
+  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['growth-model.js','growth-ui.js','culture-model.js','culture-ui.js','japanese-transfer.js','japanese-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
+  new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes('load();initGrowth();initCulture();initJapanese();renderAll();'));assert.ok(html.includes('initialiseSync();'));
   assert.ok(!html.includes('projectStatus.value'), 'project status select must not be shadowed by the helper function');
 });
 function appHarness(initial=db()){
@@ -146,6 +146,8 @@ function appHarness(initial=db()){
   context.window=context;for(const m of html.matchAll(/\bid="([A-Za-z][A-Za-z0-9]+)"/g))context[m[1]]=element(m[1]);
   vm.createContext(context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../growth-ui.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../culture-ui.js'),'utf8'),context);
+  vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../japanese-transfer.js'),'utf8'),context);
+  vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../japanese-ui.js'),'utf8'),context);
   vm.runInContext(html.match(/<script>([\s\S]*?)<\/script>/)[1]+'\nglobalThis.db=DB;',context);
   return{context,element,storage};
 }
@@ -199,4 +201,23 @@ test('six-line construction follows bottom-to-top order, flips only moving lines
   const{context,element}=appHarness();for(const n of values){element('cultureLineValue').value=String(n);context.cultureAddLine.onclick()}
   assert.equal(element('cultureAddLine').disabled,true);assert.equal(element('cultureSaveLines').disabled,false);context.cultureSaveLines.onclick();assert.equal(context.db.cultureRecords.length,0);assert.match(element('cultureRecordText').value,/6、7、8、9、7、8/);
   context.cultureRecordSave.onclick();assert.equal(context.db.cultureRecords.length,1);assert.equal(context.db.cultureRecords[0].type,'实践卡');context.cultureUndoLine.onclick();assert.equal(element('cultureSaveLines').disabled,true);
+});
+
+
+test('japanese optional fields preserve old sync fingerprints and merge independent imported records',()=>{
+  const old=db(),n=M.normalize(old);assert.equal(M.hash(n),M.hash(old));assert.deepEqual(n.japaneseRecords,[]);assert.deepEqual(n.japaneseBackups,[]);
+  const l=clone(n),r=clone(n);l.japaneseRecords.push({id:'left',title:'本机日语'});r.japaneseRecords.push({id:'right',title:'云端日语'});const merged=M.mergeData(old,l,r);assert.equal(merged.ok,true);assert.equal(merged.data.japaneseRecords.length,2);
+  const h=appHarness(merged.data);h.context.replaceDB(old);assert.equal(h.context.db.japaneseRecords.length,0);
+});
+test('japanese import stays a draft until confirmed and repeat imports do not duplicate records',async()=>{
+  const {context:c,element:e}=appHarness();assert.equal(c.db.projects.length,0);const s={schema:'finance-japanese-lab/v1',updatedAt:'2026-10-11T09:00:00Z',profile:{stage:1,minutes:75,track:'股票研究'},srs:[],progress:[],works:[],assessments:[],sessions:[{id:'a',date:'2026-10-11',stage:1,title:'实际介绍',minutes:10,skill:'听说',text:'完成一句自我介绍',evidence:'真人反馈',url:''}]};
+  const select=()=>e('japaneseFile').onchange({target:{files:[{size:300,text:async()=>JSON.stringify(s)}]}});
+  await select();assert.equal(c.db.japaneseRecords.length,0);assert.match(e('japanesePreviewText').textContent,/新增 1 条/);e('japaneseCancel').onclick();assert.equal(c.db.japaneseRecords.length,0);
+  await select();e('japaneseConfirm').onclick();assert.equal(c.db.japaneseRecords.length,1);assert.equal(c.db.japaneseBackups.length,1);assert.equal(c.db.projects.length,0);
+  await select();assert.match(e('japanesePreviewText').textContent,/相同 1 条/);e('japaneseConfirm').onclick();assert.equal(c.db.japaneseRecords.length,1);
+  c.connectJapanese();const p=c.db.projects[0];c.connectJapanese();assert.equal(c.db.projects.length,1);assert.equal(c.db.japaneseRecords[0].projectId,p.id);c.renderJapanese();const b=e('japaneseRecords').querySelectorAll('[data-japanese-asset]')[0];b.onclick();b.onclick();assert.equal(c.db.assets.length,1);assert.equal(c.db.assets[0].sourceJapaneseRecordId,'japanese-sessions-a');
+});
+test('japanese outputs enter dated weekly reports, future records and backups are not treated as achievements',()=>{
+  const d=M.normalize(db());d.japaneseRecords=[{id:'a',date:'2026-10-06',title:'数字汇报',type:'能力验收',stage:3,text:'分清百分比与百分点',evidence:'核对原始数字',feedback:'教师反馈',scores:{口语:2}},{id:'b',date:'2026-10-11',title:'未来日语'}];d.japaneseBackups=[{id:'finance-japanese-lab',state:{secret:'不是成果'}}];
+  const s=M.summarize(d,'2026-10-05','2026-10-10'),md=M.markdown(d,s);assert.equal(s.japaneseRecords.length,1);assert.match(md,/核对原始数字/);assert.match(md,/教师反馈/);assert.match(md,/非标准化等级/);assert.doesNotMatch(md,/未来日语|不是成果/);
 });
