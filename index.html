@@ -187,7 +187,16 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
       <div class="stat"><h3>成果资产 · 留作品</h3><div class="small">主动收录成熟笔记与专题成果；保留证据、出处与复用方法。</div></div>
       <div class="stat"><h3>清风心法 · 提体悟</h3><div class="small">从学习记录打开心法草稿，精炼成自己的句子后保存。</div></div>
     </div>
-    <div class="toolbar culture-subnav" aria-label="传统文化内容"><button class="btn active" data-culture-pane="map" aria-pressed="true">知识地图</button><button class="btn" data-culture-pane="route" aria-pressed="false">12周路线</button><button class="btn" data-culture-pane="practice" aria-pressed="false">实践与体悟</button><button class="btn" data-culture-pane="records" aria-pressed="false">我的学习卡片</button></div>
+    <div class="toolbar culture-subnav" aria-label="传统文化内容"><button class="btn active" data-culture-pane="map" aria-pressed="true">知识地图</button><button class="btn" data-culture-pane="route" aria-pressed="false">12周路线</button><button class="btn" data-culture-pane="practice" aria-pressed="false">实践与体悟</button><button class="btn" data-culture-pane="records" aria-pressed="false">我的学习卡片</button><button class="btn" data-culture-pane="lab" aria-pressed="false">易学研习室 · 进阶</button></div>
+    <div class="culture-pane hide" id="culture-lab">
+      <div class="card"><div class="section-title"><div><h3>易学研习室 · 独立进阶工作台</h3><p class="small">六十四卦经典、互错综卦、八宫世应、互动练习、错题复习与个人解读。由独立 GitHub 项目维护。</p></div><a class="btn" id="yiLabFull" target="_blank" rel="noopener noreferrer">全屏打开 ↗</a></div>
+        <div class="toolbar"><button class="btn primary" id="yiLabOpen">打开内嵌研习室</button><button class="btn hide" id="yiLabClose">收起研习室</button><button class="btn" id="yiSummaryImport">导入学习摘要 JSON</button></div>
+        <p class="small">研习室笔记独立保存在当前浏览器；完整备份在研习室导出。学习摘要预览后可加入这里的记录与每周复盘。</p><p id="yiLabStatus" class="small" role="status"></p>
+        <input type="file" id="yiSummaryFile" accept="application/json,.json" hidden>
+        <div id="yiSummaryPanel" class="hide"><h3>学习摘要预览</h3><div id="yiSummaryPreview" class="note-box"></div><div class="toolbar"><button class="btn primary" id="yiSummarySave">保存到传统文化记录</button><button class="btn" id="yiSummaryCancel">取消</button></div></div>
+      </div>
+      <iframe id="yiLabFrame" class="hide" title="易学研习室 · 独立学习工作台" style="width:100%;height:1100px;border:1px solid var(--line);border-radius:12px;background:#f7f6ef" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
     <div class="culture-pane" id="culture-map">
       <div class="card"><div class="section-title"><h3>由四个问题串起知识</h3><label for="cultureTopicSearch" class="small">搜索概念</label></div><input id="cultureTopicSearch" placeholder="阴阳、节气、洛书、六爻……" style="width:100%;margin-bottom:12px">
         <p class="small">世界如何变化 → 怎样组织时间和方位 → 怎样用卦画表达变化 → 怎样建立传统推演规则。这是学习关系，不能当作历史产生顺序。</p>
@@ -467,6 +476,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 <script src="./growth-ui.js"></script>
 <script src="./culture-model.js"></script>
 <script src="./culture-ui.js"></script>
+<script src="./yi-integration.js"></script>
 <script src="./japanese-transfer.js"></script>
 <script src="./japanese-ui.js"></script>
 <script>

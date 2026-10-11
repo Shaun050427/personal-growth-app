@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict');
+const bridge=require('../yi-integration.js');
+const good={schema:'yi-learning-summary/v1',start:'2026-10-05',end:'2026-10-11',text:'练习10题',counts:{attempts:10,correct:8,notes:1,readings:2,practice:1}};
+assert.deepEqual(bridge.validateSummary(good),good);
+assert.equal(bridge.recordId(good),bridge.recordId({...good}));
+for(const bad of [{...good,start:'2026-02-30'},{...good,start:'2026-10-12'},{...good,text:'x'.repeat(16001)},{...good,schema:'other'},{...good,counts:{...good.counts,correct:11}},{...good,counts:{...good.counts,notes:-1}}])assert.throws(()=>bridge.validateSummary(bad));
+assert.ok(bridge.APP_URL.startsWith(bridge.APP_ORIGIN));
+console.log('Yi integration: valid summary, deduplication, invalid dates and malicious payload bounds passed');
+const vm=require('node:vm'),fs=require('node:fs'),elements=new Map(),listeners={};
+const el=id=>{if(!elements.has(id))elements.set(id,{textContent:'',classList:{add(){},remove(){}},getAttribute(){return null;},click(){},contentWindow:{}});return elements.get(id);};
+const context={URL,Date,console,document:{getElementById:el},window:{addEventListener:(k,fn)=>listeners[k]=fn},DB:{cultureRecords:[],projects:[]},CultureModel:{project:()=>null},fmtDate:()=> '2026-10-11',save(){},renderAll(){}};
+vm.createContext(context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../yi-integration.js'),'utf8'),context);listeners.DOMContentLoaded();
+listeners.message({origin:'https://untrusted.example',source:el('yiLabFrame').contentWindow,data:{type:'yi-learning:summary',payload:good}});assert.equal(el('yiSummaryPreview').textContent,'');
+listeners.message({origin:bridge.APP_ORIGIN,source:{},data:{type:'yi-learning:summary',payload:good}});assert.equal(el('yiSummaryPreview').textContent,'');
+listeners.message({origin:bridge.APP_ORIGIN,source:el('yiLabFrame').contentWindow,data:{type:'yi-learning:summary',payload:good}});assert.equal(el('yiSummaryPreview').textContent,good.text);assert.equal(context.DB.cultureRecords.length,0);el('yiSummarySave').onclick();assert.equal(context.DB.cultureRecords.length,1);assert.equal(context.DB.cultureRecords[0].date,'2026-10-11');
+listeners.message({origin:bridge.APP_ORIGIN,source:el('yiLabFrame').contentWindow,data:{type:'yi-learning:summary',payload:good}});el('yiSummarySave').onclick();assert.equal(context.DB.cultureRecords.length,1);console.log('Bridge interface: origin/source filtering, preview-before-save and repeated-summary deduplication passed');

@@ -125,7 +125,7 @@ test('project assessment budgets accept zero, reject negative values and preserv
 });
 test('all HTML scripts parse and script files exist before app initialization',()=>{
   const path=require('node:path'),root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['growth-model.js','growth-ui.js','culture-model.js','culture-ui.js','japanese-transfer.js','japanese-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
+  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['growth-model.js','growth-ui.js','culture-model.js','culture-ui.js','yi-integration.js','japanese-transfer.js','japanese-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
   new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes('load();initGrowth();initCulture();initJapanese();renderAll();'));assert.ok(html.includes('initialiseSync();'));
   assert.ok(!html.includes('projectStatus.value'), 'project status select must not be shadowed by the helper function');
 });
