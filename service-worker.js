@@ -1,4 +1,4 @@
-const CACHE='personal-growth-app-v8-academic-canvas';
+const CACHE='personal-growth-app-v9-canvas-api-sync';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./academic-model.js','./academic-ui.js','./growth-model.js','./growth-ui.js','./culture-model.js','./culture-ui.js','./yi-integration.js','./japanese-transfer.js','./japanese-ui.js','./cs-curriculum.js','./cs-transfer.js','./cs-ui.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('personal-growth-app-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

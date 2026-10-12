@@ -79,3 +79,7 @@ python -m unittest discover -s tests -p 'test_*_report.py'
 独立应用数据保存在其自己的浏览器数据键，先导出完整JSON备份再换设备。研习室摘要可通过嵌入消息或摘要JSON导入，预览后保存为传统文化实践卡；原学习区间保留，按保存日期纳入每周复盘。桥接验证消息来源窗口和站点、格式、长度、统计范围，并对相同摘要去重；不发送成长系统数据库或GitHub令牌。
 
 验证：`node tests/test_yi_integration.js` 与原有 `node tests/test_growth.js`。
+
+### Canvas API 同步
+
+后台定时读取在私有 personal-growth-data 仓库运行，Canvas 凭据只保存在该仓库 Actions Secret。网页通过既有私有数据同步读取结果，不直接持有 Canvas 令牌。课程页显示最近成功同步、超过24小时未更新及部分权限受限提示，课程详情可展开最近90天公告摘要。人工核实的课表与暂定考试不因公告中的日期自动改变。新文件仅同步索引；原归档文件不能视为已下载最新版本。
