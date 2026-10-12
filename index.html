@@ -66,6 +66,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 .culture-pane p{line-height:1.75}.culture-detail{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px;margin-bottom:10px}.culture-detail summary{cursor:pointer;font-weight:700;line-height:1.8}.culture-detail p{line-height:1.8}.culture-path{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.culture-path h3{margin:0 0 8px}.culture-yao{display:grid;grid-template-columns:45px 120px 65px;align-items:center;gap:12px;min-height:36px}.yao-line{display:flex;width:120px;gap:14px}.yao-line i{height:8px;background:var(--text);flex:1}.yao-line.yang{gap:0}.culture-yao-panel{padding:14px;border:1px solid var(--line);border-radius:12px;overflow:auto}.culture-loshu{width:150px;table-layout:fixed;margin:12px auto}.culture-loshu td{text-align:center;font-size:23px;border:1px solid var(--line)}.culture-intro{background:linear-gradient(120deg,#f1f7f4,#eef4ff);border-color:#cbded6}.culture-intro h2{margin:0 0 8px}.culture-intro select{max-width:100%}.culture-subnav{margin:14px 0}.culture-path .stat{background:#fff}.culture-pane h3{font-size:17px}.culture-pane .stat{overflow-wrap:anywhere}.culture-record-toolbar{margin:12px 0}.culture-record-toolbar input{max-width:100%}
 @media(max-width:920px){.culture-path{grid-template-columns:1fr 1fr}}
 @media(max-width:680px){.culture-path{grid-template-columns:1fr}.culture-yao{grid-template-columns:38px 100px 55px;gap:8px}.yao-line{width:100px}}
+.academic-course-card{text-align:left;cursor:pointer;border:1px solid var(--line)}.academic-selected{border-color:var(--primary,#2563eb);background:#eff6ff}.academic-item h3{margin:10px 0}.academic-item .toolbar{margin-top:12px}.academic-item details{margin-top:12px}.academic-alert{color:#9a3412;background:#fff7ed;border-radius:8px;padding:10px}#academicDetail h4{margin:12px 0}#academicRecords .stat{overflow-wrap:anywhere}#academicCards{margin:12px 0}#academicPreviewRows td{font-size:13px}.academic-item .field{margin-top:10px}
 </style>
 </head>
 <body>
@@ -105,6 +106,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
   <section class="module active" id="home">
     <div class="grid g4" id="homeStats"></div>
     <div class="card row" style="justify-content:space-between"><div><b>让记录变成下一周的决策</b><div class="small" id="growthHomeStatus"></div></div><button class="btn primary" onclick="switchTab('weekly')">每周成长复盘</button></div>
+    <div class="card"><div class="section-title"><div><h2>未来两周课程截止</h2><div class="small" id="academicHomeNext"></div></div><button class="btn" onclick="switchTab('courses')">打开课程与学习</button></div><div class="small">依据最近课程快照；个人标记做完不等于平台已收到提交。</div><div class="grid g2" id="academicHomeList" style="margin-top:12px"></div></div>
     <div class="card">
       <div class="section-title">
         <div><h2>今日时间安排</h2><div class="small">课程库中的课程会自动进入时间表</div></div>
@@ -136,12 +138,26 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
       <div class="row" style="justify-content:space-between;margin-bottom:10px"><b id="dateTitle"></b><span class="small">课程=蓝 · 锻炼=绿 · 科研=紫 · 自习=橙 · 中长期=青绿</span></div>
       <div id="weekView"></div><div id="dayView" class="hide"></div>
     </div>
+    <div class="card"><h3>本周课程截止与考试</h3><p class="small">截止事项不占用学习时段；准备时间需另行安排。</p><div id="academicScheduleItems" class="grid g2"></div></div>
   </section>
 
   <!-- COURSES -->
   <section class="module" id="courses">
     <div class="card">
-      <div class="section-title"><div><h2>大二课程库</h2><div class="small">录入一次课程信息，按星期和周次自动出现在时间表</div></div><button class="btn primary" id="addCourseBtn">+ 添加课程</button></div>
+      <div class="section-title"><div><h2>课程与学习</h2><div class="small" id="academicFreshness"></div></div><button class="btn" id="academicWeekly">查看每周复盘</button></div>
+      <div class="toolbar"><button class="btn primary" id="academicLoadPrivate">读取已保存的课程快照</button><label class="btn">导入课程快照<input id="academicImportFile" type="file" accept="application/json" hidden></label><label class="small"><input id="academicIncludeMeetings" type="checkbox">同时合并已核实课表</label></div>
+      <p class="small" id="academicImportStatus">课程快照使用本页专用入口；导入前先预览，不覆盖其他模块。</p>
+      <div id="academicPreview" class="hide"><p id="academicPreviewText"></p><div class="table-wrap" style="max-height:340px;overflow:auto"><table><thead><tr><th>课程／任务／资料</th><th>变更</th><th>更新内容</th></tr></thead><tbody id="academicPreviewRows"></tbody></table></div><div class="toolbar" style="margin-top:12px"><button class="btn primary" id="academicConfirmImport">确认合并导入</button><button class="btn" id="academicCancelImport">取消</button></div></div>
+    </div>
+    <div class="grid g3" id="academicCards"></div>
+    <div class="card hide" id="academicDetail"><h2 id="academicDetailTitle"></h2><div id="academicDetailBody"></div><div class="toolbar" style="margin-top:12px"><label for="academicProjectChoice">关联中长期目标</label><select id="academicProjectChoice"></select><button class="btn" id="academicPlanCourse">安排课程自习</button></div></div>
+    <div class="card"><div class="section-title"><div><h2>课程任务与截止</h2><div class="small" id="academicWindow"></div></div><button class="btn primary" id="academicNewRecord">+ 记录实际学习</button></div>
+      <div class="toolbar"><select id="academicCourseFilter" aria-label="筛选课程"></select><select id="academicView" aria-label="筛选任务范围"><option value="upcoming">未来两周与逾期</option><option value="all">全部任务</option><option value="undated">日期待确认</option></select><select id="academicKindFilter" aria-label="筛选任务类型"><option value="">全部类型</option><option value="assignment">作业</option><option value="exam">考试</option><option value="practice">练习</option><option value="recitation">RC</option><option value="optional_event">可选活动</option><option value="optional_registration">可选报名</option><option value="optional_administrative">条件性事项</option></select><input id="academicSearch" type="search" placeholder="搜索任务、学习记录或卡点" aria-label="搜索课程任务"></div>
+      <div class="grid g2" id="academicTasks" style="margin-top:14px"></div>
+    </div>
+    <div class="card"><h2>学习输出与错题记录</h2><div class="grid g2" id="academicRecords" style="margin-top:12px"></div></div>
+    <div class="card">
+      <div class="section-title"><div><h2>课程表</h2><div class="small">按星期、单双周与例外日期进入时间表；上课计划不计为已完成学习。</div></div><button class="btn primary" id="addCourseBtn">+ 添加课程</button></div>
       <div class="table-wrap"><table><thead><tr><th>课程</th><th>星期</th><th>时间</th><th>地点</th><th>周次</th><th>操作</th></tr></thead><tbody id="courseTable"></tbody></table></div>
     </div>
   </section>
@@ -325,6 +341,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 <div class="field full"><label>标题</label><input id="evTitle"></div>
 <div class="field"><label>类别</label><select id="evCategory"><option value="course">课程</option><option value="exercise">锻炼</option><option value="research">科研</option><option value="study">自习</option><option value="project">中长期项目</option><option value="life">其他</option></select></div>
 <div class="field hide" id="evProjectField"><label>关联项目</label><select id="evProject"></select></div>
+<div class="field"><label for="evAcademicCourse">关联课程</label><select id="evAcademicCourse"><option value="">不关联课程</option></select></div><div class="field"><label for="evAcademicItem">关联作业／考试</label><select id="evAcademicItem"><option value="">不关联任务</option></select></div>
 <div class="field"><label>重复</label><select id="evRepeat"><option value="once">仅这一天</option><option value="weekly">每周重复</option></select></div>
 <div class="field" id="evDateField"><label>日期</label><input id="evDate" type="date"></div>
 <div class="field"><label>开始</label><input id="evStart" type="time" value="09:00"></div><div class="field"><label>结束</label><input id="evEnd" type="time" value="10:00"></div>
@@ -333,6 +350,13 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 </div>
 <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn danger hide" id="deleteEventBtn">删除</button><button class="btn" data-close="eventModal">取消</button><button class="btn primary" id="saveEventBtn">保存</button></div>
 </div></div>
+
+<div class="modal" id="academicRecordModal"><div class="modal-card"><h3 id="academicRecordModalTitle">记录实际学习</h3><div class="form-grid">
+<div class="field"><label for="academicRecordCourse">课程</label><select id="academicRecordCourse"></select></div><div class="field"><label for="academicRecordItem">对应任务</label><select id="academicRecordItem"></select></div>
+<div class="field"><label for="academicRecordDate">实际日期</label><input id="academicRecordDate" type="date"></div><div class="field"><label for="academicRecordType">记录类型</label><select id="academicRecordType"><option>学习</option><option>错题</option><option>实验</option><option>复盘</option><option>作品</option></select></div>
+<div class="field full"><label for="academicRecordTitle">标题</label><input id="academicRecordTitle" maxlength="200"></div><div class="field"><label for="academicRecordMinutes">实际投入（分钟）</label><input id="academicRecordMinutes" type="number" min="0" max="1440"></div>
+<div class="field full"><label for="academicRecordText">实际输出／解题过程摘要</label><textarea id="academicRecordText" maxlength="12000"></textarea></div><div class="field full"><label for="academicRecordEvidence">证据或自测结果</label><textarea id="academicRecordEvidence" maxlength="6000"></textarea></div><div class="field full"><label for="academicRecordBlockers">卡点／错误原因</label><textarea id="academicRecordBlockers" maxlength="6000"></textarea></div><div class="field full"><label for="academicRecordNext">下一步与复用方式</label><textarea id="academicRecordNext" maxlength="6000"></textarea></div><div class="field full"><label for="academicRecordUrl">输出链接（可选）</label><input id="academicRecordUrl" type="url"></div>
+</div><div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="academicRecordModal">取消</button><button class="btn primary" id="academicRecordSave">保存学习记录</button></div></div></div>
 
 <!-- COURSE MODAL -->
 <div class="modal" id="courseModal"><div class="modal-card">
@@ -344,6 +368,7 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 <div class="field"><label>开始</label><input id="courseStart" type="time"></div><div class="field"><label>结束</label><input id="courseEnd" type="time"></div>
 <div class="field"><label>学期第一周周一</label><input id="semesterStart" type="date"></div>
 <div class="field"><label>起止周</label><div class="row"><input id="weekFrom" type="number" min="1" value="1" style="width:90px"><span>至</span><input id="weekTo" type="number" min="1" value="18" style="width:90px"></div></div>
+<div class="field"><label for="courseParity">单双周</label><select id="courseParity"><option value="all">每周</option><option value="odd">单周</option><option value="even">双周</option></select></div><div class="field full"><label for="courseExcludedDates">不排课日期（逗号分隔）</label><input id="courseExcludedDates" placeholder="2026-10-01,2026-10-06"></div>
 <div class="field full"><label>备注</label><textarea id="courseNote"></textarea></div>
 </div>
 <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="courseModal">取消</button><button class="btn primary" id="saveCourseBtn">保存</button></div>
@@ -479,6 +504,8 @@ canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;b
 <div class="toolbar" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-close="conflictModal">暂不处理</button></div>
 </div></div>
 
+<script src="./academic-model.js"></script>
+<script src="./academic-ui.js"></script>
 <script src="./growth-model.js"></script>
 <script src="./growth-ui.js"></script>
 <script src="./culture-model.js"></script>
@@ -494,7 +521,7 @@ const KEY='personalPlanner_v2';
 const SYNC_CONFIG_KEY='personalGrowthGithubSync_v1';
 const SYNC_META_KEY='personalGrowthGithubMeta_v1';
 const SYNC_BASE_KEY='personalGrowthGithubBase_v1';
-const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[],projects:[],assets:[],weeklyReviews:[],cultureRecords:[],cultureProgress:[],japaneseRecords:[],japaneseBackups:[]};
+const DB={version:2,events:[],tasks:[],done:{},courses:[],training:[],body:[],research:[],stock:[],wisdom:[],projects:[],assets:[],weeklyReviews:[],cultureRecords:[],cultureProgress:[],japaneseRecords:[],japaneseBackups:[],academicCourses:[],academicItems:[],academicResources:[],academicRecords:[],academicImports:[]};
 const weekdaysCN=['周日','周一','周二','周三','周四','周五','周六'];
 const cats={course:'var(--course)',exercise:'var(--exercise)',research:'var(--research)',study:'var(--study)',stock:'var(--stock)',life:'var(--life)',project:'var(--project)'};
 let currentDate=new Date(),checkDate=new Date(),viewMode='week',editingEventId=null,editingTaskId=null,editingCourseId=null,editingProjectId=null,localDataExisted=false;
@@ -506,7 +533,7 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=new Date(d);const day=x.getDay();x.setDate(x.getDate()+(day===0?-6:1-day));x.setHours(0,0,0,0);return x}
 function sameDate(a,b){return fmtDate(a)===fmtDate(b)}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function legacyDataHash(data=DB){const d={...data};['assets','weeklyReviews','cultureRecords','cultureProgress','japaneseRecords','japaneseBackups'].forEach(k=>{if(Array.isArray(d[k])&&!d[k].length)delete d[k]});let h=2166136261,s=JSON.stringify(d);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
+function legacyDataHash(data=DB){const d={...data};['assets','weeklyReviews','cultureRecords','cultureProgress','japaneseRecords','japaneseBackups','academicCourses','academicItems','academicResources','academicRecords','academicImports'].forEach(k=>{if(Array.isArray(d[k])&&!d[k].length)delete d[k]});let h=2166136261,s=JSON.stringify(d);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
 function dataHash(data=DB){return GrowthModel.hash(data)}
 function getSyncConfig(){try{return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:'',...JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY)||'{}')}}catch(e){return{owner:'Shaun050427',repo:'personal-growth-data',branch:'main',path:'data/personal-growth.json',token:''}}}
 function getSyncMeta(){try{return JSON.parse(localStorage.getItem(SYNC_META_KEY)||'{}')}catch(e){return{}}}
@@ -529,6 +556,7 @@ function load(){
   if(!Array.isArray(DB.cultureProgress))DB.cultureProgress=[];
   if(!Array.isArray(DB.japaneseRecords))DB.japaneseRecords=[];
   if(!Array.isArray(DB.japaneseBackups))DB.japaneseBackups=[];
+  for(const key of ['academicCourses','academicItems','academicResources','academicRecords','academicImports'])if(!Array.isArray(DB[key]))DB[key]=[];
   if(!DB.tasks.length)seedTasks();
 }
 function seedTasks(){
@@ -671,7 +699,7 @@ courseWeekday.innerHTML=[1,2,3,4,5,6,0].map(i=>`<option value="${i}">${weekdaysC
 
 function courseOccursOn(c,date){
   const start=parseDate(c.semesterStart);const diff=Math.floor((startOfWeek(date)-startOfWeek(start))/(7*86400000))+1;
-  return date.getDay()===Number(c.weekday)&&diff>=Number(c.weekFrom)&&diff<=Number(c.weekTo);
+  return date.getDay()===Number(c.weekday)&&diff>=Number(c.weekFrom)&&diff<=Number(c.weekTo)&&(!c.weekParity||c.weekParity==='all'||c.weekParity==='even'&&diff%2===0||c.weekParity==='odd'&&diff%2===1)&&!(c.excludeDates||[]).includes(fmtDate(date));
 }
 function eventOccursOn(ev,date){return ev.repeat==='once'?ev.date===fmtDate(date):(ev.weekdays||[]).includes(date.getDay())}
 function getEventsForDate(date){
@@ -700,23 +728,25 @@ function renderSchedule(){
     for(let h=sh;h<eh;h++){const x=document.createElement('div');x.className='time-label';x.textContent=String(h).padStart(2,'0')+':00';labels.appendChild(x)}
     getEventsForDate(currentDate).forEach(ev=>{const[a,b]=ev.start.split(':').map(Number),[c,d]=ev.end.split(':').map(Number);const st=Math.max(sh,a+b/60),en=Math.min(eh,c+d/60);if(en<=sh||st>=eh)return;
       const div=document.createElement('div');div.className='timeline-event';div.style.setProperty('--cat',cats[ev.category]||cats.life);div.style.top=((st-sh)*pph+2)+'px';div.style.height=Math.max(32,(en-st)*pph-4)+'px';
-      div.innerHTML=`<div class="event-time">${ev.start}–${ev.end}</div><div class="event-title">${esc(ev.title)}</div>${projectLabel(ev)?`<div class="event-note">项目：${esc(projectLabel(ev))}</div>`:''}`;if(ev.source==='event')div.onclick=()=>editEvent(ev.id);timeline.appendChild(div)})
+      div.innerHTML=`<div class="event-time">${ev.start}–${ev.end}</div><div class="event-title">${esc(ev.title)}</div>${projectLabel(ev)?`<div class="event-note">项目：${esc(projectLabel(ev))}</div>`:''}${academicLabel(ev)?`<div class="event-note">课程：${esc(academicLabel(ev))}</div>`:''}`;if(ev.source==='event')div.onclick=()=>editEvent(ev.id);timeline.appendChild(div)})
   }
+  if(typeof renderAcademicSchedule==='function')renderAcademicSchedule();
 }
+function academicLabel(ev){return typeof academicEventLabel==='function'?academicEventLabel(ev):''}
 function projectLabel(ev){return ev.projectId?DB.projects.find(p=>p.id===ev.projectId)?.title||'':''}
 function eventCard(ev,date){const div=document.createElement('div');div.className='event';div.style.setProperty('--cat',cats[ev.category]||cats.life);div.draggable=ev.source==='event'&&DB.events.find(x=>x.id===ev.id)?.repeat==='once';
-  div.innerHTML=`<div class="event-time">${ev.start}–${ev.end}</div><div class="event-title">${esc(ev.title)}</div>${projectLabel(ev)?`<div class="event-note">项目：${esc(projectLabel(ev))}</div>`:''}${ev.note?`<div class="event-note">${esc(ev.note)}</div>`:''}`;
+  div.innerHTML=`<div class="event-time">${ev.start}–${ev.end}</div><div class="event-title">${esc(ev.title)}</div>${projectLabel(ev)?`<div class="event-note">项目：${esc(projectLabel(ev))}</div>`:''}${academicLabel(ev)?`<div class="event-note">课程：${esc(academicLabel(ev))}</div>`:''}${ev.note?`<div class="event-note">${esc(ev.note)}</div>`:''}`;
   if(ev.source==='event'){div.onclick=()=>editEvent(ev.id);div.addEventListener('dragstart',e=>{div.classList.add('dragging');e.dataTransfer.setData('text/event-id',ev.id)});div.addEventListener('dragend',()=>div.classList.remove('dragging'))}
   return div}
-function openNewEvent(date=currentDate){editingEventId=null;eventModalTitle.textContent='新建时间段';deleteEventBtn.classList.add('hide');evTitle.value='';evCategory.value='course';evProject.value='';evRepeat.value='once';evDate.value=fmtDate(date);evStart.value='09:00';evEnd.value='10:00';evNote.value='';document.querySelectorAll('#evWeekdays input').forEach(x=>x.checked=false);toggleEventRepeat();toggleEventProject();openModal('eventModal')}
-function editEvent(id){const ev=DB.events.find(x=>x.id===id);if(!ev)return;editingEventId=id;eventModalTitle.textContent='编辑时间段';deleteEventBtn.classList.remove('hide');evTitle.value=ev.title;evCategory.value=ev.category;evRepeat.value=ev.repeat;evDate.value=ev.date||fmtDate(currentDate);evStart.value=ev.start;evEnd.value=ev.end;evNote.value=ev.note||'';document.querySelectorAll('#evWeekdays input').forEach(x=>x.checked=(ev.weekdays||[]).includes(Number(x.value)));toggleEventRepeat();toggleEventProject();openModal('eventModal')}
+function openNewEvent(date=currentDate){editingEventId=null;eventModalTitle.textContent='新建时间段';deleteEventBtn.classList.add('hide');evTitle.value='';evCategory.value='course';evProject.value='';evRepeat.value='once';evDate.value=fmtDate(date);evStart.value='09:00';evEnd.value='10:00';evNote.value='';if(typeof refreshAcademicEventOptions==='function')refreshAcademicEventOptions('','');evAcademicCourse.value='';evAcademicItem.value='';document.querySelectorAll('#evWeekdays input').forEach(x=>x.checked=false);toggleEventRepeat();toggleEventProject();openModal('eventModal')}
+function editEvent(id){const ev=DB.events.find(x=>x.id===id);if(!ev)return;editingEventId=id;eventModalTitle.textContent='编辑时间段';deleteEventBtn.classList.remove('hide');evTitle.value=ev.title;evCategory.value=ev.category;evRepeat.value=ev.repeat;evDate.value=ev.date||fmtDate(currentDate);evStart.value=ev.start;evEnd.value=ev.end;evNote.value=ev.note||'';if(typeof refreshAcademicEventOptions==='function')refreshAcademicEventOptions(ev.academicCourseId||'',ev.academicItemId||'');document.querySelectorAll('#evWeekdays input').forEach(x=>x.checked=(ev.weekdays||[]).includes(Number(x.value)));toggleEventRepeat();toggleEventProject();openModal('eventModal')}
 function toggleEventRepeat(){const w=evRepeat.value==='weekly';evDateField.classList.toggle('hide',w);evWeekdayField.classList.toggle('hide',!w)}evRepeat.onchange=toggleEventRepeat;
 function toggleEventProject(){const value=evProject.value;evProjectField.classList.toggle('hide',evCategory.value!=='project');evProject.innerHTML='<option value="">请选择项目</option>'+DB.projects.map(p=>`<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');const ev=DB.events.find(x=>x.id===editingEventId);evProject.value=ev?.projectId||value||''}
 evCategory.onchange=toggleEventProject;
 evProject.onchange=()=>{const p=DB.projects.find(x=>x.id===evProject.value);if(p&&!evTitle.value.trim())evTitle.value=p.title};
 saveEventBtn.onclick=()=>{if(!evTitle.value.trim())return alert('请填写标题');if(evStart.value>=evEnd.value)return alert('结束时间必须晚于开始时间');const w=evRepeat.value==='weekly',weekdays=w?[...document.querySelectorAll('#evWeekdays input:checked')].map(x=>+x.value):[];if(w&&!weekdays.length)return alert('请选择星期');
   if(evCategory.value==='project'&&!DB.projects.some(p=>p.id===evProject.value))return alert('请选择关联的中长期项目');if(!w&&!evDate.value)return alert('请选择日期');
-  const o={id:editingEventId||uid(),title:evTitle.value.trim(),category:evCategory.value,projectId:evCategory.value==='project'?evProject.value:null,repeat:evRepeat.value,date:w?'':evDate.value,start:evStart.value,end:evEnd.value,weekdays,note:evNote.value.trim()};if(editingEventId)Object.assign(DB.events.find(x=>x.id===editingEventId),o);else DB.events.push(o);save();closeModal('eventModal');renderAll()}
+  const o={id:editingEventId||uid(),title:evTitle.value.trim(),category:evCategory.value,projectId:evCategory.value==='project'?evProject.value:null,repeat:evRepeat.value,date:w?'':evDate.value,start:evStart.value,end:evEnd.value,weekdays,note:evNote.value.trim(),academicCourseId:evAcademicCourse.value||null,academicItemId:evAcademicItem.value||null};if(editingEventId)Object.assign(DB.events.find(x=>x.id===editingEventId),o);else DB.events.push(o);save();closeModal('eventModal');renderAll()}
 deleteEventBtn.onclick=()=>{if(editingEventId&&confirm('确定删除？')){DB.events=DB.events.filter(x=>x.id!==editingEventId);save();closeModal('eventModal');renderAll()}};
 
 function renderChecklist(targetDate=checkDate,wrap=checklistWrap,mini=false){
@@ -731,10 +761,10 @@ function toggleTaskFreq(){taskWeekdayField.classList.toggle('hide',taskFreq.valu
 saveTaskBtn.onclick=()=>{if(!taskName.value.trim())return alert('请填写事项');const w=taskFreq.value==='weekly',weekdays=w?[...document.querySelectorAll('#taskWeekdays input:checked')].map(x=>+x.value):[];if(w&&!weekdays.length)return alert('请选择星期');const o={id:editingTaskId||uid(),name:taskName.value.trim(),group:taskGroup.value,freq:taskFreq.value,weekdays,note:taskNote.value.trim()};if(editingTaskId)Object.assign(DB.tasks.find(x=>x.id===editingTaskId),o);else DB.tasks.push(o);save();closeModal('taskModal');renderAll()}
 function renderTaskTable(){taskTableBody.innerHTML='';DB.tasks.filter(t=>t.group!=='股市行为').forEach(t=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${esc(t.group)}</td><td><b>${esc(t.name)}</b><div class="small">${esc(t.note||'')}</div></td><td>${t.freq==='daily'?'每天':(t.weekdays||[]).map(i=>weekdaysCN[i]).join('、')}</td><td><button class="btn edit">编辑</button> <button class="btn danger del">删除</button></td>`;tr.querySelector('.edit').onclick=()=>editTask(t.id);tr.querySelector('.del').onclick=()=>{if(confirm('删除模板？')){DB.tasks=DB.tasks.filter(x=>x.id!==t.id);save();renderAll();renderTaskTable()}};taskTableBody.appendChild(tr)})}
 
-function renderCourses(){courseTable.innerHTML='';DB.courses.forEach(c=>{const tr=document.createElement('tr');tr.innerHTML=`<td><b>${esc(c.name)}</b><div class="small">${esc(c.note||'')}</div></td><td>${weekdaysCN[c.weekday]}</td><td>${c.start}–${c.end}</td><td>${esc(c.location||'')}</td><td>${c.weekFrom}–${c.weekTo}</td><td><button class="btn edit">编辑</button> <button class="btn danger del">删除</button></td>`;tr.querySelector('.edit').onclick=()=>editCourse(c.id);tr.querySelector('.del').onclick=()=>{if(confirm('删除课程？')){DB.courses=DB.courses.filter(x=>x.id!==c.id);save();renderAll()}};courseTable.appendChild(tr)})}
-function editCourse(id){editingCourseId=id;const c=DB.courses.find(x=>x.id===id);courseName.value=c.name;courseWeekday.value=c.weekday;courseLocation.value=c.location||'';courseStart.value=c.start;courseEnd.value=c.end;semesterStart.value=c.semesterStart;weekFrom.value=c.weekFrom;weekTo.value=c.weekTo;courseNote.value=c.note||'';openModal('courseModal')}
-addCourseBtn.onclick=()=>{editingCourseId=null;courseName.value='';courseWeekday.value='1';courseLocation.value='';courseStart.value='08:00';courseEnd.value='09:40';semesterStart.value=fmtDate(startOfWeek(new Date()));weekFrom.value=1;weekTo.value=18;courseNote.value='';openModal('courseModal')}
-saveCourseBtn.onclick=()=>{if(!courseName.value.trim())return alert('请填写课程名');if(courseStart.value>=courseEnd.value)return alert('结束时间需晚于开始时间');const o={id:editingCourseId||uid(),name:courseName.value.trim(),weekday:+courseWeekday.value,location:courseLocation.value.trim(),start:courseStart.value,end:courseEnd.value,semesterStart:semesterStart.value,weekFrom:+weekFrom.value,weekTo:+weekTo.value,note:courseNote.value.trim()};if(editingCourseId)Object.assign(DB.courses.find(x=>x.id===editingCourseId),o);else DB.courses.push(o);save();closeModal('courseModal');renderAll()}
+function renderCourses(){courseTable.innerHTML='';DB.courses.forEach(c=>{const tr=document.createElement('tr');tr.innerHTML=`<td><b>${esc(c.name)}</b><div class="small">${esc(c.note||'')}</div></td><td>${weekdaysCN[c.weekday]}</td><td>${c.start}–${c.end}</td><td>${esc(c.location||'')}</td><td>${c.weekFrom}–${c.weekTo}${c.weekParity==='even'?'（双周）':c.weekParity==='odd'?'（单周）':''}</td><td><button class="btn edit">编辑</button> <button class="btn danger del">删除</button></td>`;tr.querySelector('.edit').onclick=()=>editCourse(c.id);tr.querySelector('.del').onclick=()=>{if(confirm('删除课程？')){DB.courses=DB.courses.filter(x=>x.id!==c.id);save();renderAll()}};courseTable.appendChild(tr)})}
+function editCourse(id){editingCourseId=id;const c=DB.courses.find(x=>x.id===id);courseName.value=c.name;courseWeekday.value=c.weekday;courseLocation.value=c.location||'';courseStart.value=c.start;courseEnd.value=c.end;semesterStart.value=c.semesterStart;weekFrom.value=c.weekFrom;weekTo.value=c.weekTo;courseParity.value=c.weekParity||'all';courseExcludedDates.value=(c.excludeDates||[]).join(',');courseNote.value=c.note||'';openModal('courseModal')}
+addCourseBtn.onclick=()=>{editingCourseId=null;courseName.value='';courseWeekday.value='1';courseLocation.value='';courseStart.value='08:00';courseEnd.value='09:40';semesterStart.value=fmtDate(startOfWeek(new Date()));weekFrom.value=1;weekTo.value=18;courseParity.value='all';courseExcludedDates.value='';courseNote.value='';openModal('courseModal')}
+saveCourseBtn.onclick=()=>{if(!courseName.value.trim())return alert('请填写课程名');if(courseStart.value>=courseEnd.value)return alert('结束时间需晚于开始时间');const excluded=courseExcludedDates.value.split(/[,，\s]+/).filter(Boolean);if(excluded.some(d=>!AcademicModel.validDate(d)))return alert('例外日期需为 YYYY-MM-DD');const o={id:editingCourseId||uid(),name:courseName.value.trim(),weekday:+courseWeekday.value,location:courseLocation.value.trim(),start:courseStart.value,end:courseEnd.value,semesterStart:semesterStart.value,weekFrom:+weekFrom.value,weekTo:+weekTo.value,weekParity:courseParity.value,excludeDates:excluded,note:courseNote.value.trim()};if(editingCourseId)Object.assign(DB.courses.find(x=>x.id===editingCourseId),o);else DB.courses.push(o);save();closeModal('courseModal');renderAll()}
 
 function addExerciseRowFn(name='',weight='',reps='',sets=''){const r=document.createElement('div');r.className='exercise-entry';r.innerHTML=`<input placeholder="动作" value="${esc(name)}"><input type="number" step=".5" placeholder="kg" value="${weight}"><input type="number" placeholder="次数" value="${reps}"><input type="number" placeholder="组数" value="${sets}"><button class="btn danger" type="button">删除</button>`;r.querySelector('button').onclick=()=>r.remove();exerciseRows.appendChild(r)}
 addExerciseRow.onclick=()=>addExerciseRowFn();
@@ -956,6 +986,7 @@ deleteProjectBtn.onclick=()=>{
   DB.assets.forEach(a=>{if(a.projectId===editingProjectId){a.projectId=null;a.updatedAt=new Date().toISOString()}});
   DB.cultureRecords.forEach(r=>{if(r.projectId===editingProjectId){r.projectId=null;r.updatedAt=new Date().toISOString()}});
   DB.japaneseRecords.forEach(r=>{if(r.projectId===editingProjectId)r.projectId=null});
+  DB.academicCourses.forEach(c=>{if(c.projectId===editingProjectId)c.projectId=null});
   DB.projects=DB.projects.filter(p=>p.id!==editingProjectId);
   save();closeModal('projectModal');renderAll()
 };
@@ -965,7 +996,7 @@ function renderHome(){const today=new Date(),events=getEventsForDate(today),stat
   homeStats.innerHTML=`<div class="stat"><div class="k">今日安排</div><div class="v">${events.length}</div></div><div class="stat"><div class="k">今日清单完成率</div><div class="v">${stats.pct}%</div></div><div class="stat"><div class="k">近7天训练</div><div class="v">${weekTrain}</div></div><div class="stat"><div class="k">今日科研</div><div class="v">${rs?rs.hours+" h":"未记录"}</div></div>`;homeProgress.style.width=stats.pct+'%';
   homeAgenda.innerHTML=events.length?events.map(e=>`<div class="event" style="--cat:${cats[e.category]||cats.life}"><div class="event-time">${e.start}–${e.end}</div><div class="event-title">${esc(e.title)}</div>${projectLabel(e)?`<div class="event-note">项目：${esc(projectLabel(e))}</div>`:''}<div class="event-note">${esc(e.note||'')}</div></div>`).join(''):'<div class="small">今天没有时间安排</div>';
 }
-function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome();if(typeof renderGrowth==='function')renderGrowth();if(typeof renderCulture==='function')renderCulture();if(typeof renderJapanese==='function')renderJapanese();if(typeof renderCS==='function')renderCS()}
+function renderAll(){renderSchedule();renderChecklist();renderCourses();renderTraining();renderResearch();renderProjects();renderWisdom();renderHome();if(typeof renderGrowth==='function')renderGrowth();if(typeof renderCulture==='function')renderCulture();if(typeof renderJapanese==='function')renderJapanese();if(typeof renderCS==='function')renderCS();if(typeof renderAcademic==='function')renderAcademic()}
 prevBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?-7:-1);renderSchedule()};nextBtn.onclick=()=>{currentDate=addDays(currentDate,viewMode==='week'?7:1);renderSchedule()};todayBtn.onclick=()=>{currentDate=new Date();renderSchedule()};weekViewBtn.onclick=()=>{viewMode='week';renderSchedule()};dayViewBtn.onclick=()=>{viewMode='day';renderSchedule()};addEventBtn.onclick=()=>openNewEvent(currentDate);
 addTaskBtn.onclick=openNewTask;manageTasksBtn.onclick=()=>{renderTaskTable();openModal('manageModal')};prevDayCheck.onclick=()=>{checkDate=addDays(checkDate,-1);renderChecklist()};nextDayCheck.onclick=()=>{checkDate=addDays(checkDate,1);renderChecklist()};checkToday.onclick=()=>{checkDate=new Date();renderChecklist()};
 
@@ -989,7 +1020,7 @@ keepLocalBtn.onclick=async()=>{if(!syncState.conflict||syncState.busy)return;
   if(syncState.conflict.localTab){if(!confirm('保留本标签页版本？另一版本已保留在冲突副本中。'))return;syncState.conflict=null;save();closeModal('conflictModal');return}
 if(!confirm('确定保留本机版本并提交到云端？云端当前版本仍保留在 GitHub 历史中。'))return;syncState.busy=true;setSyncStatus('正在提交本机版本…','busy');try{const latest=await readRemote();if(latest&&dataHash(latest.data)!==dataHash(syncState.conflict.data)){showConflict(latest);alert('云端再次变化，请先检查更新后的版本再选择。');return}await commitCurrent(latest,'conflict: 明确保留本机版本');syncState.conflict=null;closeModal('conflictModal')}catch(error){syncError(error);alert('提交失败：'+error.message)}finally{syncState.busy=false}};
 
-load();initGrowth();initCulture();initJapanese();initCS();renderAll();if(location.hash==='#japanese')switchTab('japanese');if(location.hash==='#cs')switchTab('cs');initialiseSync();
+load();initGrowth();initCulture();initJapanese();initCS();if(typeof initAcademic==='function')initAcademic();renderAll();if(location.hash==='#japanese')switchTab('japanese');if(location.hash==='#cs')switchTab('cs');if(location.hash==='#courses')switchTab('courses');initialiseSync();
 window.addEventListener('storage',e=>{
   if(e.key===KEY&&e.newValue){
     try{const next=extractData(JSON.parse(e.newValue));if(dataHash(next)!==dataHash()){

@@ -125,8 +125,8 @@ test('project assessment budgets accept zero, reject negative values and preserv
 });
 test('all HTML scripts parse and script files exist before app initialization',()=>{
   const path=require('node:path'),root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['growth-model.js','growth-ui.js','culture-model.js','culture-ui.js','yi-integration.js','japanese-transfer.js','japanese-ui.js','cs-curriculum.js','cs-transfer.js','cs-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
-  new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes('load();initGrowth();initCulture();initJapanese();initCS();renderAll();'));assert.ok(html.includes('initialiseSync();'));
+  const refs=[...html.matchAll(/<script src="\.\/([^"?]+)"/g)].map(m=>m[1]);assert.deepEqual(refs,['academic-model.js','academic-ui.js','growth-model.js','growth-ui.js','culture-model.js','culture-ui.js','yi-integration.js','japanese-transfer.js','japanese-ui.js','cs-curriculum.js','cs-transfer.js','cs-ui.js']);for(const ref of refs)new vm.Script(fs.readFileSync(path.join(root,ref),'utf8'));
+  new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);assert.ok(html.includes("load();initGrowth();initCulture();initJapanese();initCS();if(typeof initAcademic==='function')initAcademic();renderAll();"));assert.ok(html.includes('initialiseSync();'));
   assert.ok(!html.includes('projectStatus.value'), 'project status select must not be shadowed by the helper function');
 });
 function appHarness(initial=db()){
@@ -144,7 +144,7 @@ function appHarness(initial=db()){
   const context={GrowthModel:M,CultureModel:C,console,Date,Math,JSON,URL,TextEncoder,TextDecoder,navigator:{},location:{protocol:'https:'},setTimeout:()=>0,setInterval:()=>0,clearTimeout(){},alert(){},confirm:()=>true,
     localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},document:{getElementById:element,createElement:()=>element(),querySelectorAll:()=>[],addEventListener(){}},addEventListener(){}};
   context.window=context;for(const m of html.matchAll(/\bid="([A-Za-z][A-Za-z0-9]+)"/g))context[m[1]]=element(m[1]);
-  vm.createContext(context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../growth-ui.js'),'utf8'),context);
+  vm.createContext(context);for(const script of ['academic-model.js','academic-ui.js'])vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'..',script),'utf8'),context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../growth-ui.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../culture-ui.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../japanese-transfer.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../japanese-ui.js'),'utf8'),context);
@@ -232,4 +232,26 @@ test('CS JSON transfer previews, confirms once, updates in place and enters week
  const {context,element}=appHarness();const payload={schema:'cs-foundations-lab/v1',state:{weeklyHours:4,progress:[{id:'bytes',evidence:'独立解释',updatedAt:''}],records:[{id:'result-1',date:'2026-10-06',title:'布局对照',lesson:'cache',minutes:30,text:'相同工作量的模型结果',evidence:'16次未命中，非CPU实测',next:'本机验证',url:'https://example.com/report',updatedAt:''}]}};
  const read=()=>element('csFile').onchange({target:{files:[{size:1000,text:async()=>JSON.stringify(payload)}],value:'file'}});
  await read();assert.equal(context.db.assets.length,0);assert.equal(context.db.projects.length,0);assert.equal(element('csPreview').hidden,false);element('csConfirm').onclick();assert.equal(context.db.assets.length,1);assert.equal(context.db.projects.length,1);assert.equal(context.db.assets[0].projectId,context.db.projects[0].id);assert.equal(context.db.projects[0].learningSummary.nextMilestone,'增长率与工作量');await read();element('csConfirm').onclick();assert.equal(context.db.assets.length,1);payload.state.records[0].text='更新后的结果';await read();element('csConfirm').onclick();assert.equal(context.db.assets.length,1);assert.match(context.db.assets[0].note,/更新后的结果/);const report=M.markdown(context.db,M.summarize(context.db,'2026-10-05','2026-10-11'));assert.match(report,/布局对照/);assert.match(report,/非CPU实测/);
+});
+
+function academicFixture(){return{schema:'canvas-sjtu-snapshot/v1',source:'canvas-sjtu',timezone:'Asia/Shanghai',capturedAt:new Date().toISOString(),term:'测试学期',courses:[{id:'demo-course',canvasId:'1',code:'DEMO',name:'测试课程',sourceUrl:'https://oc.sjtu.edu.cn/courses/1',meetings:[]}],items:[{id:'demo-task',courseId:'demo-course',title:'测试作业',kind:'assignment',dueAt:'2026-10-13T23:59:00+08:00',certainty:'confirmed_assignment',submissionStatus:'not_submitted',plannerComplete:true,requirements:'PDF，完整过程'}],resources:[{id:'demo-file',courseId:'demo-course',title:'<img src=x onerror=alert(1)>.pdf',path:'教材.pdf',status:'downloaded',sourceUrl:'https://oc.sjtu.edu.cn/courses/1/files'}]};}
+test('academic import preview and cancellation leave private data untouched; confirmation merges without duplicates',async()=>{
+ const {context:c,element:e}=appHarness();const before=M.hash(c.db),s=academicFixture();c.prepareAcademicImport(s);assert.equal(M.hash(c.db),before);assert.match(e('academicPreviewText').textContent,/新增 3 条/);c.cancelAcademicImport();assert.equal(M.hash(c.db),before);
+ c.prepareAcademicImport(s);e('academicConfirmImport').onclick();assert.equal(c.db.academicCourses.length,1);assert.equal(c.db.academicItems.length,1);assert.equal(c.db.academicRecords.length,0);
+ c.db.academicItems[0].localProgress='done';c.db.academicItems[0].personalNote='自己的备注';c.prepareAcademicImport(s);e('academicConfirmImport').onclick();assert.equal(c.db.academicItems.length,1);assert.equal(c.db.academicItems[0].personalNote,'自己的备注');
+ e('academicCourseFilter').value='demo-course';e('academicCourseFilter').onchange();assert.match(e('academicDetailBody').innerHTML,/&lt;img/);assert.doesNotMatch(e('academicDetailBody').innerHTML,/<img/);
+ e('academicView').value='all';c.renderAcademic();assert.match(e('academicTasks').innerHTML,/平台已收到提交/);
+});
+test('academic planning pre-fills a draft; saved and edited time blocks retain course and assignment links',()=>{
+ const {context:c,element:e}=appHarness();c.prepareAcademicImport(academicFixture());e('academicConfirmImport').onclick();c.planAcademic('demo-task');assert.equal(c.db.events.length,0);assert.equal(e('evTitle').value,'准备：测试作业');assert.equal(e('evAcademicCourse').value,'demo-course');assert.equal(e('evAcademicItem').value,'demo-task');
+ c.saveEventBtn.onclick();assert.equal(c.db.events.length,1);assert.equal(c.db.events[0].academicItemId,'demo-task');c.editEvent(c.db.events[0].id);assert.equal(e('evAcademicItem').value,'demo-task');e('evTitle').value='继续做题';c.saveEventBtn.onclick();assert.equal(c.db.events.length,1);assert.equal(c.db.events[0].academicCourseId,'demo-course');
+});
+test('academic actual records enter weekly evidence and promote once; edits and deletion preserve independent assets',()=>{
+ const {context:c,element:e}=appHarness();c.prepareAcademicImport(academicFixture());e('academicConfirmImport').onclick();c.openAcademicRecord(null,'demo-task');e('academicRecordTitle').value='独立练习';e('academicRecordText').value='解题后关掉答案重做';e('academicRecordEvidence').value='自测结果';e('academicRecordBlockers').value='符号易错';e('academicRecordMinutes').value='45';c.saveAcademicRecord();assert.equal(c.db.academicRecords.length,1);assert.equal(c.db.academicItems[0].submissionStatus,'not_submitted');
+ const r=c.db.academicRecords[0],s=M.summarize(c.db,M.weekStart(r.date));assert.equal(s.academicRecords.length,1);assert.match(M.markdown(c.db,s),/符号易错/);c.promoteAcademicRecord(r.id);c.promoteAcademicRecord(r.id);assert.equal(c.db.assets.length,1);assert.equal(c.db.assets[0].sourceAcademicRecordId,r.id);
+ c.openAcademicRecord(r.id);e('academicRecordText').value='修改后的记录';c.saveAcademicRecord();assert.equal(c.db.academicRecords.length,1);assert.notEqual(c.db.assets[0].note,c.db.academicRecords[0].text);
+ e('academicRecords').querySelectorAll('[data-academic-delete]')[0].onclick();assert.equal(c.db.academicRecords.length,0);assert.equal(c.db.assets.length,1);
+});
+test('academic private-source request uses current data repo credentials only through existing GET helper and remains a preview',async()=>{
+ const {context:c,element:e}=appHarness();const s=academicFixture();let calls=0;c.academicSource=s;c.getSyncConfig=()=>({branch:'main'});c.isSyncConfigured=()=>true;c.githubRequest=async route=>{calls++;assert.equal(route,'contents/data/canvas-sjtu-snapshot.json?ref=main');return{content:Buffer.from(JSON.stringify(s)).toString('base64')}};c.base64ToUtf8=value=>Buffer.from(value,'base64').toString('utf8');await c.loadPrivateAcademicSnapshot();assert.equal(calls,1);assert.equal(c.db.academicCourses.length,0);assert.match(e('academicImportStatus').textContent,/尚未写入/);
 });

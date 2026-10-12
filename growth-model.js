@@ -1,8 +1,8 @@
 /* Shared, side-effect-free review and sync helpers. */
 (function(root){
 'use strict';
-const arrayKeys=['events','tasks','courses','training','body','research','stock','wisdom','projects','assets','weeklyReviews','cultureRecords','cultureProgress','japaneseRecords','japaneseBackups'];
-const optionalKeys=['wisdom','projects','assets','weeklyReviews','cultureRecords','cultureProgress','japaneseRecords','japaneseBackups'];
+const arrayKeys=['events','tasks','courses','training','body','research','stock','wisdom','projects','assets','weeklyReviews','cultureRecords','cultureProgress','japaneseRecords','japaneseBackups','academicCourses','academicItems','academicResources','academicRecords','academicImports'];
+const optionalKeys=['wisdom','projects','assets','weeklyReviews','cultureRecords','cultureProgress','japaneseRecords','japaneseBackups','academicCourses','academicItems','academicResources','academicRecords','academicImports'];
 function normalize(payload){
   const data=payload?.data||payload;
   if(!data||typeof data!=='object'||Array.isArray(data))throw Error('数据格式不正确');
@@ -50,6 +50,7 @@ function parseDate(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-
 function addDays(date,n){const d=new Date(date);d.setDate(d.getDate()+n);return d}
 function weekStart(s){const d=parseDate(s);return dateKey(addDays(d,d.getDay()===0?-6:1-d.getDay()))}
 function inRange(value,start,end){if(typeof value!=='string')return false;const date=value.length>10?new Date(value):null;if(date&&Number.isNaN(date.getTime()))return false;const key=date?dateKey(date):value;return key>=start&&key<=end}
+function academicDay(value){if(!value)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(value))return value;const n=Date.parse(value);return Number.isNaN(n)?'':new Date(n+8*3600000).toISOString().slice(0,10)}
 function summarize(db,start,today=dateKey(new Date())){
   const end=dateKey(addDays(parseDate(start),6)),observedEnd=end<today?end:today;
   const research=db.research.filter(x=>inRange(x.date,start,observedEnd)),training=db.training.filter(x=>inRange(x.date,start,observedEnd));
@@ -59,11 +60,12 @@ function summarize(db,start,today=dateKey(new Date())){
     for(const ev of db.events.filter(x=>x.category!=='stock'&&(x.repeat==='once'?x.date===key:(x.weekdays||[]).includes(date.getDay()))))schedule.push({...ev,date:key});
     for(const c of db.courses){
       const n=Math.floor((parseDate(weekStart(key))-parseDate(weekStart(c.semesterStart)))/(7*86400000))+1;
-      if(Number(c.weekday)===date.getDay()&&n>=Number(c.weekFrom)&&n<=Number(c.weekTo))schedule.push({title:c.name,date:key,start:c.start,end:c.end,category:'course'});
+      if(Number(c.weekday)===date.getDay()&&n>=Number(c.weekFrom)&&n<=Number(c.weekTo)&&(!c.weekParity||c.weekParity==='all'||c.weekParity==='even'&&n%2===0||c.weekParity==='odd'&&n%2===1)&&!(c.excludeDates||[]).includes(key))schedule.push({title:c.name,date:key,start:c.start,end:c.end,category:'course'});
     }
     if(key<=observedEnd){const state=db.done[key]||{};const tasks=db.tasks.filter(t=>t.group!=='股市行为'&&(t.freq==='daily'||(t.weekdays||[]).includes(date.getDay())));checklist.push({date:key,recorded:Object.keys(state).length>0,done:tasks.filter(t=>state[t.id]===true).map(t=>t.name),unchecked:tasks.filter(t=>state[t.id]!==true).map(t=>t.name)})}
   }
-  return{start,end,observedEnd,research,training,schedule,checklist,japaneseRecords:(db.japaneseRecords||[]).filter(x=>inRange(x.date,start,observedEnd)),cultureRecords:(db.cultureRecords||[]).filter(x=>inRange(x.date,start,observedEnd)),cultureProgress:(db.cultureProgress||[]).filter(x=>x.completed&&inRange(x.updatedAt||x.createdAt,start,observedEnd)),assets:db.assets.filter(x=>inRange(x.date,start,observedEnd)),wisdom:db.wisdom.filter(x=>inRange(x.updatedAt||x.createdAt,start,observedEnd)),body:db.body.filter(x=>inRange(x.date,start,observedEnd)),projects:db.projects};
+  const academicRecords=(db.academicRecords||[]).filter(x=>x.date>=start&&x.date<=observedEnd),academicSubmitted=(db.academicItems||[]).filter(x=>['submitted_ungraded','graded'].includes(x.submissionStatus)&&academicDay(x.submittedAt)>=start&&academicDay(x.submittedAt)<=observedEnd),academicDue=(db.academicItems||[]).filter(x=>x.kind==='assignment'&&academicDay(x.dueAt)>=start&&academicDay(x.dueAt)<=end);
+  return{start,end,observedEnd,research,training,schedule,checklist,academicRecords,academicSubmitted,academicDue,japaneseRecords:(db.japaneseRecords||[]).filter(x=>inRange(x.date,start,observedEnd)),cultureRecords:(db.cultureRecords||[]).filter(x=>inRange(x.date,start,observedEnd)),cultureProgress:(db.cultureProgress||[]).filter(x=>x.completed&&inRange(x.updatedAt||x.createdAt,start,observedEnd)),assets:db.assets.filter(x=>inRange(x.date,start,observedEnd)),wisdom:db.wisdom.filter(x=>inRange(x.updatedAt||x.createdAt,start,observedEnd)),body:db.body.filter(x=>inRange(x.date,start,observedEnd)),projects:db.projects};
 }
 function safeUrl(raw){if(!raw)return '';try{const u=new URL(raw);return['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}}
 function markdown(db,summary,notes={},options={}){
@@ -75,6 +77,9 @@ function markdown(db,summary,notes={},options={}){
   section('传统文化：本周学习与实践',s.cultureRecords||[],x=>`- ${x.date} ${x.title}（${x.type}）${x.week?' · 第'+x.week+'周':''}\n  记录：${x.text||'未填'}\n  依据与边界：${x.evidence||'未填'}\n  来源：${safeUrl(x.sourceUrl)||'无'}`);
   section('传统文化：本周确认的路线验收',s.cultureProgress||[],x=>`- ${x.id.replace('culture-week-','第')}周：本人标记已验收（不等于独立能力评测）`);
   section('金融日语：实际训练、作品与验收',s.japaneseRecords||[],x=>`- ${x.date} ${x.title}（${x.type}；阶段${x.stage}）\n  输出：${x.text||'未填'}\n  证据：${x.evidence||'未填'}\n  来源：${safeUrl(x.url)||'无'}${x.feedback?'\n  反馈：'+x.feedback:''}${x.scores?'\n  个人自评（非标准化等级）：'+JSON.stringify(x.scores):''}`);
+  section('课程：实际学习与错题',s.academicRecords||[],x=>`- ${x.date} ${x.title}（${x.type}；实际 ${x.minutes||0} 分钟）\n  输出：${x.text||'未填'}\n  证据：${x.evidence||'未填'}\n  卡点：${x.blockers||'未填'}\n  下一步：${x.next||'未填'}`);
+  section('课程：本周已有提交凭证',s.academicSubmitted||[],x=>`- ${x.title} · ${academicDay(x.submittedAt)} · ${x.submissionStatus==='graded'?'已评分':'待评分'}\n  来源：${safeUrl(x.sourceUrl)||'无'}`);
+  section('课程：本周截止（平台快照，非学习成果）',s.academicDue||[],x=>`- ${x.title} · ${academicDay(x.dueAt)} · ${['submitted_ungraded','graded'].includes(x.submissionStatus)?'平台已提交':'快照未见提交，需核对'}${x.localProgress==='done'?' · 个人标记做完':''}`);
   section('课程与日程：计划',s.schedule,x=>`- ${x.date} ${x.start}–${x.end} ${x.title}${x.note?' · '+x.note:''}`);
   section('每日清单：记录状态',s.checklist,x=>`- ${x.date}：${x.recorded?`已勾选 ${x.done.length} 项（${x.done.join('、')||'无'}）；未勾选：${x.unchecked.join('、')||'无'}`:'未记录，不能推断执行情况'}`);
   if(options.training!==false)section('训练',s.training,x=>`- ${x.date} ${x.part}：${(x.exercises||[]).map(e=>`${e.name} ${e.weight}kg × ${e.reps} × ${e.sets}`).join('；')}${x.note?'；备注：'+x.note:''}`);
