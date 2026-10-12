@@ -255,3 +255,10 @@ test('academic actual records enter weekly evidence and promote once; edits and 
 test('academic private-source request uses current data repo credentials only through existing GET helper and remains a preview',async()=>{
  const {context:c,element:e}=appHarness();const s=academicFixture();let calls=0;c.academicSource=s;c.getSyncConfig=()=>({branch:'main'});c.isSyncConfigured=()=>true;c.githubRequest=async route=>{calls++;assert.equal(route,'contents/data/canvas-sjtu-snapshot.json?ref=main');return{content:Buffer.from(JSON.stringify(s)).toString('base64')}};c.base64ToUtf8=value=>Buffer.from(value,'base64').toString('utf8');await c.loadPrivateAcademicSnapshot();assert.equal(calls,1);assert.equal(c.db.academicCourses.length,0);assert.match(e('academicImportStatus').textContent,/尚未写入/);
 });
+test('API freshness warns on partial and stale sync, and announcement markup remains inert',()=>{
+ const {context:c,element:e}=appHarness();c.prepareAcademicImport(academicFixture());e('academicConfirmImport').onclick();
+ const meta=c.db.academicImports[0];meta.syncMode='api';meta.lastSuccessAt=new Date(Date.now()-25*3600000).toISOString();meta.warningCount=1;meta.syncWarnings=['files: HTTP 403'];c.db.academicCourses[0].summary='<img src=x onerror=alert(1)>公告正文';
+ e('academicCourseFilter').value='demo-course';e('academicCourseFilter').onchange();
+ assert.match(e('academicFreshness').textContent,/API 最近成功同步/);assert.match(e('academicFreshness').textContent,/超过24小时/);assert.match(e('academicFreshness').textContent,/部分接口受限/);
+ assert.match(e('academicDetailBody').innerHTML,/公告正文/);assert.match(e('academicDetailBody').innerHTML,/&lt;img/);assert.doesNotMatch(e('academicDetailBody').innerHTML,/<img/);assert.match(e('academicDetailBody').innerHTML,/files: HTTP 403/);
+});
