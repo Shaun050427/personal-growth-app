@@ -1,10 +1,10 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-10-12T07:53:22.197076Z",
+  "generatedAt": "2026-10-13T08:18:59.188188Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "awardFilterVersion": 1,
-  "checked": 49,
+  "checked": 52,
   "count": 10,
   "competitions": [
     {
@@ -59,6 +59,23 @@
       ]
     },
     {
+      "slug": "532469",
+      "title": "“学AI，你做主”——天池平台学习赛题征集赛",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532469",
+      "deadline": "2026-10-25T15:59:59Z",
+      "endDate": "2026-10-25",
+      "signupDeadline": "2026-10-25T15:59:59Z",
+      "category": "AI大模型赛",
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "bonus: 100000",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
+    {
       "slug": "532511",
       "title": "2026 SMP第十四届全国社会媒体处理大会-大模型图网络决策挑战赛",
       "url": "https://tianchi.aliyun.com/competition/entrance/532511",
@@ -70,23 +87,6 @@
         "cash"
       ],
       "reward": "bonus: 55000",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "532460",
-      "title": "余震预测技术国际大赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532460",
-      "deadline": "2026-10-31T15:59:59Z",
-      "endDate": "2026-10-31",
-      "signupDeadline": "2026-10-31T15:59:59Z",
-      "category": "数据算法赛",
-      "awardTypes": [
-        "cash"
-      ],
-      "reward": "bonus: 30000",
       "score": 30,
       "tags": [
         "AI算法"
