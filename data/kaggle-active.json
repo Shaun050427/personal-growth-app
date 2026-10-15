@@ -1,23 +1,25 @@
 {
   "source": "Kaggle official competitions API",
-  "generatedAt": "2026-10-14T06:07:36.592902Z",
+  "generatedAt": "2026-10-15T05:53:56.681721Z",
   "timeZone": "UTC",
   "awardFilterVersion": 1,
   "checked": 22,
   "count": 9,
   "competitions": [
     {
-      "slug": "kaggriculture",
-      "title": "Kaggriculture",
-      "url": "https://www.kaggle.com/competitions/kaggriculture",
-      "deadline": "2026-10-14T23:59:00Z",
+      "slug": "name-that-llm",
+      "title": "Name That LLM",
+      "url": "https://www.kaggle.com/competitions/name-that-llm",
+      "deadline": "2027-01-14T23:59:00.817000Z",
       "category": "Featured",
       "awardTypes": [
         "cash"
       ],
       "reward": "50,000 Usd",
-      "score": 10,
-      "tags": []
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
     },
     {
       "slug": "rsna-knee-abnormality-detection",
