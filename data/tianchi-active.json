@@ -1,48 +1,12 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-10-17T06:01:14.457062Z",
+  "generatedAt": "2026-10-18T06:29:18.214448Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "awardFilterVersion": 1,
   "checked": 51,
-  "count": 12,
+  "count": 10,
   "competitions": [
-    {
-      "slug": "532499",
-      "title": "CSIG图像图形技术挑战赛-赛道一：生成式图像增强可控性挑战",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532499",
-      "deadline": "2026-10-18T15:59:59Z",
-      "endDate": "2026-10-18",
-      "signupDeadline": "2026-10-17T15:59:59Z",
-      "category": "AI大模型赛",
-      "awardTypes": [
-        "cash"
-      ],
-      "reward": "bonus: 200000",
-      "score": 68,
-      "tags": [
-        "图像生成/复原",
-        "AI算法"
-      ]
-    },
-    {
-      "slug": "532500",
-      "title": "CSIG图像图形技术挑战赛-赛道二：生成式图像增强轻量模型设计挑战",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532500",
-      "deadline": "2026-10-18T15:59:59Z",
-      "endDate": "2026-10-18",
-      "signupDeadline": "2026-10-17T15:59:59Z",
-      "category": "AI大模型赛",
-      "awardTypes": [
-        "cash"
-      ],
-      "reward": "bonus: 200000",
-      "score": 68,
-      "tags": [
-        "图像生成/复原",
-        "AI算法"
-      ]
-    },
     {
       "slug": "532496",
       "title": "欧莱雅第二届美妆科技黑客松 - 赛题2 信任守护师 - 创造者的AI卫士",
