@@ -1,11 +1,11 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-10-19T06:40:51.371075Z",
+  "generatedAt": "2026-10-20T06:27:26.891245Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "awardFilterVersion": 1,
   "checked": 49,
-  "count": 10,
+  "count": 11,
   "competitions": [
     {
       "slug": "532496",
@@ -87,6 +87,23 @@
         "cash"
       ],
       "reward": "bonus: 55000",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
+    {
+      "slug": "532460",
+      "title": "余震预测技术国际大赛",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532460",
+      "deadline": "2026-10-31T15:59:59Z",
+      "endDate": "2026-10-31",
+      "signupDeadline": "2026-10-31T15:59:59Z",
+      "category": "数据算法赛",
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "bonus: 30000",
       "score": 30,
       "tags": [
         "AI算法"
