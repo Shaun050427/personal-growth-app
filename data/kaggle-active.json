@@ -1,6 +1,6 @@
 {
   "source": "Kaggle official competitions API",
-  "generatedAt": "2026-10-20T05:59:35.563398Z",
+  "generatedAt": "2026-10-21T06:01:08.171066Z",
   "timeZone": "UTC",
   "awardFilterVersion": 1,
   "checked": 22,
@@ -95,7 +95,7 @@
       "awardTypes": [
         "cash"
       ],
-      "reward": "65,000 Usd",
+      "reward": "75,000 Usd",
       "score": 10,
       "tags": []
     },
