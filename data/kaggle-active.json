@@ -1,10 +1,10 @@
 {
   "source": "Kaggle official competitions API",
-  "generatedAt": "2026-10-21T06:01:08.171066Z",
+  "generatedAt": "2026-10-22T06:06:23.942207Z",
   "timeZone": "UTC",
   "awardFilterVersion": 1,
-  "checked": 22,
-  "count": 9,
+  "checked": 23,
+  "count": 10,
   "competitions": [
     {
       "slug": "name-that-llm",
@@ -122,6 +122,19 @@
         "cash"
       ],
       "reward": "100,000 Usd",
+      "score": 10,
+      "tags": []
+    },
+    {
+      "slug": "squares-in-squares",
+      "title": "Squares in Squares",
+      "url": "https://www.kaggle.com/competitions/squares-in-squares",
+      "deadline": "2027-07-18T23:59:00Z",
+      "category": "Playground",
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "50,000 Usd",
       "score": 10,
       "tags": []
     }
