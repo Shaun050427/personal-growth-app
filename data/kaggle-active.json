@@ -1,6 +1,6 @@
 {
   "source": "Kaggle official competitions API",
-  "generatedAt": "2026-10-22T06:06:23.942207Z",
+  "generatedAt": "2026-10-23T06:01:41.904378Z",
   "timeZone": "UTC",
   "awardFilterVersion": 1,
   "checked": 23,
@@ -22,17 +22,19 @@
       ]
     },
     {
-      "slug": "rsna-knee-abnormality-detection",
-      "title": "RSNA Knee Abnormality Detection",
-      "url": "https://www.kaggle.com/competitions/rsna-knee-abnormality-detection",
-      "deadline": "2026-10-22T23:59:00Z",
-      "category": "Research",
+      "slug": "google-verifiable-quantum-circuit-compilation",
+      "title": "Google Quantum AI - Verifiable Quantum Circuit Compilation",
+      "url": "https://www.kaggle.com/competitions/google-verifiable-quantum-circuit-compilation",
+      "deadline": "2027-01-20T23:59:00Z",
+      "category": "Featured",
       "awardTypes": [
         "cash"
       ],
-      "reward": "77,000 Usd",
-      "score": 10,
-      "tags": []
+      "reward": "150,000 Usd",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
     },
     {
       "slug": "arc-prize-2026-arc-agi-2",
