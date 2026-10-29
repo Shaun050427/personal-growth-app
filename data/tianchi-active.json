@@ -1,11 +1,11 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-10-28T07:15:52.963095Z",
+  "generatedAt": "2026-10-29T07:36:00.794468Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "awardFilterVersion": 1,
   "checked": 40,
-  "count": 4,
+  "count": 5,
   "competitions": [
     {
       "slug": "532460",
@@ -19,6 +19,23 @@
         "cash"
       ],
       "reward": "bonus: 30000",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
+    {
+      "slug": "532536",
+      "title": "2026 Qoder 高校创造力大赛",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532536",
+      "deadline": "2026-12-15T10:00:00Z",
+      "endDate": "2026-12-15",
+      "signupDeadline": "2026-11-30T10:00:00Z",
+      "category": "AI大模型赛",
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "bonus: 88500",
       "score": 30,
       "tags": [
         "AI算法"
