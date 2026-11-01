@@ -1,29 +1,12 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-10-31T07:26:10.490287Z",
+  "generatedAt": "2026-11-01T07:59:05.344342Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "awardFilterVersion": 1,
-  "checked": 40,
-  "count": 5,
+  "checked": 39,
+  "count": 4,
   "competitions": [
-    {
-      "slug": "532460",
-      "title": "余震预测技术国际大赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532460",
-      "deadline": "2026-10-31T15:59:59Z",
-      "endDate": "2026-10-31",
-      "signupDeadline": "2026-10-31T15:59:59Z",
-      "category": "数据算法赛",
-      "awardTypes": [
-        "cash"
-      ],
-      "reward": "bonus: 30000",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
     {
       "slug": "532536",
       "title": "2026 Qoder 高校创造力大赛",
