@@ -1,12 +1,29 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-11-13T08:39:15.960566Z",
+  "generatedAt": "2026-11-14T07:56:15.478927Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "awardFilterVersion": 1,
   "checked": 41,
-  "count": 4,
+  "count": 5,
   "competitions": [
+    {
+      "slug": "532514",
+      "title": "蚂蚁灵波具身大模型挑战赛",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532514",
+      "deadline": "2026-11-16T15:59:59Z",
+      "endDate": "2026-11-16",
+      "signupDeadline": "2026-11-16T15:59:59Z",
+      "category": "AI大模型赛",
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "bonus: 280000",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
     {
       "slug": "532536",
       "title": "2026 Qoder 高校创造力大赛",
