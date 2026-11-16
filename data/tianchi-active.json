@@ -1,11 +1,11 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-11-15T08:19:54.041841Z",
+  "generatedAt": "2026-11-16T08:29:27.763686Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "awardFilterVersion": 1,
-  "checked": 41,
-  "count": 5,
+  "checked": 39,
+  "count": 6,
   "competitions": [
     {
       "slug": "532514",
@@ -19,6 +19,23 @@
         "cash"
       ],
       "reward": "bonus: 280000",
+      "score": 30,
+      "tags": [
+        "AI算法"
+      ]
+    },
+    {
+      "slug": "532508",
+      "title": "2026-跨本体具身认知极限联合挑战赛",
+      "url": "https://tianchi.aliyun.com/competition/entrance/532508",
+      "deadline": "2026-11-21T15:59:59Z",
+      "endDate": "2026-11-21",
+      "signupDeadline": "2026-11-18T05:59:59Z",
+      "category": "AI大模型赛",
+      "awardTypes": [
+        "cash"
+      ],
+      "reward": "bonus: 100000",
       "score": 30,
       "tags": [
         "AI算法"
