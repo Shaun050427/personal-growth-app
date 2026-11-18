@@ -1,6 +1,6 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-11-17T09:40:56.410042Z",
+  "generatedAt": "2026-11-18T08:59:30.591785Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "awardFilterVersion": 1,
@@ -11,9 +11,9 @@
       "slug": "532508",
       "title": "2026-跨本体具身认知极限联合挑战赛",
       "url": "https://tianchi.aliyun.com/competition/entrance/532508",
-      "deadline": "2026-11-21T15:59:59Z",
-      "endDate": "2026-11-21",
-      "signupDeadline": "2026-11-18T05:59:59Z",
+      "deadline": "2026-11-30T15:59:59Z",
+      "endDate": "2026-11-30",
+      "signupDeadline": "2026-11-22T05:59:59Z",
       "category": "AI大模型赛",
       "awardTypes": [
         "cash"
