@@ -1,29 +1,12 @@
 {
   "source": "Tianchi official public competition listing",
-  "generatedAt": "2026-11-21T08:41:33.939290Z",
+  "generatedAt": "2026-11-22T08:41:18.530457Z",
   "timeZone": "Asia/Shanghai",
   "deadlineKind": "race_end_timestamp",
   "awardFilterVersion": 1,
-  "checked": 38,
-  "count": 6,
+  "checked": 37,
+  "count": 5,
   "competitions": [
-    {
-      "slug": "532508",
-      "title": "2026-跨本体具身认知极限联合挑战赛",
-      "url": "https://tianchi.aliyun.com/competition/entrance/532508",
-      "deadline": "2026-11-30T15:59:59Z",
-      "endDate": "2026-11-30",
-      "signupDeadline": "2026-11-22T05:59:59Z",
-      "category": "AI大模型赛",
-      "awardTypes": [
-        "cash"
-      ],
-      "reward": "bonus: 100000",
-      "score": 30,
-      "tags": [
-        "AI算法"
-      ]
-    },
     {
       "slug": "532536",
       "title": "2026 Qoder 高校创造力大赛",
